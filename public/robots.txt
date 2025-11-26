@@ -1,0 +1,3 @@
+User-Agent: *
+Disallow:
+Sitemap: https://www.test.in/public/sitemap.xml

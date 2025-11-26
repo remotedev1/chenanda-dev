@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: var(--font-mundial);
+}
+
+html,
+body,
+:root {
+  width: 100%;
+  height: 100%;
+}
+
+@layer base {
+  :root {
+    --background: #f2ece2;
+    --foreground: #0f172a;
+
+    --border: #0e0d33;
+    --input: #e2e8f0;
+
+    --primary: #f2ece2;
+    --primary-foreground: #f2ece2;
+
+    --secondary: #c78b0f;
+    --secondary-foreground: #c78b0f;
+
+    --ring: #94a3b8;
+
+    --radius: 0.5rem;
+  }
+}
+
+.hide-scroll-bar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.team-logo-shadow {
+  box-shadow: 0 4px 4px 0 rgba(48, 48, 48, 0.15), 0 0 0 10px #f3f5f9;
+}
+
+/* ///swiper navigation start */
+
+@media (max-width: 768px) {
+  .swiper-button-next:after,
+  .swiper-button-prev:after {
+    font-size: 30px !important;
+  }
+}
+
+/* ///swiper navigation end */
+@media (max-width: 500px) {
+  .scorecard-custom {
+    width: 280px !important;
+    margin: auto;
+  }
+}
+
+/* //spinner-start */
+
+.spinner {
+  animation: rotate 2s linear infinite;
+  z-index: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -25px 0 0 -25px;
+  width: 50px;
+  height: 50px;
+}
+
+.spinner .path {
+  fill: none;
+  stroke: hsl(210, 70%, 75%);
+  stroke-width: 6;
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* //spinner-end */
+
+/* //nprogress customizations   */
+#nprogress .bar {
+  background: #16a34a !important;
+  height: 3px !important;
+  z-index: 9999 !important;
+}
+
+/* //marquee effect */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* primary : #aa770f
+secondary: #c78b0f
+background : #f2ece2
+border: #0e0d33 */
