@@ -6,6 +6,10 @@
   font-family: var(--font-mundial);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body,
 :root {
@@ -127,3 +131,215 @@ body,
 secondary: #c78b0f
 background : #f2ece2
 border: #0e0d33 */
+
+/* football field background */
+/* Football Field Background - Add this to your globals.css or component styles */
+
+.football-field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    /* Center circle */ radial-gradient(
+      circle at center,
+      transparent 48px,
+      white 48px,
+      white 50px,
+      transparent 50px
+    ),
+    /* Vertical center line */
+      linear-gradient(
+        90deg,
+        transparent calc(50% - 2px),
+        white calc(50% - 2px),
+        white calc(50% + 2px),
+        transparent calc(50% + 2px)
+      ),
+    /* Horizontal grid lines */
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 45px,
+        rgba(255, 255, 255, 0.15) 45px,
+        rgba(255, 255, 255, 0.15) 47px
+      ),
+    /* Vertical grid lines */
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 45px,
+        rgba(255, 255, 255, 0.15) 45px,
+        rgba(255, 255, 255, 0.15) 47px
+      ),
+    /* Base gradient for depth */
+      linear-gradient(135deg, #1a5f3f 0%, #2d8659 50%, #1a5f3f 100%);
+  background-size: 100% 100%;
+  opacity: 0.15;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Alternative version with more pronounced lines */
+.football-field-bold {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    /* Center circle */ radial-gradient(
+      circle at center,
+      transparent 50px,
+      white 50px,
+      white 52px,
+      transparent 52px
+    ),
+    /* Vertical center line - bolder */
+      linear-gradient(
+        90deg,
+        transparent calc(50% - 3px),
+        white calc(50% - 3px),
+        white calc(50% + 3px),
+        transparent calc(50% + 3px)
+      ),
+    /* Horizontal grid lines - more visible */
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 40px,
+        rgba(255, 255, 255, 0.25) 40px,
+        rgba(255, 255, 255, 0.25) 42px
+      ),
+    /* Vertical grid lines - more visible */
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 40px,
+        rgba(255, 255, 255, 0.25) 40px,
+        rgba(255, 255, 255, 0.25) 42px
+      ),
+    /* Green turf texture with depth */
+      linear-gradient(
+        135deg,
+        #1a5f3f 0%,
+        #34a169 25%,
+        #2d8659 50%,
+        #34a169 75%,
+        #1a5f3f 100%
+      );
+  background-size: 100% 100%;
+  opacity: 0.2;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Subtle animated version */
+.football-field-animated {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+      circle at center,
+      transparent 48px,
+      rgba(255, 255, 255, 0.8) 48px,
+      rgba(255, 255, 255, 0.8) 50px,
+      transparent 50px
+    ),
+    linear-gradient(
+      90deg,
+      transparent calc(50% - 2px),
+      rgba(255, 255, 255, 0.8) calc(50% - 2px),
+      rgba(255, 255, 255, 0.8) calc(50% + 2px),
+      transparent calc(50% + 2px)
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 45px,
+      rgba(255, 255, 255, 0.15) 45px,
+      rgba(255, 255, 255, 0.15) 47px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 45px,
+      rgba(255, 255, 255, 0.15) 45px,
+      rgba(255, 255, 255, 0.15) 47px
+    ),
+    linear-gradient(135deg, #1a5f3f 0%, #2d8659 50%, #1a5f3f 100%);
+  background-size: 100% 100%;
+  opacity: 0.15;
+  pointer-events: none;
+  border-radius: inherit;
+  animation: fieldPulse 3s ease-in-out infinite;
+}
+
+@keyframes fieldPulse {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Realistic Football Field with all markings */
+.football-field-contrast {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+  background: 
+  
+    /* Center circle */ radial-gradient(
+      circle at 50% 50%,
+      transparent 68px,
+      rgba(255, 255, 255, 0.85) 68px,
+      rgba(255, 255, 255, 0.85) 70px,
+      transparent 70px
+    ),
+    /* Center spot */
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(255, 255, 255, 0.9) 5px,
+        transparent 5px
+      ),
+    /* Your existing lines */
+      linear-gradient(
+        to bottom,
+        /* Line at 20% */ transparent calc(20% - 1px),
+        rgba(255, 255, 255, 0.8) calc(20% - 1px),
+        rgba(255, 255, 255, 0.8) calc(20% + 1px),
+        transparent calc(20% + 1px),
+        /* Line at 50% */ transparent calc(50% - 1px),
+        rgba(255, 255, 255, 0.8) calc(50% - 1px),
+        rgba(255, 255, 255, 0.8) calc(50% + 1px),
+        transparent calc(50% + 1px),
+        /* Line at 80% */ transparent calc(80% - 1px),
+        rgba(255, 255, 255, 0.8) calc(80% - 1px),
+        rgba(255, 255, 255, 0.8) calc(80% + 1px),
+        transparent calc(80% + 1px)
+      ),
+    /* Realistic grass texture with stripes */
+      repeating-linear-gradient(
+        90deg,
+        #237a4a 0px,
+        #237a4a 40px,
+        #2d8f5a 40px,
+        #2d8f5a 80px
+      ),
+    /* Grass depth gradient */
+      radial-gradient(ellipse at center, #2d8f5a 0%, #1e6b3f 100%);
+
+  background-size: 100% 100%;
+  opacity: 0.25;
+}

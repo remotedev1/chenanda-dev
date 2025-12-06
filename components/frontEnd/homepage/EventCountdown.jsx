@@ -17,7 +17,7 @@ const AnimatedNumber = React.memo(({ value }) => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -20, opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="absolute text-5xl font-black font-mono text-yellow-400 drop-shadow-lg"
+          className="absolute text-5xl font-black font-mono text-yellow-400 drop-shadow-lg will-change-transform"
         >
           {formattedValue}
         </motion.span>
@@ -121,122 +121,6 @@ const EventCountdown = () => {
           <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-blue-500 rounded-full blur-[120px] opacity-15" />
         </div>
 
-        {/* Hockey Sticks - Optimized animations */}
-        <motion.svg
-          initial={{ x: -300, rotate: -45, opacity: 0 }}
-          animate={{ x: 0, rotate: -30, opacity: 0.25 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute left-0 top-1/4 w-[400px] h-[400px] text-white pointer-events-none"
-          viewBox="0 0 100 100"
-        >
-          <path
-            d="M20,80 Q25,20 40,10 L45,15 Q32,25 28,80 Z"
-            fill="currentColor"
-            stroke="white"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          <rect
-            x="38"
-            y="8"
-            width="8"
-            height="15"
-            rx="4"
-            fill="currentColor"
-            opacity="0.8"
-          />
-        </motion.svg>
-
-        <motion.svg
-          initial={{ x: 300, rotate: 45, opacity: 0 }}
-          animate={{ x: 0, rotate: 30, opacity: 0.25 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute right-0 top-1/4 w-[400px] h-[400px] text-white pointer-events-none"
-          viewBox="0 0 100 100"
-        >
-          <path
-            d="M80,80 Q75,20 60,10 L55,15 Q68,25 72,80 Z"
-            fill="currentColor"
-            stroke="white"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          <rect
-            x="54"
-            y="8"
-            width="8"
-            height="15"
-            rx="4"
-            fill="currentColor"
-            opacity="0.8"
-          />
-        </motion.svg>
-
-        {/* Animated Hockey Balls */}
-        <motion.div
-          animate={{
-            y: [-30, 30, -30],
-            x: [0, 120, 0],
-            rotate: [0, 360, 720],
-          }}
-          transition={{
-            duration: 5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute top-20 right-1/3 pointer-events-none"
-        >
-          <svg className="w-16 h-16" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" fill="#FCD34D" />
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              fill="none"
-              stroke="white"
-              strokeWidth="3"
-            />
-            <path
-              d="M30,50 Q50,30 70,50 Q50,70 30,50"
-              fill="white"
-              opacity="0.4"
-            />
-            <circle cx="35" cy="35" r="8" fill="white" opacity="0.6" />
-          </svg>
-        </motion.div>
-
-        <motion.div
-          animate={{
-            y: [40, -40, 40],
-            x: [0, -100, 0],
-            rotate: [0, -360, -720],
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-          className="absolute bottom-32 left-1/4 pointer-events-none"
-        >
-          <svg className="w-12 h-12" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" fill="#FBBF24" />
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              fill="none"
-              stroke="white"
-              strokeWidth="3"
-            />
-            <path
-              d="M30,50 Q50,30 70,50 Q50,70 30,50"
-              fill="white"
-              opacity="0.4"
-            />
-          </svg>
-        </motion.div>
-
         {/* Main Content */}
         <div className="relative z-10 text-center px-4 max-w-5xl w-full">
           <motion.div
@@ -246,9 +130,9 @@ const EventCountdown = () => {
           >
             {/* Championship Badge */}
             <motion.div
-              className="inline-block mb-6"
+              className="inline-block mb-6 will-change-transform"
               animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur-xl opacity-60" />
@@ -271,19 +155,10 @@ const EventCountdown = () => {
                   CHENANDA
                 </span>
                 <span className="relative bg-gradient-to-r from-white via-yellow-200 to-yellow-400 bg-clip-text text-transparent drop-shadow-2xl">
-                  CHENANDA 
+                  CHENANDA
                 </span>
               </span>
             </h1>
-
-            {/* <motion.div
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <h2 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-blue-400 mb-8 tracking-wide">
-                ELITE TOURNAMENT SERIES
-              </h2>
-            </motion.div> */}
           </motion.div>
 
           {/* Event Info */}
@@ -300,7 +175,6 @@ const EventCountdown = () => {
                   Tournament Dates
                 </div>
                 <div className="text-xl font-black text-white">
-                  {" "}
                   April 5 - May 2, 2026
                 </div>
               </div>
@@ -328,7 +202,8 @@ const EventCountdown = () => {
             <motion.button
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              className="px-10 py-5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-black text-xl rounded-2xl shadow-2xl"
+              onClick={() => (window.location.href = "#payment")}
+              className="px-10 py-5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-black text-xl rounded-2xl shadow-2xl will-change-transform"
             >
               <span className="flex items-center justify-center gap-2">
                 <Flame className="w-6 h-6" />
@@ -339,7 +214,8 @@ const EventCountdown = () => {
             <motion.button
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              className="px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xl rounded-2xl shadow-2xl border-2 border-cyan-400"
+              onClick={() => (window.location.href = "#live-scores")}
+              className="px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xl rounded-2xl shadow-2xl border-2 border-cyan-400 will-change-transform"
             >
               <span className="flex items-center justify-center gap-2">
                 <Zap className="w-6 h-6" />

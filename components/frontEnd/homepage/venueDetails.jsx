@@ -11,66 +11,6 @@ import {
   Zap,
 } from "lucide-react";
 
-const HockeyFieldSVG = () => (
-  <svg viewBox="0 0 400 300" className="w-full h-full">
-    {/* Field Border */}
-    <rect
-      x="20"
-      y="20"
-      width="360"
-      height="260"
-      fill="none"
-      stroke="white"
-      strokeWidth="3"
-      opacity="0.3"
-    />
-
-    {/* Center Line */}
-    <line
-      x1="200"
-      y1="20"
-      x2="200"
-      y2="280"
-      stroke="white"
-      strokeWidth="2"
-      opacity="0.3"
-    />
-
-    {/* Center Circle */}
-    <circle
-      cx="200"
-      cy="150"
-      r="40"
-      fill="none"
-      stroke="white"
-      strokeWidth="2"
-      opacity="0.3"
-    />
-
-    {/* Left D */}
-    <path
-      d="M 20 100 Q 80 100, 80 150 T 80 200 L 20 200"
-      fill="none"
-      stroke="white"
-      strokeWidth="2"
-      opacity="0.4"
-    />
-
-    {/* Right D */}
-    <path
-      d="M 380 100 Q 320 100, 320 150 T 320 200 L 380 200"
-      fill="none"
-      stroke="white"
-      strokeWidth="2"
-      opacity="0.4"
-    />
-
-    {/* Goals */}
-    <rect x="10" y="130" width="10" height="40" fill="white" opacity="0.4" />
-    <rect x="380" y="130" width="10" height="40" fill="white" opacity="0.4" />
-  </svg>
-);
-
 const VenueCard = ({ arena, index }) => {
   const arenaData = {
     "Arena A": {
@@ -156,77 +96,20 @@ const VenueCard = ({ arena, index }) => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.2, duration: 0.6 }}
-      whileHover={{ scale: 1.02, y: -8 }}
-      className={`relative overflow-hidden rounded-2xl border-2 ${data.borderColor}`}
+      className={`relative overflow-hidden bg-white/60 rounded-2xl  ${data.borderColor}`}
       style={{
-        background:
-          "linear-gradient(135deg, #0a1f1a 0%, #0d2b26 50%, #0a1f1a 100%)",
-        boxShadow: `0 10px 40px ${data.glowColor}`,
+        boxShadow: `0 20px 40px ${data.glowColor}`,
       }}
     >
-      {/* Turf Pattern Background */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(90deg, transparent, transparent 30px, #10b981 30px, #10b981 32px)",
-          }}
-        />
-      </div>
-
-      {/* Hockey Field Illustration */}
-      <div
-        className={`relative h-56 bg-gradient-to-br ${data.gradient} flex items-center justify-center overflow-hidden`}
-      >
-        {/* Animated Glow */}
-        <motion.div
-          className="absolute inset-0"
-          animate={{ opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 3, repeat: Infinity }}
-          style={{
-            background: `radial-gradient(circle at 50% 50%, ${data.glowColor} 0%, transparent 70%)`,
-          }}
-        />
-
-        {/* Field SVG */}
-        <div className="w-full h-full p-6 opacity-60">
-          <HockeyFieldSVG />
-        </div>
-
-        {/* Arena Label Badge */}
-        <motion.div
-          className="absolute top-4 right-4 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/20"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <span className="text-white font-bold text-sm uppercase tracking-wider">
-            {arena}
-          </span>
-        </motion.div>
-
-        {/* Pulsing Location Pin */}
-        <motion.div
-          className="absolute bottom-4 left-4"
-          animate={{ y: [0, -8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <MapPin
-            className="w-10 h-10 text-yellow-400 drop-shadow-lg"
-            fill="currentColor"
-          />
-        </motion.div>
-      </div>
-
       {/* Content Section */}
       <div className="relative p-8">
         {/* Live Match Notification */}
-        {data.currentMatch && (
+        {data.currentMatch ? (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.2 + 0.3 }}
-            className="mb-6 p-4 rounded-xl bg-gradient-to-r from-red-600/20 to-orange-600/20 border-2 border-red-500/50 relative overflow-hidden"
+            className="mb-6 p-4 cursor-pointer rounded-xl bg-gradient-to-r from-red-600/20 to-orange-600/20 border-2 border-red-500/50 relative overflow-hidden"
             style={{
               boxShadow: "0 0 20px rgba(239, 68, 68, 0.3)",
             }}
@@ -255,23 +138,19 @@ const VenueCard = ({ arena, index }) => {
                     Live Now
                   </span>
                 </motion.div>
-                <div className="flex items-center gap-1 text-xs text-gray-400">
-                  <Clock className="w-3 h-3" />
-                  <span>{data.currentMatch.time}</span>
-                </div>
               </div>
 
               {/* Match Score */}
               <div className="flex items-center justify-between">
                 <div className="flex-1 text-right">
-                  <div className="text-white font-bold text-lg">
+                  <div className="text-slate-900 font-bold text-lg">
                     {data.currentMatch.team1}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 mx-4">
                   <motion.div
-                    className="text-2xl font-black text-cyan-400"
+                    className="text-2xl font-black text-blue-800"
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
@@ -279,7 +158,7 @@ const VenueCard = ({ arena, index }) => {
                   </motion.div>
                   <span className="text-gray-600 font-bold">-</span>
                   <motion.div
-                    className="text-2xl font-black text-cyan-400"
+                    className="text-2xl font-black text-blue-800"
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
                   >
@@ -288,44 +167,48 @@ const VenueCard = ({ arena, index }) => {
                 </div>
 
                 <div className="flex-1">
-                  <div className="text-white font-bold text-lg">
+                  <div className="text-slate-900 font-bold text-lg">
                     {data.currentMatch.team2}
                   </div>
                 </div>
               </div>
             </div>
           </motion.div>
+        ) : (
+          <div className="mb-6 p-4 rounded-xl bg-slate-200 border-2 border-gray-700/50">
+            <span className="text-gray-600 font-medium">
+              No live match currently.
+            </span>
+          </div>
         )}
 
         {/* Arena Name */}
-        <div className="mb-6">
-          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">
+        <div className="flex items-center justify-around   gap-4">
+          <h3 className="text-4xl font-black text-black mb-3 tracking-tight">
             {arena}
           </h3>
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-slate-600">
             <MapPin className="w-5 h-5" />
             <span className="text-sm">{data.location}</span>
           </div>
+          {/* Action Button */}
+          <motion.button
+            className="w-16 py-4 rounded-xl bg-green-600  font-bold text-lg uppercase tracking-wider relative overflow-hidden group"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {/* Button Glow Effect */}
+            <motion.div
+              className="absolute inset-0 bg-green-400 opacity-0 group-hover:opacity-20 transition-opacity"
+              animate={{ x: [-200, 200] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              <Navigation className="w-5 h-5" />
+            </span>
+          </motion.button>
         </div>
-
-        {/* Action Button */}
-        <motion.button
-          className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-green-600 text-white font-bold text-lg uppercase tracking-wider relative overflow-hidden group"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          {/* Button Glow Effect */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-green-400 opacity-0 group-hover:opacity-20 transition-opacity"
-            animate={{ x: [-200, 200] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
-
-          <span className="relative z-10 flex items-center justify-center gap-2">
-            <Navigation className="w-5 h-5" />
-            Get Directions
-          </span>
-        </motion.button>
       </div>
 
       {/* Bottom Accent Line */}
@@ -338,11 +221,7 @@ const VenueCard = ({ arena, index }) => {
 
 export default function VenueDetails() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-green-950 py-20 px-4 md:px-8">
-      {/* Background Elements */}
-      <div className="fixed top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-0 left-0 w-96 h-96 bg-green-500/5 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen py-20 px-4 md:px-8 bg-slate-300">
       <div className="container mx-auto max-w-7xl relative">
         {/* Section Header */}
         <motion.div
@@ -351,19 +230,12 @@ export default function VenueDetails() {
           className="mb-16"
         >
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6">
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity }}
-            >
-              <Zap className="w-12 h-12 text-yellow-400" fill="currentColor" />
-            </motion.div>
-
             <div className="flex-1">
               <div className="flex items-center gap-4 mb-2">
-                <MapPin className="w-8 h-8 text-cyan-400" />
-                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+                <MapPin className="w-8 h-8 text-secondary" />
+                <h2 className="text-4xl md:text-6xl font-black text-black tracking-tight">
                   Venue{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-green-400">
+                  <span className="text-secondary bg-clip-text ">
                     Information
                   </span>
                 </h2>
@@ -372,7 +244,7 @@ export default function VenueDetails() {
 
             {/* Decorative Line */}
             <motion.div
-              className="hidden md:block flex-1 h-1 bg-gradient-to-r from-cyan-500/50 via-green-500/50 to-transparent rounded-full"
+              className="hidden md:block flex-1 h-1 bg-gradient-to-r from-orange-300 via-orange-600/20 to-transparent rounded-full"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
@@ -395,10 +267,10 @@ export default function VenueDetails() {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-900/50 backdrop-blur-sm border border-gray-800"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600"
               >
                 <item.icon className={`w-5 h-5 ${item.color}`} />
-                <span className="text-gray-300 text-sm font-medium">
+                <span className="text-white text-sm font-medium">
                   {item.text}
                 </span>
               </div>
@@ -420,10 +292,10 @@ export default function VenueDetails() {
           transition={{ delay: 0.8 }}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gray-900/50 backdrop-blur-sm border border-gray-800">
-            <Clock className="w-5 h-5 text-green-400" />
-            <span className="text-gray-400">
-              All venues open daily from 6:00 AM to 11:00 PM
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full ">
+            <Clock className="w-5 h-5 text-green-900" />
+            <span className="text-slate-800">
+              All venues open daily from 6:00 AM to 5:00 PM
             </span>
           </div>
         </motion.div>

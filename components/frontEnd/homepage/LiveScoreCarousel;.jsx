@@ -211,7 +211,7 @@ const ScoreCard = React.memo(
           opacity: isActive ? 1 : 0.7,
           scale: isActive ? 1 : 0.95,
         }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.3 }}
         onHoverStart={handleHoverStart}
         onHoverEnd={handleHoverEnd}
       >
@@ -239,15 +239,7 @@ const ScoreCard = React.memo(
           transition={{ duration: 0.3 }}
         >
           {/* Static Field Lines Background */}
-          <div className="absolute inset-0 opacity-5">
-            <div
-              className="w-full h-full"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(0deg, transparent, transparent 30px, white 30px, white 32px), repeating-linear-gradient(90deg, transparent, transparent 30px, white 30px, white 32px)",
-              }}
-            />
-          </div>
+          <div className="football-field-contrast w-full h-[400px]"></div>
 
           {/* Live Indicator & Time */}
           <div className="relative flex items-center mb-8">
@@ -380,21 +372,6 @@ const ScoreCard = React.memo(
               </div>
             </div>
           </div>
-
-          {/* Static Decoration */}
-          <motion.div
-            className="absolute -top-4 -right-4 opacity-1"
-            animate={{
-              rotate: 360,
-              y: [0, -10, 0],
-            }}
-            transition={{
-              rotate: { duration: 6, repeat: Infinity, ease: "linear" },
-              y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-            }}
-          >
-            <HockeyBall className="w-16 h-16" shouldAnimate={true} />
-          </motion.div>
         </motion.div>
       </motion.div>
     );
@@ -592,21 +569,7 @@ const LiveScoreCarousel = () => {
   }, []);
 
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-black via-gray-950 to-black overflow-hidden">
-      {/* Static Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-r from-red-900/10 via-transparent to-red-900/10" />
-
-      {/* Static Field Lines */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(16, 185, 129, 0.3) 100px, rgba(16, 185, 129, 0.3) 102px)",
-          }}
-          className="w-full h-full"
-        />
-      </div>
-
+    <section id="live-scores" className="relative py-24 px-4 bg-slate-300 overflow-hidden scroll-mt-24">
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
@@ -641,7 +604,7 @@ const LiveScoreCarousel = () => {
             </motion.div>
           </div>
 
-          <p className="text-gray-400 text-xl font-semibold">
+          <p className="text-gray-800 text-xl font-semibold">
             {isPaused
               ? "Paused - Hover to explore"
               : "Catch all the action as it happens"}

@@ -57,12 +57,12 @@ const SportsFooter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex flex-col">
+    <div className="min-h-screen bg-indigo-700 flex flex-col pt-5">
       {/* Demo Content */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center text-white">
-          <h1 className="text-6xl font-bold mb-4">SPORTS ZONE</h1>
-          <p className="text-2xl mb-8">Your Ultimate Sports Destination</p>
+          <h1 className="text-6xl font-bold mb-4">(advertisement)</h1>
+          <p className="text-2xl mb-8">adv description</p>
           <div className="text-8xl">⚡🏆⚡</div>
         </div>
       </div>

@@ -150,26 +150,20 @@ const TopPlayerCard = ({ player, rank }) => {
       whileHover={{ scale: 1.03, x: 10 }}
       className={`relative overflow-hidden rounded-xl border-2 ${
         rank === 0
-          ? "border-yellow-400"
+          ? "bg-red-400/30 border-red-400"
           : rank === 1
-          ? "border-gray-400"
+          ? "bg-gray-400/30 border-gray-400"
           : rank === 2
-          ? "border-orange-600"
-          : "border-green-600"
+          ? "bg-orange-400/30 border-orange-400"
+          : "bg-green-400/30 border-green-400"
       }`}
-      style={{
-        background:
-          rank === 0
-            ? "linear-gradient(135deg, #1a1000 0%, #332200 50%, #1a1000 100%)"
-            : "linear-gradient(135deg, #0f2e1a 0%, #1a4d2e 100%)",
-      }}
     >
       {/* Rank Badge */}
       <div className="absolute top-0 left-0 w-16 h-16">
         <div
           className={`absolute top-2 left-2 w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
             rank === 0
-              ? "bg-yellow-500/20"
+              ? "bg-red-500/20"
               : rank === 1
               ? "bg-gray-500/20"
               : rank === 2
@@ -181,17 +175,6 @@ const TopPlayerCard = ({ player, rank }) => {
         </div>
       </div>
 
-      {/* Turf Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(90deg, transparent, transparent 20px, #10b981 20px, #10b981 22px)",
-          }}
-        />
-      </div>
-
       <div className="relative p-6 pl-20">
         <div className="flex items-center justify-between">
           {/* Player Info */}
@@ -199,7 +182,7 @@ const TopPlayerCard = ({ player, rank }) => {
             <div
               className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold ${
                 rank === 0
-                  ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-black"
+                  ? "bg-gradient-to-br from-red-400 to-orange-500 text-black"
                   : rank === 1
                   ? "bg-gradient-to-br from-gray-300 to-gray-500 text-black"
                   : rank === 2
@@ -210,10 +193,10 @@ const TopPlayerCard = ({ player, rank }) => {
               {player.avatar}
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white mb-1">
+              <h3 className="text-xl font-bold text-black mb-1">
                 {player.name}
               </h3>
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-800">
                 <Users className="w-4 h-4" />
                 <span>{player.team}</span>
               </div>
@@ -224,7 +207,13 @@ const TopPlayerCard = ({ player, rank }) => {
           <div className="text-right">
             <motion.div
               className={`text-4xl font-black ${
-                rank === 0 ? "text-yellow-400" : "text-cyan-400"
+                rank === 0
+                  ? "text-red-500"
+                  : rank === 1
+                  ? "text-gray-500"
+                  : rank === 2
+                  ? "text-orange-500"
+                  : "text-green-500"
               }`}
               animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
@@ -245,7 +234,7 @@ const TopPlayerCard = ({ player, rank }) => {
             transition={{ duration: 1, delay: rank * 0.1 }}
             className={`h-full ${
               rank === 0
-                ? "bg-gradient-to-r from-yellow-500 to-orange-500"
+                ? "bg-gradient-to-r from-red-500 to-orange-500"
                 : rank === 1
                 ? "bg-gradient-to-r from-gray-400 to-gray-600"
                 : rank === 2
@@ -276,132 +265,132 @@ const TopPlayerCard = ({ player, rank }) => {
   );
 };
 
-const TopTeamCard = ({ team, rank }) => {
-  const medals = ["🥇", "🥈", "🥉", "🏅"];
+// const TopTeamCard = ({ team, rank }) => {
+//   const medals = ["🥇", "🥈", "🥉", "🏅"];
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: rank * 0.1 }}
-      whileHover={{ scale: 1.03, y: -5 }}
-      className={`relative overflow-hidden rounded-xl border-2 ${
-        rank === 0
-          ? "border-yellow-400 shadow-lg shadow-yellow-500/30"
-          : rank === 1
-          ? "border-gray-400 shadow-lg shadow-gray-500/30"
-          : "border-green-600"
-      }`}
-      style={{
-        background: `linear-gradient(135deg, #0a1f1a 0%, #0d2b26 50%, #0a1f1a 100%)`,
-      }}
-    >
-      {/* Rank Number */}
-      <div className="absolute top-4 right-4 text-6xl font-black text-white/5">
-        #{rank + 1}
-      </div>
+//   return (
+//     <motion.div
+//       initial={{ opacity: 0, y: 20 }}
+//       animate={{ opacity: 1, y: 0 }}
+//       transition={{ delay: rank * 0.1 }}
+//       whileHover={{ scale: 1.03, y: -5 }}
+//       className={`relative overflow-hidden rounded-xl border-2 ${
+//         rank === 0
+//           ? "border-red-400 shadow-lg shadow-red-500/30"
+//           : rank === 1
+//           ? "border-gray-400 shadow-lg shadow-gray-500/30"
+//           : "border-green-600"
+//       }`}
+//       style={{
+//         background: `linear-gradient(135deg, #0a1f1a 0%, #0d2b26 50%, #0a1f1a 100%)`,
+//       }}
+//     >
+//       {/* Rank Number */}
+//       <div className="absolute top-4 right-4 text-6xl font-black text-white/5">
+//         #{rank + 1}
+//       </div>
 
-      {/* Turf Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(90deg, transparent, transparent 25px, #10b981 25px, #10b981 27px)",
-          }}
-        />
-      </div>
+//       {/* Turf Pattern */}
+//       <div className="absolute inset-0 opacity-5">
+//         <div
+//           className="w-full h-full"
+//           style={{
+//             backgroundImage:
+//               "repeating-linear-gradient(90deg, transparent, transparent 25px, #10b981 25px, #10b981 27px)",
+//           }}
+//         />
+//       </div>
 
-      <div className="relative p-6">
-        {/* Medal Badge */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="text-4xl">{medals[rank]}</div>
-          <div
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              rank === 0
-                ? "bg-yellow-500/20 text-yellow-400"
-                : rank === 1
-                ? "bg-gray-500/20 text-gray-400"
-                : rank === 2
-                ? "bg-orange-500/20 text-orange-400"
-                : "bg-green-500/20 text-green-400"
-            }`}
-          >
-            RANK {rank + 1}
-          </div>
-        </div>
+//       <div className="relative p-6">
+//         {/* Medal Badge */}
+//         <div className="flex items-start justify-between mb-4">
+//           <div className="text-4xl">{medals[rank]}</div>
+//           <div
+//             className={`px-3 py-1 rounded-full text-xs font-bold ${
+//               rank === 0
+//                 ? "bg-red-500/20 text-red-400"
+//                 : rank === 1
+//                 ? "bg-gray-500/20 text-gray-400"
+//                 : rank === 2
+//                 ? "bg-orange-500/20 text-orange-400"
+//                 : "bg-green-500/20 text-green-400"
+//             }`}
+//           >
+//             RANK {rank + 1}
+//           </div>
+//         </div>
 
-        {/* Team Name */}
-        <div className="mb-6">
-          <h3
-            className={`text-3xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r ${team.color}`}
-          >
-            {team.name}
-          </h3>
-          <div className="flex items-center gap-2 text-gray-400">
-            <Trophy className="w-4 h-4" />
-            <span className="text-sm">Championship Contender</span>
-          </div>
-        </div>
+//         {/* Team Name */}
+//         <div className="mb-6">
+//           <h3
+//             className={`text-3xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r ${team.color}`}
+//           >
+//             {team.name}
+//           </h3>
+//           <div className="flex items-center gap-2 text-gray-400">
+//             <Trophy className="w-4 h-4" />
+//             <span className="text-sm">Championship Contender</span>
+//           </div>
+//         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="text-center">
-            <motion.div
-              className="text-3xl font-black text-green-400"
-              animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              {team.wins}
-            </motion.div>
-            <div className="text-xs text-gray-500 mt-1">WINS</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-black text-red-400">
-              {team.losses}
-            </div>
-            <div className="text-xs text-gray-500 mt-1">LOSSES</div>
-          </div>
-          <div className="text-center">
-            <motion.div
-              className={`text-3xl font-black ${
-                rank === 0 ? "text-yellow-400" : "text-cyan-400"
-              }`}
-              animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-            >
-              {team.points}
-            </motion.div>
-            <div className="text-xs text-gray-500 mt-1">POINTS</div>
-          </div>
-        </div>
+//         {/* Stats Grid */}
+//         <div className="grid grid-cols-3 gap-4">
+//           <div className="text-center">
+//             <motion.div
+//               className="text-3xl font-black text-green-400"
+//               animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
+//               transition={{ duration: 2, repeat: Infinity }}
+//             >
+//               {team.wins}
+//             </motion.div>
+//             <div className="text-xs text-gray-500 mt-1">WINS</div>
+//           </div>
+//           <div className="text-center">
+//             <div className="text-3xl font-black text-red-400">
+//               {team.losses}
+//             </div>
+//             <div className="text-xs text-gray-500 mt-1">LOSSES</div>
+//           </div>
+//           <div className="text-center">
+//             <motion.div
+//               className={`text-3xl font-black ${
+//                 rank === 0 ? "text-red-400" : "text-cyan-400"
+//               }`}
+//               animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
+//               transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+//             >
+//               {team.points}
+//             </motion.div>
+//             <div className="text-xs text-gray-500 mt-1">POINTS</div>
+//           </div>
+//         </div>
 
-        {/* Win Rate Bar */}
-        <div className="mt-4">
-          <div className="flex justify-between text-xs text-gray-500 mb-2">
-            <span>Win Rate</span>
-            <span>
-              {Math.round((team.wins / (team.wins + team.losses)) * 100)}%
-            </span>
-          </div>
-          <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{
-                width: `${(team.wins / (team.wins + team.losses)) * 100}%`,
-              }}
-              transition={{ duration: 1, delay: rank * 0.1 }}
-              className={`h-full bg-gradient-to-r ${team.color}`}
-            />
-          </div>
-        </div>
-      </div>
+//         {/* Win Rate Bar */}
+//         <div className="mt-4">
+//           <div className="flex justify-between text-xs text-gray-500 mb-2">
+//             <span>Win Rate</span>
+//             <span>
+//               {Math.round((team.wins / (team.wins + team.losses)) * 100)}%
+//             </span>
+//           </div>
+//           <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+//             <motion.div
+//               initial={{ width: 0 }}
+//               animate={{
+//                 width: `${(team.wins / (team.wins + team.losses)) * 100}%`,
+//               }}
+//               transition={{ duration: 1, delay: rank * 0.1 }}
+//               className={`h-full bg-gradient-to-r ${team.color}`}
+//             />
+//           </div>
+//         </div>
+//       </div>
 
-      {/* Bottom Accent */}
-      <div className={`h-1 bg-gradient-to-r ${team.color}`} />
-    </motion.div>
-  );
-};
+//       {/* Bottom Accent */}
+//       <div className={`h-1 bg-gradient-to-r ${team.color}`} />
+//     </motion.div>
+//   );
+// };
 
 const MatchCard = ({ match }) => {
   const isLive = match.status === "live";
@@ -423,20 +412,13 @@ const MatchCard = ({ match }) => {
       exit={{ opacity: 0, y: -20 }}
       whileHover={{ scale: 1.02, y: -4 }}
       transition={{ duration: 0.3 }}
-      className={`relative overflow-hidden rounded-xl border-2 ${
+      className={`relative overflow-hidden rounded-xl  ${
         isLive
-          ? "border-cyan-400 shadow-lg shadow-cyan-500/50"
+          ? "bg-blue-400/30"
           : isCompleted
-          ? "border-gray-700 opacity-75"
-          : "border-green-600"
+          ? "bg-red-400/30"
+          : "bg-green-400/30"
       }`}
-      style={{
-        background: isLive
-          ? "linear-gradient(135deg, #0a1f1a 0%, #0d2b26 50%, #0a1f1a 100%)"
-          : isCompleted
-          ? "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)"
-          : "linear-gradient(135deg, #0f2e1a 0%, #1a4d2e 100%)",
-      }}
     >
       {/* Turf Pattern Background */}
       <div className="absolute inset-0 opacity-5">
@@ -454,7 +436,7 @@ const MatchCard = ({ match }) => {
         <motion.div
           animate={{ opacity: [1, 0.5, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="absolute top-4 right-4 z-10"
+          className="absolute bottom-4 right-4 z-10"
         >
           <div className="flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
             <motion.div
@@ -473,13 +455,13 @@ const MatchCard = ({ match }) => {
       <div className="relative p-6">
         {/* Date and Time */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 text-gray-400 text-sm">
+          <div className="flex items-center gap-2 text-black/60 text-sm">
             <Clock className="w-4 h-4" />
             <span>
               {match.date} • {match.time}
             </span>
           </div>
-          <div className="flex items-center gap-1 text-green-400 text-sm">
+          <div className="flex items-center gap-1 text-black/60 text-sm">
             <MapPin className="w-4 h-4" />
             <span>{match.venue}</span>
           </div>
@@ -490,7 +472,7 @@ const MatchCard = ({ match }) => {
           {/* Team 1 */}
           <motion.div
             className={`flex-1 text-right ${
-              winner === "team1" ? "text-yellow-400" : "text-white"
+              winner === "team1" ? "text-red-600" : "text-black"
             }`}
             whileHover={{ x: -5 }}
           >
@@ -498,7 +480,7 @@ const MatchCard = ({ match }) => {
               {winner === "team1" && <Trophy className="w-5 h-5" />}
               <h3
                 className={`text-2xl font-bold ${
-                  winner === "team1" ? "text-yellow-400" : ""
+                  winner === "team1" ? "text-red-600" : ""
                 }`}
               >
                 {match.team1}
@@ -520,10 +502,10 @@ const MatchCard = ({ match }) => {
                 <motion.div
                   className={`text-5xl font-black ${
                     isLive
-                      ? "text-cyan-400"
+                      ? "text-blue-700"
                       : winner === "team1"
-                      ? "text-yellow-400"
-                      : "text-white"
+                      ? "text-red-600"
+                      : "text-black"
                   }`}
                   animate={isLive ? { scale: [1, 1.1, 1] } : {}}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -534,10 +516,10 @@ const MatchCard = ({ match }) => {
                 <motion.div
                   className={`text-5xl font-black ${
                     isLive
-                      ? "text-cyan-400"
+                      ? "text-blue-700"
                       : winner === "team2"
-                      ? "text-yellow-400"
-                      : "text-white"
+                      ? "text-red-600"
+                      : "text-black"
                   }`}
                   animate={isLive ? { scale: [1, 1.1, 1] } : {}}
                   transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
@@ -551,14 +533,14 @@ const MatchCard = ({ match }) => {
           {/* Team 2 */}
           <motion.div
             className={`flex-1 ${
-              winner === "team2" ? "text-yellow-400" : "text-white"
+              winner === "team2" ? "text-red-600" : "text-black"
             }`}
             whileHover={{ x: 5 }}
           >
             <div className="flex items-center gap-2">
               <h3
                 className={`text-2xl font-bold ${
-                  winner === "team2" ? "text-yellow-400" : ""
+                  winner === "team2" ? "text-red-600" : ""
                 }`}
               >
                 {match.team2}
@@ -567,19 +549,6 @@ const MatchCard = ({ match }) => {
             </div>
           </motion.div>
         </div>
-
-        {/* Glow Effect for Live */}
-        {isLive && (
-          <motion.div
-            className="absolute inset-0 rounded-xl"
-            style={{
-              background:
-                "radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 70%)",
-            }}
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        )}
       </div>
 
       {/* Bottom Accent Line */}
@@ -605,32 +574,20 @@ export default function FieldHockeySchedule() {
   const filteredMatches = matches.filter((m) => m.status === activeTab);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-green-950 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white p-4 md:p-16 relative">
+      <div className="max-w-7xl mx-auto ">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <motion.div
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="inline-block mb-4"
-          >
-            <Zap
-              className="w-16 h-16 text-yellow-400 mx-auto"
-              fill="currentColor"
-            />
-          </motion.div>
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-black text-black mb-4 tracking-tight">
             Tournament{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400">
-              Dashboard
-            </span>
+            <span className="text-secondary bg-clip-text ">Dashboard</span>
           </h1>
-          <p className="text-gray-400 text-lg">
-            Field Hockey Championship 2024
+          <p className="text-gray-600 text-lg">
+            Field Hockey Championship 2026
           </p>
         </motion.div>
 
@@ -638,16 +595,16 @@ export default function FieldHockeySchedule() {
         <div className="flex justify-center gap-3 mb-8">
           {[
             { id: "matches", icon: Clock, label: "Matches" },
-            { id: "players", icon: Target, label: "Top Players" },
-            { id: "teams", icon: Award, label: "Top Teams" },
+            { id: "players", icon: Target, label: "Top 5 Scorers" },
+            // { id: "teams", icon: Award, label: "Top Teams" },
           ].map((section) => (
             <motion.button
               key={section.id}
               onClick={() => setActiveSection(section.id)}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all ${
                 activeSection === section.id
-                  ? "bg-gradient-to-r from-cyan-600 to-green-600 text-white shadow-lg shadow-cyan-500/50"
-                  : "bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-800"
+                  ? "bg-gradient-to-r from-blue-700 to-blue-900"
+                  : "bg-gradient-to-r from-gray-800 to-gray-900 text-gray-400 hover:from-gray-700 hover:to-gray-800"
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -668,8 +625,8 @@ export default function FieldHockeySchedule() {
               exit={{ opacity: 0, y: -20 }}
             >
               {/* Tabs */}
-              <div className="relative mb-8">
-                <div className="flex justify-center gap-2 md:gap-4 bg-gray-900/50 backdrop-blur-sm p-2 rounded-2xl border border-gray-800">
+              <div className="relative mb-8 ">
+                <div className="flex  mx-auto items-center justify-center gap-2 md:gap-4 bg-slate-300  backdrop-blur-sm p-2 rounded-2xl border-2 border-slate-400">
                   {tabs.map((tab) => (
                     <motion.button
                       key={tab}
@@ -677,7 +634,7 @@ export default function FieldHockeySchedule() {
                       className={`relative px-6 md:px-12 py-4 rounded-xl font-bold text-sm md:text-lg uppercase tracking-wider transition-all ${
                         activeTab === tab
                           ? "text-white"
-                          : "text-gray-500 hover:text-gray-300"
+                          : "text-blue-600 hover:text-white"
                       }`}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -685,7 +642,7 @@ export default function FieldHockeySchedule() {
                       {activeTab === tab && (
                         <motion.div
                           layoutId="activeTab"
-                          className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-green-600 rounded-xl"
+                          className="absolute inset-0 bg-blue-600 rounded-xl"
                           style={{
                             boxShadow: "0 0 20px rgba(6, 182, 212, 0.5)",
                           }}
@@ -703,7 +660,7 @@ export default function FieldHockeySchedule() {
 
                 {/* Tab Indicator Line */}
                 <motion.div
-                  className="absolute -bottom-4 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
+                  className="absolute -bottom-4 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{ duration: 0.5 }}
@@ -745,14 +702,11 @@ export default function FieldHockeySchedule() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Target className="w-8 h-8 text-cyan-400" />
-                  <h2 className="text-3xl font-black text-white">
-                    Top Goal Scorers
-                  </h2>
-                </div>
-                <TrendingUp className="w-8 h-8 text-green-400" />
+              <div className="mb-6 flex items-start justify-start gap-3">
+                <Target className="w-8 h-8 text-cyan-400" />
+                <h2 className="text-3xl font-black text-black">
+                  Top Goal Scorers
+                </h2>
               </div>
               <div className="space-y-4">
                 {topPlayers.map((player, index) => (
@@ -772,18 +726,18 @@ export default function FieldHockeySchedule() {
             >
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Award className="w-8 h-8 text-yellow-400" />
+                  <Award className="w-8 h-8 text-red-400" />
                   <h2 className="text-3xl font-black text-white">
                     Leaderboard
                   </h2>
                 </div>
-                <Trophy className="w-8 h-8 text-yellow-400" />
+                <Trophy className="w-8 h-8 text-red-400" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {topTeams.map((team, index) => (
                   <TopTeamCard key={index} team={team} rank={index} />
                 ))}
-              </div>
+              </div> */}
             </motion.div>
           )}
         </AnimatePresence>
