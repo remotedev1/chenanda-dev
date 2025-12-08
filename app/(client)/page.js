@@ -3,7 +3,7 @@ import Hero from "@/components/frontEnd/homepage/Hero";
 import MatchSchedule from "@/components/frontEnd/homepage/MatchSchedule";
 import SponsorsList from "@/components/frontEnd/homepage/sponsorsList";
 import VenueDetails from "@/components/frontEnd/homepage/venueDetails";
-import LiveScoreCarousel from "@/components/frontEnd/homepage/LiveScoreCarousel;";
+import LiveScoreCarousel from "@/components/frontEnd/homepage/LiveScoreCarousel";
 import PaymentBanner from "@/components/frontEnd/payment";
 
 export default function Page() {

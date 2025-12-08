@@ -1,94 +1,49 @@
 "use client";
 import { motion } from "framer-motion";
-import {
-  MapPin,
-  Users,
-  Sparkles,
-  Navigation,
-  Clock,
-  Ticket,
-  Trophy,
-  Zap,
-} from "lucide-react";
+import { MapPin, Trophy, Clock, Navigation } from "lucide-react";
+
+const arenaData = {
+  "Arena A": {
+    location: "North Complex",
+    borderColor: "border-2 border-blue-500/50",
+    glowColor: "rgba(59, 130, 246, 0.3)",
+    gradient: "from-blue-500/20 to-purple-500/20",
+    currentMatch: {
+      team1: "Thunder",
+      team2: "Lightning",
+      score1: 3,
+      score2: 2,
+    },
+  },
+  "Arena B": {
+    location: "South Complex",
+    borderColor: "border-2 border-green-500/50",
+    glowColor: "rgba(34, 197, 94, 0.3)",
+    gradient: "from-green-500/20 to-teal-500/20",
+    currentMatch: null,
+  },
+  "Arena C": {
+    location: "East Complex",
+    borderColor: "border-2 border-orange-500/50",
+    glowColor: "rgba(249, 115, 22, 0.3)",
+    gradient: "from-orange-500/20 to-red-500/20",
+    currentMatch: {
+      team1: "Phoenix",
+      team2: "Dragons",
+      score1: 1,
+      score2: 1,
+    },
+  },
+  "Arena D": {
+    location: "West Complex",
+    borderColor: "border-2 border-purple-500/50",
+    glowColor: "rgba(168, 85, 247, 0.3)",
+    gradient: "from-purple-500/20 to-pink-500/20",
+    currentMatch: null,
+  },
+};
 
 const VenueCard = ({ arena, index }) => {
-  const arenaData = {
-    "Arena A": {
-      location: "National Sports Complex, Downtown",
-      capacity: "5,000",
-      currentMatch: {
-        team1: "Thunder",
-        team2: "Storm",
-        score1: 3,
-        score2: 2,
-        status: "live",
-        time: "42:15",
-      },
-      features: [
-        { icon: Users, text: "Premium VIP Seating", color: "text-yellow-400" },
-        {
-          icon: Sparkles,
-          text: "LED Stadium Lighting",
-          color: "text-cyan-400",
-        },
-        {
-          icon: Ticket,
-          text: "Online Booking Available",
-          color: "text-green-400",
-        },
-      ],
-      gradient: "from-cyan-600/20 to-blue-600/20",
-      borderColor: "border-cyan-500",
-      glowColor: "rgba(6, 182, 212, 0.3)",
-    },
-    "Arena B": {
-      location: "Elite Sports Arena, Riverside",
-      currentMatch: {
-        team1: "Blue",
-        team2: "Gold",
-        score1: 1,
-        score2: 1,
-        status: "live",
-        time: "38:52",
-      },
-
-      gradient: "from-green-600/20 to-emerald-600/20",
-      borderColor: "border-green-500",
-      glowColor: "rgba(16, 185, 129, 0.3)",
-    },
-    "Arena C": {
-      location: "Olympic Training Center, Westside",
-      currentMatch: {
-        team1: "Fire",
-        team2: "Ice",
-        score1: 2,
-        score2: 0,
-        status: "live",
-        time: "28:30",
-      },
-
-      gradient: "from-orange-600/20 to-red-600/20",
-      borderColor: "border-orange-500",
-      glowColor: "rgba(249, 115, 22, 0.3)",
-    },
-    "Arena D": {
-      location: "University Sports Complex, Campus",
-
-      // currentMatch: {
-      //   team1: "Lightning",
-      //   team2: "Shadow",
-      //   score1: 4,
-      //   score2: 3,
-      //   status: "live",
-      //   time: "55:08",
-      // },
-
-      gradient: "from-purple-600/20 to-pink-600/20",
-      borderColor: "border-purple-500",
-      glowColor: "rgba(168, 85, 247, 0.3)",
-    },
-  };
-
   const data = arenaData[arena];
 
   return (
@@ -96,20 +51,20 @@ const VenueCard = ({ arena, index }) => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.2, duration: 0.6 }}
-      className={`relative overflow-hidden bg-white/60 rounded-2xl  ${data.borderColor}`}
+      className={`relative overflow-hidden bg-white/60 rounded-xl sm:rounded-2xl ${data.borderColor}`}
       style={{
         boxShadow: `0 20px 40px ${data.glowColor}`,
       }}
     >
       {/* Content Section */}
-      <div className="relative p-8">
+      <div className="relative p-4 sm:p-6 md:p-8">
         {/* Live Match Notification */}
         {data.currentMatch ? (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.2 + 0.3 }}
-            className="mb-6 p-4 cursor-pointer rounded-xl bg-gradient-to-r from-red-600/20 to-orange-600/20 border-2 border-red-500/50 relative overflow-hidden"
+            className="mb-4 sm:mb-6 p-3 sm:p-4 cursor-pointer rounded-lg sm:rounded-xl bg-gradient-to-r from-red-600/20 to-orange-600/20 border-2 border-red-500/50 relative overflow-hidden"
             style={{
               boxShadow: "0 0 20px rgba(239, 68, 68, 0.3)",
             }}
@@ -123,18 +78,18 @@ const VenueCard = ({ arena, index }) => {
 
             {/* LIVE Badge */}
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
                 <motion.div
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1.5 sm:gap-2"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
                   <motion.div
-                    className="w-3 h-3 bg-red-500 rounded-full"
+                    className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"
                     animate={{ opacity: [1, 0.3, 1] }}
                     transition={{ duration: 1, repeat: Infinity }}
                   />
-                  <span className="text-red-400 font-black text-sm uppercase tracking-wider">
+                  <span className="text-red-400 font-black text-xs sm:text-sm uppercase tracking-wider">
                     Live Now
                   </span>
                 </motion.div>
@@ -143,22 +98,24 @@ const VenueCard = ({ arena, index }) => {
               {/* Match Score */}
               <div className="flex items-center justify-between">
                 <div className="flex-1 text-right">
-                  <div className="text-slate-900 font-bold text-lg">
+                  <div className="text-slate-900 font-bold text-sm sm:text-base md:text-lg">
                     {data.currentMatch.team1}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 mx-4">
+                <div className="flex items-center gap-2 sm:gap-3 mx-2 sm:mx-4">
                   <motion.div
-                    className="text-2xl font-black text-blue-800"
+                    className="text-lg sm:text-xl md:text-2xl font-black text-blue-800"
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
                     {data.currentMatch.score1}
                   </motion.div>
-                  <span className="text-gray-600 font-bold">-</span>
+                  <span className="text-gray-600 font-bold text-sm sm:text-base">
+                    -
+                  </span>
                   <motion.div
-                    className="text-2xl font-black text-blue-800"
+                    className="text-lg sm:text-xl md:text-2xl font-black text-blue-800"
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
                   >
@@ -167,7 +124,7 @@ const VenueCard = ({ arena, index }) => {
                 </div>
 
                 <div className="flex-1">
-                  <div className="text-slate-900 font-bold text-lg">
+                  <div className="text-slate-900 font-bold text-sm sm:text-base md:text-lg">
                     {data.currentMatch.team2}
                   </div>
                 </div>
@@ -175,39 +132,41 @@ const VenueCard = ({ arena, index }) => {
             </div>
           </motion.div>
         ) : (
-          <div className="mb-6 p-4 rounded-xl bg-slate-200 border-2 border-gray-700/50">
-            <span className="text-gray-600 font-medium">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-slate-200 border-2 border-gray-700/50">
+            <span className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
               No live match currently.
             </span>
           </div>
         )}
 
         {/* Arena Name */}
-        <div className="flex items-center justify-around   gap-4">
-          <h3 className="text-4xl font-black text-black mb-3 tracking-tight">
+        <div className="flex  xs:flex-nowrap items-center justify-between gap-2 xs:gap-3 sm:gap-4">
+          <h3 className="text-base xs:text-lg sm:text-xl md:text-3xl lg:text-4xl font-black text-black tracking-tight flex-shrink-0">
             {arena}
+            <motion.button
+              className="ml-5 w-8 h-8 xs:w-9 xs:h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-md xs:rounded-lg sm:rounded-xl bg-green-600 font-bold relative overflow-hidden group flex-shrink-0"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {/* Button Glow Effect */}
+              <motion.div
+                className="absolute inset-0 bg-green-400 opacity-0 group-hover:opacity-20 transition-opacity"
+                animate={{ x: [-200, 200] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              />
+
+              <span className="relative z-10 flex items-center justify-center">
+                <Navigation className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 md:w-8 md:h-8 text-white" />
+              </span>
+            </motion.button>
           </h3>
-          <div className="flex items-center gap-2 text-slate-600">
-            <MapPin className="w-5 h-5" />
-            <span className="text-sm">{data.location}</span>
+          <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 text-slate-600 flex-shrink-0">
+            <MapPin className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+            <span className="text-[10px] xs:text-xs sm:text-sm whitespace-nowrap">
+              {data.location}
+            </span>
           </div>
           {/* Action Button */}
-          <motion.button
-            className="w-16 py-4 rounded-xl bg-green-600  font-bold text-lg uppercase tracking-wider relative overflow-hidden group"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {/* Button Glow Effect */}
-            <motion.div
-              className="absolute inset-0 bg-green-400 opacity-0 group-hover:opacity-20 transition-opacity"
-              animate={{ x: [-200, 200] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            />
-
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              <Navigation className="w-5 h-5" />
-            </span>
-          </motion.button>
         </div>
       </div>
 
@@ -221,21 +180,21 @@ const VenueCard = ({ arena, index }) => {
 
 export default function VenueDetails() {
   return (
-    <div className="min-h-screen py-20 px-4 md:px-8 bg-slate-300">
-      <div className="container mx-auto max-w-7xl relative">
+    <div className="min-h-screen py-8 sm:py-16 md:py-20 px-3 sm:px-4 md:px-8 bg-slate-300">
+      <div className=" mx-auto sm:max-w-7xl relative">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-16"
+          className="mb-10 sm:mb-12 md:mb-16"
         >
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-4 mb-2">
-                <MapPin className="w-8 h-8 text-secondary" />
-                <h2 className="text-4xl md:text-6xl font-black text-black tracking-tight">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="flex-1 w-full">
+              <div className="flex items-center gap-3 sm:gap-4 mb-2">
+                <MapPin className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-secondary flex-shrink-0" />
+                <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-black tracking-tight">
                   Venue{" "}
-                  <span className="text-secondary bg-clip-text ">
+                  <span className="text-secondary bg-clip-text">
                     Information
                   </span>
                 </h2>
@@ -256,7 +215,7 @@ export default function VenueDetails() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex flex-wrap gap-4 justify-center md:justify-start"
+            className="flex flex-wrap gap-3 sm:gap-4 justify-center md:justify-start"
           >
             {[
               {
@@ -267,10 +226,10 @@ export default function VenueDetails() {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600"
+                className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-600"
               >
-                <item.icon className={`w-5 h-5 ${item.color}`} />
-                <span className="text-white text-sm font-medium">
+                <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} />
+                <span className="text-white text-xs sm:text-sm font-medium">
                   {item.text}
                 </span>
               </div>
@@ -279,7 +238,7 @@ export default function VenueDetails() {
         </motion.div>
 
         {/* Venue Cards Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
           {["Arena A", "Arena B", "Arena C", "Arena D"].map((arena, i) => (
             <VenueCard key={i} arena={arena} index={i} />
           ))}
@@ -290,11 +249,11 @@ export default function VenueDetails() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="mt-16 text-center"
+          className="mt-10 sm:mt-12 md:mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full ">
-            <Clock className="w-5 h-5 text-green-900" />
-            <span className="text-slate-800">
+          <div className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-green-900 flex-shrink-0" />
+            <span className="text-slate-800 text-xs sm:text-sm md:text-base">
               All venues open daily from 6:00 AM to 5:00 PM
             </span>
           </div>

@@ -412,7 +412,7 @@ const MatchCard = ({ match }) => {
       exit={{ opacity: 0, y: -20 }}
       whileHover={{ scale: 1.02, y: -4 }}
       transition={{ duration: 0.3 }}
-      className={`relative overflow-hidden rounded-xl  ${
+      className={`relative   overflow-x-auto no-scrollbar rounded-xl  ${
         isLive
           ? "bg-blue-400/30"
           : isCompleted
@@ -436,7 +436,7 @@ const MatchCard = ({ match }) => {
         <motion.div
           animate={{ opacity: [1, 0.5, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="absolute bottom-4 right-4 z-10"
+          className="absolute bottom-3 right-2 z-10"
         >
           <div className="flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
             <motion.div
@@ -479,7 +479,7 @@ const MatchCard = ({ match }) => {
             <div className="flex items-center justify-end gap-2">
               {winner === "team1" && <Trophy className="w-5 h-5" />}
               <h3
-                className={`text-2xl font-bold ${
+                className={`text-lg sm:text-3xl font-bold ${
                   winner === "team1" ? "text-red-600" : ""
                 }`}
               >
@@ -539,7 +539,7 @@ const MatchCard = ({ match }) => {
           >
             <div className="flex items-center gap-2">
               <h3
-                className={`text-2xl font-bold ${
+                className={`text-lg sm:text-3xl font-bold ${
                   winner === "team2" ? "text-red-600" : ""
                 }`}
               >
@@ -574,7 +574,7 @@ export default function FieldHockeySchedule() {
   const filteredMatches = matches.filter((m) => m.status === activeTab);
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-16 relative">
+    <div className=" bg-white p-4 md:p-16 relative">
       <div className="max-w-7xl mx-auto ">
         {/* Header */}
         <motion.div
@@ -592,7 +592,7 @@ export default function FieldHockeySchedule() {
         </motion.div>
 
         {/* Section Selector */}
-        <div className="flex justify-center gap-3 mb-8">
+        <div className="flex flex-wrap justify-center gap-2 xs:gap-2.5 sm:gap-3 mb-6 sm:mb-8 px-2">
           {[
             { id: "matches", icon: Clock, label: "Matches" },
             { id: "players", icon: Target, label: "Top 5 Scorers" },
@@ -601,16 +601,26 @@ export default function FieldHockeySchedule() {
             <motion.button
               key={section.id}
               onClick={() => setActiveSection(section.id)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all ${
-                activeSection === section.id
-                  ? "bg-gradient-to-r from-blue-700 to-blue-900"
-                  : "bg-gradient-to-r from-gray-800 to-gray-900 text-gray-400 hover:from-gray-700 hover:to-gray-800"
-              }`}
+              className={`
+            flex items-center gap-1.5 xs:gap-2 
+            px-3 xs:px-4 sm:px-5 md:px-6 
+            py-2 xs:py-2.5 sm:py-3 
+            rounded-lg xs:rounded-xl 
+            font-bold 
+            text-[10px] xs:text-xs sm:text-sm 
+            uppercase tracking-wider 
+            transition-all
+            ${
+              activeSection === section.id
+                ? "bg-gradient-to-r from-blue-700 to-blue-900 text-white"
+                : "bg-gradient-to-r from-gray-800 to-gray-900 text-gray-400 hover:from-gray-700 hover:to-gray-800"
+            }
+          `}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <section.icon className="w-5 h-5" />
-              {section.label}
+              <section.icon className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span className="whitespace-nowrap">{section.label}</span>
             </motion.button>
           ))}
         </div>
@@ -625,40 +635,46 @@ export default function FieldHockeySchedule() {
               exit={{ opacity: 0, y: -20 }}
             >
               {/* Tabs */}
-              <div className="relative mb-8 ">
-                <div className="flex  mx-auto items-center justify-center gap-2 md:gap-4 bg-slate-300  backdrop-blur-sm p-2 rounded-2xl border-2 border-slate-400">
-                  {tabs.map((tab) => (
-                    <motion.button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`relative px-6 md:px-12 py-4 rounded-xl font-bold text-sm md:text-lg uppercase tracking-wider transition-all ${
-                        activeTab === tab
-                          ? "text-white"
-                          : "text-blue-600 hover:text-white"
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {activeTab === tab && (
-                        <motion.div
-                          layoutId="activeTab"
-                          className="absolute inset-0 bg-blue-600 rounded-xl"
-                          style={{
-                            boxShadow: "0 0 20px rgba(6, 182, 212, 0.5)",
-                          }}
-                          transition={{
-                            type: "spring",
-                            bounce: 0.2,
-                            duration: 0.6,
-                          }}
-                        />
-                      )}
-                      <span className="relative z-10">{tab}</span>
-                    </motion.button>
-                  ))}
+              <div className="relative mb-8 w-full">
+                {/* scroll container */}
+                <div className="flex justify-center">
+                  <div
+                    className="flex gap-2 md:gap-4 bg-slate-300 backdrop-blur-sm p-2 rounded-2xl border-2 border-slate-400
+      overflow-x-auto no-scrollbar max-w-full"
+                  >
+                    {tabs.map((tab) => (
+                      <motion.button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`relative px-4 md:px-10 py-2 md:py-3 rounded-xl font-semibold text-xs md:text-lg uppercase tracking-wider transition-all whitespace-nowrap
+            ${
+              activeTab === tab
+                ? "text-white"
+                : "text-blue-600 hover:text-white"
+            }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {activeTab === tab && (
+                          <motion.div
+                            layoutId="activeTab"
+                            className="absolute inset-0 bg-blue-600 rounded-xl"
+                            style={{
+                              boxShadow: "0 0 20px rgba(6, 182, 212, 0.5)",
+                            }}
+                            transition={{
+                              type: "spring",
+                              bounce: 0.2,
+                              duration: 0.6,
+                            }}
+                          />
+                        )}
+                        <span className="relative z-10">{tab}</span>
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Tab Indicator Line */}
                 <motion.div
                   className="absolute -bottom-4 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"
                   initial={{ scaleX: 0 }}

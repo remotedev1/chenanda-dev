@@ -15,151 +15,6 @@ import {
 } from "framer-motion";
 import { Flame, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 
-// Memoized Hockey Ball SVG Component
-const HockeyBall = React.memo(
-  ({ className = "w-8 h-8", shouldAnimate = true }) => (
-    <motion.svg
-      className={className}
-      viewBox="0 0 100 100"
-      animate={shouldAnimate ? { rotate: 300 } : {}}
-      transition={
-        shouldAnimate ? { duration: 6, repeat: Infinity, ease: "linear" } : {}
-      }
-      role="img"
-      aria-label="Abstract hockey-themed ornament"
-    >
-      <defs>
-        {/* Base ambient gradient */}
-        <radialGradient id="ambient" cx="30%" cy="30%" r="80%">
-          <stop offset="0%" stopColor="#0ea5a4" stopOpacity="0.18" />
-          <stop offset="60%" stopColor="#06b6d4" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="#0369a1" stopOpacity="0.02" />
-        </radialGradient>
-
-        {/* Layer gradient for blobs */}
-        <linearGradient id="blobGrad" x1="0" x2="1">
-          <stop offset="0%" stopColor="#F59E0B" />
-          <stop offset="50%" stopColor="#F97316" />
-          <stop offset="100%" stopColor="#EF4444" />
-        </linearGradient>
-
-        {/* Soft inner glow */}
-        <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="6" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-
-        {/* Fine mesh grid pattern */}
-        <pattern id="mesh" width="6" height="6" patternUnits="userSpaceOnUse">
-          <path
-            d="M0 0 L6 0 M0 3 L6 3"
-            stroke="rgba(255,255,255,0.06)"
-            strokeWidth="0.3"
-          />
-        </pattern>
-
-        {/* Subtle noise using turbulence (kept low for perf) */}
-        <filter id="grain" x="0" y="0" width="100%" height="100%">
-          <feTurbulence
-            baseFrequency="0.8"
-            numOctaves="1"
-            stitchTiles="stitch"
-            result="t"
-          />
-          <feColorMatrix type="saturate" values="0" />
-          <feBlend in="t" mode="overlay" />
-        </filter>
-      </defs>
-
-      {/* ambient backdrop */}
-      <rect x="0" y="0" width="100" height="100" fill="url(#ambient)" />
-
-      {/* large translucent rounded shape */}
-      <path
-        d="M10 60 C18 20, 60 10, 80 30 C92 42, 88 72, 60 82 C34 92, 6 82, 10 60 Z"
-        fill="url(#blobGrad)"
-        opacity="0.85"
-        filter="url(#softGlow)"
-        transform="translate(0,0) scale(0.98)"
-      />
-
-      {/* secondary cool blob for contrast */}
-      <path
-        d="M20 30 C28 10, 60 8, 74 22 C86 34, 78 58, 52 66 C30 74, 14 64, 20 30 Z"
-        fill="#06b6d4"
-        opacity="0.6"
-        transform="rotate(-18 50 50) translate(0,0) scale(0.95)"
-      />
-
-      {/* abstract ribbon stroke */}
-      <path
-        d="M8 85 C28 70, 42 55, 58 50 C74 45, 88 42, 92 22"
-        fill="none"
-        stroke="rgba(255,255,255,0.18)"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.9"
-      />
-
-      {/* clipped mesh overlay (gives subtle texture only inside center area) */}
-      <g opacity="0.22" clipPath={`url(#clipCenter)`}>
-        <rect x="10" y="10" width="80" height="80" fill="url(#mesh)" />
-      </g>
-
-      {/* create clipPath in-place (JSX-safe) */}
-      <defs>
-        <clipPath id="clipCenter">
-          <circle cx="50" cy="50" r="36" />
-        </clipPath>
-      </defs>
-
-      {/* accent circles (dot-group, like abstract dimples) */}
-      <g transform="translate(8, -2)" opacity="0.95">
-        <circle cx="36" cy="38" r="3.6" fill="#fff" opacity="0.12" />
-        <circle cx="46" cy="28" r="2.2" fill="#fff" opacity="0.10" />
-        <circle cx="58" cy="44" r="1.8" fill="#fff" opacity="0.08" />
-        <circle cx="70" cy="34" r="2.6" fill="#fff" opacity="0.10" />
-      </g>
-
-      {/* slight vignette ring for depth */}
-      <ellipse
-        cx="50"
-        cy="52"
-        rx="42"
-        ry="40"
-        fill="none"
-        stroke="rgba(0,0,0,0.12)"
-        strokeWidth="1.2"
-      />
-
-      {/* optional tiny hockey hint — a paired small stick silhouette (very abstract) */}
-      <g
-        transform="translate(62,64) rotate(22)"
-        opacity="0.85"
-        fill="none"
-        stroke="rgba(255,255,255,0.12)"
-        strokeWidth="1.2"
-      >
-        <path d="M0 0 L8 -2 C10 -1, 12 2, 14 4" />
-        <rect
-          x="13"
-          y="3.2"
-          width="3.5"
-          height="1.2"
-          rx="0.6"
-          fill="rgba(255,255,255,0.08)"
-        />
-      </g>
-    </motion.svg>
-  )
-);
-
-HockeyBall.displayName = "HockeyBall";
-
 // Animated Score Component with optimized animations
 const AnimatedScore = React.memo(({ score, color }) => {
   const count = useMotionValue(0);
@@ -178,7 +33,7 @@ const AnimatedScore = React.memo(({ score, color }) => {
 
   return (
     <motion.span
-      className="text-6xl font-black drop-shadow-lg"
+      className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black drop-shadow-lg"
       style={{ color }}
     >
       {rounded}
@@ -205,7 +60,7 @@ const ScoreCard = React.memo(
 
     return (
       <motion.div
-        className="relative min-w-[420px] snap-center"
+        className="relative min-w-[280px] xs:min-w-[320px] sm:min-w-[380px] md:min-w-[420px] snap-center"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{
           opacity: isActive ? 1 : 0.7,
@@ -218,7 +73,7 @@ const ScoreCard = React.memo(
         {/* Glow Effect - Only render when hovered */}
         {isHovered && (
           <motion.div
-            className="absolute inset-0 rounded-3xl blur-2xl"
+            className="absolute inset-0 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}
             exit={{ opacity: 0 }}
@@ -231,7 +86,7 @@ const ScoreCard = React.memo(
 
         {/* Card Content */}
         <motion.div
-          className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl p-8 border-2 border-cyan-500/40 shadow-2xl overflow-hidden"
+          className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl sm:rounded-3xl p-4 xs:p-5 sm:p-6 md:p-8 border-2 border-cyan-500/40 shadow-2xl overflow-hidden"
           whileHover={{
             borderColor: "rgba(6, 182, 212, 0.8)",
             y: -8,
@@ -239,35 +94,35 @@ const ScoreCard = React.memo(
           transition={{ duration: 0.3 }}
         >
           {/* Static Field Lines Background */}
-          <div className="football-field-contrast w-full h-[400px]"></div>
+          <div className="football-field-contrast w-full "></div>
 
           {/* Live Indicator & Time */}
-          <div className="relative flex items-center mb-8">
+          <div className="relative flex items-center mb-[3.2rem] justify-between">
             <motion.div
-              className="relative px-5 py-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full border-2 border-white/30 shadow-lg"
+              className="relative px-3 xs:px-4 sm:px-5 py-2 xs:py-2.5 sm:py-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full border-2 border-white/30 shadow-lg"
               animate={!isPaused ? { scale: [1, 1.05, 1] } : {}}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              <span className="text-white text-sm font-black flex items-center gap-2">
-                <Zap className="w-4 h-4 z-10" />
+              <span className="text-white text-xs xs:text-sm font-black flex items-center gap-1.5 xs:gap-2">
+                <Zap className="w-3 h-3 xs:w-4 xs:h-4 z-10" />
                 LIVE
               </span>
             </motion.div>
           </div>
 
           {/* Team 1 */}
-          <div className="relative flex items-center justify-between mb-6">
-            <div className="flex items-center gap-5 flex-1">
+          <div className="relative flex items-center justify-between mb-4 xs:mb-5 sm:mb-6">
+            <div className="flex items-center gap-2 xs:gap-3 sm:gap-4 md:gap-5 flex-1">
               {/* Team Logo */}
               <div className="relative">
                 <div
-                  className="w-20 h-20 rounded-2xl border-3 border-white/30 shadow-xl flex items-center justify-center font-black text-2xl text-white"
+                  className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl border-3 border-white/30 shadow-xl flex items-center justify-center font-black text-base xs:text-lg sm:text-xl md:text-2xl text-white"
                   style={{ backgroundColor: match.color1 }}
                 >
                   {match.team1.substring(0, 2).toUpperCase()}
                 </div>
                 <div
-                  className="absolute inset-0 rounded-2xl -z-10"
+                  className="absolute inset-0 rounded-xl sm:rounded-2xl -z-10"
                   style={{
                     backgroundColor: match.color1,
                     filter: "blur(15px)",
@@ -277,8 +132,8 @@ const ScoreCard = React.memo(
               </div>
 
               {/* Team Name */}
-              <div>
-                <h3 className="font-black text-2xl text-white mb-1">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-black text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-1 truncate">
                   {match.team1}
                 </h3>
               </div>
@@ -289,26 +144,26 @@ const ScoreCard = React.memo(
           </div>
 
           {/* VS Divider */}
-          <div className="relative flex items-center justify-center my-6">
+          <div className="relative flex items-center justify-center my-3 xs:my-4 sm:my-5 md:my-6">
             <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
-            <div className="relative bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-2 rounded-full text-white font-black text-sm shadow-lg">
+            <div className="relative bg-gradient-to-r from-cyan-500 to-blue-600 px-4 xs:px-5 sm:px-6 py-1.5 xs:py-2 rounded-full text-white font-black text-xs xs:text-sm shadow-lg">
               VS
             </div>
           </div>
 
           {/* Team 2 */}
           <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-5 flex-1">
+            <div className="flex items-center gap-2 xs:gap-3 sm:gap-4 md:gap-5 flex-1">
               {/* Team Logo */}
               <div className="relative">
                 <div
-                  className="w-20 h-20 rounded-2xl border-3 border-white/30 shadow-xl flex items-center justify-center font-black text-2xl text-white"
+                  className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl border-3 border-white/30 shadow-xl flex items-center justify-center font-black text-base xs:text-lg sm:text-xl md:text-2xl text-white"
                   style={{ backgroundColor: match.color2 }}
                 >
                   {match.team2.substring(0, 2).toUpperCase()}
                 </div>
                 <div
-                  className="absolute inset-0 rounded-2xl -z-10"
+                  className="absolute inset-0 rounded-xl sm:rounded-2xl -z-10"
                   style={{
                     backgroundColor: match.color2,
                     filter: "blur(15px)",
@@ -318,8 +173,8 @@ const ScoreCard = React.memo(
               </div>
 
               {/* Team Name */}
-              <div>
-                <h3 className="font-black text-2xl text-white mb-1">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-black text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-1 truncate">
                   {match.team2}
                 </h3>
               </div>
@@ -330,19 +185,19 @@ const ScoreCard = React.memo(
           </div>
 
           {/* Match Status Footer */}
-          <div className="mt-6 pt-6 border-t border-gray-700/50 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
+          <div className="mt-4 xs:mt-5 sm:mt-6 pt-4 xs:pt-5 sm:pt-6 border-t border-gray-700/50 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 xs:gap-0">
+            <div className="flex items-center gap-2 text-gray-400 text-xs xs:text-sm">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
               <span className="font-bold">{match.period}</span>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+            <div className="flex items-center gap-2 xs:gap-3">
+              <span className="text-gray-500 text-[10px] xs:text-xs font-semibold uppercase tracking-wider">
                 Powered by
               </span>
-              <div className="bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/20">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5" viewBox="0 0 100 100">
+              <div className="bg-white/10 backdrop-blur-sm px-2 xs:px-3 py-1 xs:py-1.5 rounded-lg border border-white/20">
+                <div className="flex items-center gap-1.5 xs:gap-2">
+                  <svg className="w-4 h-4 xs:w-5 xs:h-5" viewBox="0 0 100 100">
                     <defs>
                       <linearGradient
                         id={`sponsorGrad-${index}`}
@@ -367,7 +222,9 @@ const ScoreCard = React.memo(
                       opacity="0.9"
                     />
                   </svg>
-                  <span className="text-white font-black text-sm">SPORTEX</span>
+                  <span className="text-white font-black text-xs xs:text-sm">
+                    SPORTEX
+                  </span>
                 </div>
               </div>
             </div>
@@ -446,11 +303,6 @@ const NoLiveMatchesCard = ({
             No matches in play right now. Action returns soon!
           </p>
         </motion.div>
-
-        {/* Decoration */}
-        <div className="absolute -top-4 -right-4 opacity-1">
-          <HockeyBall className="w-16 h-16" shouldAnimate={true} />
-        </div>
       </motion.div>
     </motion.div>
   );
@@ -569,27 +421,30 @@ const LiveScoreCarousel = () => {
   }, []);
 
   return (
-    <section id="live-scores" className="relative py-24 px-4 bg-slate-300 overflow-hidden scroll-mt-24">
+    <section
+      id="live-scores"
+      className="relative py-12 px-4 bg-slate-300 overflow-hidden scroll-mt-24"
+    >
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-5"
         >
-          <div className="inline-flex items-center justify-center gap-4 mb-6">
+          <div className="inline-flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-3 md:gap-4 flex-wrap px-2 sm:px-4">
             <motion.div
               animate={!isPaused ? { scale: [1, 1.2, 1] } : {}}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="relative"
+              className="relative flex-shrink-0"
             >
-              <div className="w-5 h-5 bg-red-500 rounded-full" />
-              <div className="absolute inset-0 w-5 h-5 bg-red-500 rounded-full animate-ping" />
+              <div className="w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 bg-red-500 rounded-full" />
+              <div className="absolute inset-0 w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 bg-red-500 rounded-full animate-ping" />
             </motion.div>
 
-            <h2 className="text-6xl md:text-7xl font-black">
-              <span className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+            <h2 className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-black text-center leading-tight tracking-tight">
+              <span className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent whitespace-nowrap">
                 LIVE MATCHES
               </span>
             </h2>
@@ -597,10 +452,10 @@ const LiveScoreCarousel = () => {
             <motion.div
               animate={!isPaused ? { scale: [1, 1.2, 1] } : {}}
               transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
-              className="relative"
+              className="relative flex-shrink-0"
             >
-              <div className="w-5 h-5 bg-red-500 rounded-full" />
-              <div className="absolute inset-0 w-5 h-5 bg-red-500 rounded-full animate-ping" />
+              <div className="w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 bg-red-500 rounded-full" />
+              <div className="absolute inset-0 w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 bg-red-500 rounded-full animate-ping" />
             </motion.div>
           </div>
 

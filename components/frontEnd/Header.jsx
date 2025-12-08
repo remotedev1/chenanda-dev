@@ -22,7 +22,6 @@ import clsx from "clsx";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
 export default function Header() {
@@ -43,15 +42,20 @@ export default function Header() {
 
   return (
     <div>
-      <header className={clsx("fixed w-full left-0 z-50  ")}>
+      <header className="fixed w-full left-0 z-50">
         {/* 🔹 Main Header */}
         <div
-          className={clsx(
-            "flex justify-between items-center w-full px-6 py-4 md:px-10 lg:px-20  transition-all duration-700",
-            pathname !== "/" || isFixed
-              ? "bg-primary shadow-lg shadow-black/30" // when not home OR fixed
-              : "bg-black/40 shadow-lg" // home and not fixed
-          )}
+          className={`
+            flex justify-between items-center w-full 
+            px-3 xs:px-4 sm:px-5 md:px-6 lg:px-10 xl:px-20
+            py-2 xs:py-2.5 sm:py-3 md:py-3.5
+            transition-all duration-700
+            ${
+              pathname !== "/" || isFixed
+                ? "bg-primary shadow-lg shadow-black/30"
+                : "bg-black/40 shadow-lg"
+            }
+          `}
         >
           {/* Logo */}
 
@@ -59,16 +63,18 @@ export default function Header() {
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex items-center space-x-2"
+            className="flex items-center"
           >
             <Link
               href="/"
-              className={cn(
-                "no-underline cursor-pointer transition-all duration-500",
-                pathname !== "/" || isFixed
-                  ? "translate-y-0"
-                  : "-translate-y-28"
-              )}
+              className={`
+                no-underline cursor-pointer transition-all duration-500
+                ${
+                  pathname !== "/" || isFixed
+                    ? "translate-y-0"
+                    : "-translate-y-16 xs:-translate-y-20 sm:-translate-y-24 md:-translate-y-28"
+                }
+              `}
             >
               <Image
                 src="/logo-red.png"
@@ -97,9 +103,12 @@ export default function Header() {
                 </button>
               </SheetTrigger>
 
-              <SheetContent side="top" className="w-full h-full bg-black p-8">
+              <SheetContent
+                side="top"
+                className="w-full h-full bg-black p-8 [&>button]:hidden"
+              >
                 <SheetClose asChild className=" flex justify-self-end">
-                  <CircleX className=" text-red-600 hover:text-red-400  transition-colors duration-300 cursor-pointer" />
+                  <CircleX className="w-10 h-10 text-red-600 hover:text-red-400  transition-colors duration-300 cursor-pointer" />
                 </SheetClose>
                 <nav className="space-y-6 flex flex-col items-center justify-center h-full text-lg font-medium  text-white">
                   <Link

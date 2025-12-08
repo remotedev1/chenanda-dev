@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 const SportsFooter = () => {
   const [hoveredSocial, setHoveredSocial] = useState(null);
@@ -57,14 +58,189 @@ const SportsFooter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-indigo-700 flex flex-col pt-5">
+    <div className="min-h-screen bg-indigo-700 flex flex-col ">
       {/* Demo Content */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center text-white">
-          <h1 className="text-6xl font-bold mb-4">(advertisement)</h1>
-          <p className="text-2xl mb-8">adv description</p>
-          <div className="text-8xl">⚡🏆⚡</div>
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+        {/* Animated Background Gradient */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 pt-6"
+          animate={{
+            backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          style={{
+            backgroundSize: "200% 200%",
+          }}
+        />
+
+        {/* Floating Particles */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-white/30 rounded-full"
+              initial={{
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+              }}
+              animate={{
+                y: [null, Math.random() * -200],
+                opacity: [0.3, 0.7, 0.3],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          ))}
         </div>
+
+        {/* Main Content */}
+        <div className="relative z-10 text-center text-white max-w-4xl">
+          {/* Top Badge */}
+          <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+            {/* Animated Background Gradient */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500"
+              animate={{
+                backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              style={{
+                backgroundSize: "200% 200%",
+              }}
+            />
+
+            {/* Floating Particles */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(20)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-2 h-2 bg-white/30 rounded-full"
+                  initial={{
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                  }}
+                  animate={{
+                    y: [null, Math.random() * -200],
+                    opacity: [0.3, 0.7, 0.3],
+                  }}
+                  transition={{
+                    duration: 3 + Math.random() * 2,
+                    repeat: Infinity,
+                    delay: Math.random() * 2,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Main Content */}
+            <div className="relative z-10 text-center text-white max-w-4xl">
+              {/* Top Advertisement */}
+              <motion.div
+                initial={{ opacity: 0, y: -30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border-2 border-white/40 mb-6"
+              >
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">
+                  Advertisement Space Available
+                </span>
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+              </motion.div>
+
+              {/* Main Title with Stagger Animation */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-4 sm:mb-6 leading-tight">
+                  <motion.span
+                    className="inline-block"
+                    animate={{
+                      textShadow: [
+                        "0 0 20px rgba(255,255,255,0.5)",
+                        "0 0 40px rgba(255,255,255,0.8)",
+                        "0 0 20px rgba(255,255,255,0.5)",
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    YOUR BRAND
+                  </motion.span>{" "}
+                  <motion.span
+                    className="inline-block bg-gradient-to-r from-yellow-300 via-orange-300 to-yellow-300 bg-clip-text text-transparent"
+                    animate={{
+                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    style={{ backgroundSize: "200% auto" }}
+                  >
+                    COULD BE HERE
+                  </motion.span>
+                </h1>
+              </motion.div>
+
+              {/* Description */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-white/90 font-medium max-w-2xl mx-auto px-4"
+              >
+                Reach thousands of passionate sports fans and athletes. Premium
+                advertising space now available for sponsors and partners.
+              </motion.p>
+            </div>
+
+            {/* Corner Accents */}
+            <motion.div
+              className="absolute top-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-3xl"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+            />
+            <motion.div
+              className="absolute bottom-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-3xl"
+              animate={{
+                scale: [1.2, 1, 1.2],
+                opacity: [0.5, 0.3, 0.5],
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+            />
+          </div>
+        </div>
+
+        {/* Corner Accents */}
+        <motion.div
+          className="absolute top-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
       </div>
 
       {/* Footer Section */}

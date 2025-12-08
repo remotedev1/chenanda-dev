@@ -4,7 +4,7 @@ import Header from "@/components/frontEnd/Header";
 
 export default async function RootLayout({ children }) {
   return (
-    <div className={` font-sans  min-h-screen `}>
+    <div className={` font-sans  min-h-screen overflow-x-hidden`}>
       <Header />
 
       {children}
