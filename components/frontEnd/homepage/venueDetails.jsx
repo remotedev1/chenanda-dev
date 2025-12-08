@@ -104,23 +104,15 @@ const VenueCard = ({ arena, index }) => {
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3 mx-2 sm:mx-4">
-                  <motion.div
-                    className="text-lg sm:text-xl md:text-2xl font-black text-blue-800"
-                    animate={{ scale: [1, 1.15, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
+                  <div className="text-lg sm:text-xl md:text-2xl font-black text-blue-800">
                     {data.currentMatch.score1}
-                  </motion.div>
+                  </div>
                   <span className="text-gray-600 font-bold text-sm sm:text-base">
                     -
                   </span>
-                  <motion.div
-                    className="text-lg sm:text-xl md:text-2xl font-black text-blue-800"
-                    animate={{ scale: [1, 1.15, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                  >
+                  <div className="text-lg sm:text-xl md:text-2xl font-black text-blue-800">
                     {data.currentMatch.score2}
-                  </motion.div>
+                  </div>
                 </div>
 
                 <div className="flex-1">

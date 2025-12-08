@@ -28,7 +28,7 @@ const SponsorsList = () => {
   }, []);
 
   return (
-    <div className="py-12 sm:py-16 md:py-20 bg-slate-900 overflow-hidden">
+    <div className="py-12 sm:py-16 md:py-20 bg-blue-900 overflow-hidden">
       <div className="text-center mb-8 sm:mb-10 md:mb-12 px-4">
         <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-black mb-2 sm:mb-3 md:mb-4">
           Our Sponsors
@@ -41,8 +41,8 @@ const SponsorsList = () => {
       {/* Marquee Container */}
       <div className="relative">
         {/* Gradient Overlays */}
-        <div className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 md:w-40 bg-gradient-to-r from-slate-900 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 md:w-40 bg-gradient-to-l from-slate-900 to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 md:w-40 bg-gradient-to-r from-blue-900 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 md:w-40 bg-gradient-to-l from-blue-900 to-transparent z-10 pointer-events-none" />
         
         {/* Marquee Track */}
         <div className="flex overflow-hidden">
@@ -88,9 +88,9 @@ const SponsorsList = () => {
           }
         }
 
-        .animate-marquee:hover {
-          animation-play-state: paused;
-        }
+        // .animate-marquee:hover {
+        //   animation-play-state: paused;
+        // }
 
         /* Performance optimization */
         .flex {
@@ -112,7 +112,7 @@ const SponsorCard = ({ sponsor }) => {
   }, [sponsor.tier]);
 
   return (
-    <div className="group shrink-0">
+    <div className="group shrink-0 cursor-pointer">
       <div
         className={`
           px-4 py-3 xs:px-5 xs:py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 

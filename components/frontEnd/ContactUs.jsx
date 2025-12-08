@@ -10,7 +10,7 @@ export default function ContactUs() {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 1 }}
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.1 }}
       >
         {/* Header Section */}
         <div className="text-center mb-6 sm:mb-8">
@@ -21,7 +21,7 @@ export default function ContactUs() {
             viewport={{ once: true }}
           >
             <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-2">
-              Contact <span className="text-secondary bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">Us</span>
+              Contact <span className="text-secondary bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text">Us</span>
             </h3>
             <div className="w-12 sm:w-16 h-1 bg-gradient-to-r from-yellow-500 to-orange-500 mx-auto rounded-full mb-2 sm:mb-3"></div>
           </motion.div>

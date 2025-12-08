@@ -1,30 +1,15 @@
 "use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import { X, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Banner() {
-  const [isVisible, setIsVisible] = useState(true);
-
-  if (!isVisible) return null;
-
   return (
     <div
       id="payment"
       className="relative w-full overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200 scroll-mt-24"
     >
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDAwMDAiIGZpbGwtb3BhY2l0eT0iMC4wMiI+PHBhdGggZD0iTTM2IDM0djItMnptMCAwdjItMnptMCAwdjItMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50"></div>
-
-      {/* Close button - better positioned for mobile */}
-      <button
-        onClick={() => setIsVisible(false)}
-        className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-1.5 sm:p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-all duration-200 hover:scale-110"
-        aria-label="Close banner"
-      >
-        <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-      </button>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 md:py-8">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8 animate-slideIn">
@@ -61,7 +46,7 @@ export default function Banner() {
           </div>
 
           {/* CTA Button */}
-          <div className="flex-shrink-0 w-full sm:w-auto">
+          <div className="flex-shrink-0  sm:w-auto">
             <Link href="/secure/payment">
               <Button
                 size="lg"

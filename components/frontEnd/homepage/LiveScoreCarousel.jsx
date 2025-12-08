@@ -13,7 +13,8 @@ import {
   useTransform,
   animate,
 } from "framer-motion";
-import { Flame, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import { Zap, ChevronLeft, ChevronRight, Share } from "lucide-react";
+import { toPng } from "html-to-image";
 
 // Animated Score Component with optimized animations
 const AnimatedScore = React.memo(({ score, color }) => {
@@ -47,6 +48,46 @@ AnimatedScore.displayName = "AnimatedScore";
 const ScoreCard = React.memo(
   ({ match, index, isActive, isPaused, onHoverChange }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const scorecardRef = useRef();
+    const [showOptions, setShowOptions] = useState(false);
+    // Reference for the scorecard
+    const handleDownload = async () => {
+      setShowOptions((prev) => !prev);
+      if (scorecardRef.current) {
+        try {
+          const dataUrl = await toPng(scorecardRef.current);
+          const link = document.createElement("a");
+          link.href = dataUrl;
+          link.download = `${match.team1} vs ${match.team2}.png`;
+          link.click();
+        } catch (error) {
+          console.error("Error capturing the scorecard:", error);
+        }
+      }
+    };
+
+    const handleShare = async () => {
+      setShowOptions((prev) => !prev);
+      if (scorecardRef.current && navigator.share) {
+        try {
+          const dataUrl = await toPng(scorecardRef.current);
+          const response = await fetch(dataUrl);
+          const blob = await response.blob();
+
+          await navigator.share({
+            files: [new File([blob], "scorecard.png", { type: "image/png" })],
+            title: "Scorecard",
+            text: "Check out this match scorecard!",
+          });
+        } catch (error) {
+          console.error("Error sharing the scorecard:", error);
+        }
+      } else {
+        alert("Sharing is not supported on this device.");
+      }
+    };
+    const isShareSupported =
+      typeof navigator !== "undefined" && navigator.share;
 
     const handleHoverStart = useCallback(() => {
       setIsHovered(true);
@@ -60,7 +101,8 @@ const ScoreCard = React.memo(
 
     return (
       <motion.div
-        className="relative min-w-[280px] xs:min-w-[320px] sm:min-w-[380px] md:min-w-[420px] snap-center"
+        ref={scorecardRef}
+        className="relative min-w-[280px] xs:min-w-[320px] sm:min-w-[380px] md:min-w-[420px] snap-center "
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{
           opacity: isActive ? 1 : 0.7,
@@ -70,6 +112,35 @@ const ScoreCard = React.memo(
         onHoverStart={handleHoverStart}
         onHoverEnd={handleHoverEnd}
       >
+        {/* Dropdown Options */}
+        <div className="absolute top-4 right-4 z-10">
+          <div className="relative">
+            <button
+              onClick={() => setShowOptions((prev) => !prev)}
+              className="p-2 bg-slate-900 rounded-full shadow hover:bg-gray-600"
+            >
+              <Share size={20} />
+            </button>
+            {showOptions && (
+              <div className="absolute right-0 mt-2 w-fit bg-slate-600 p-2 shadow-lg rounded-lg border z-20 flex flex-col items-center gap-2">
+                <button
+                  onClick={handleDownload}
+                  className="block w-full px-4 py-2  bg-blue-500 text-sm text-white rounded-sm  hover:bg-blue-400"
+                >
+                  Download
+                </button>
+                {isShareSupported && (
+                  <button
+                    onClick={handleShare}
+                    className="w-full px-4 py-2 bg-green-500 text-sm text-white rounded-sm  hover:bg-green-400"
+                  >
+                    Share
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
         {/* Glow Effect - Only render when hovered */}
         {isHovered && (
           <motion.div
@@ -86,7 +157,7 @@ const ScoreCard = React.memo(
 
         {/* Card Content */}
         <motion.div
-          className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl sm:rounded-3xl p-4 xs:p-5 sm:p-6 md:p-8 border-2 border-cyan-500/40 shadow-2xl overflow-hidden"
+          className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 rounded-2xl sm:rounded-3xl p-4 xs:p-5 sm:p-6 md:p-8 border-2 border-cyan-500/40 shadow-2xl overflow-hidden"
           whileHover={{
             borderColor: "rgba(6, 182, 212, 0.8)",
             y: -8,
@@ -144,7 +215,7 @@ const ScoreCard = React.memo(
           </div>
 
           {/* VS Divider */}
-          <div className="relative flex items-center justify-center my-3 xs:my-4 sm:my-5 md:my-6">
+          <div className="relative flex items-center justify-center my-2 xs:my-4 sm:my-5 md:my-6">
             <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
             <div className="relative bg-gradient-to-r from-cyan-500 to-blue-600 px-4 xs:px-5 sm:px-6 py-1.5 xs:py-2 rounded-full text-white font-black text-xs xs:text-sm shadow-lg">
               VS
@@ -398,7 +469,7 @@ const LiveScoreCarousel = () => {
     if (!isPaused) {
       intervalRef.current = setInterval(() => {
         paginate(1);
-      }, 5000);
+      }, 9000);
     }
 
     return () => {
@@ -486,7 +557,7 @@ const LiveScoreCarousel = () => {
           </motion.button>
 
           {/* Cards Display */}
-          <div className="flex gap-6 overflow-hidden py-8 px-4">
+          <div className="flex gap-6 overflow-hidden py-5 px-4">
             <AnimatePresence initial={false} mode="wait">
               <motion.div
                 key={activeIndex}

@@ -98,7 +98,7 @@ const EventCountdown = () => {
       <section className="relative xl:min-h-screen flex items-center justify-center overflow-hidden py-8 xs:py-10 sm:py-12 md:py-16 lg:py-20 px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Optimized: Combined background layers */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-900 via-green-800 to-green-950">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950">
             <div
               className="absolute inset-0 opacity-30 sm:opacity-40"
               style={{

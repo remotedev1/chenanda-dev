@@ -61,22 +61,6 @@ const SportsFooter = () => {
     <div className="min-h-screen bg-indigo-700 flex flex-col ">
       {/* Demo Content */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
-        {/* Animated Background Gradient */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 pt-6"
-          animate={{
-            backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          style={{
-            backgroundSize: "200% 200%",
-          }}
-        />
-
         {/* Floating Particles */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(20)].map((_, i) => (
@@ -104,21 +88,7 @@ const SportsFooter = () => {
         <div className="relative z-10 text-center text-white max-w-4xl">
           {/* Top Badge */}
           <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
-            {/* Animated Background Gradient */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500"
-              animate={{
-                backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              style={{
-                backgroundSize: "200% 200%",
-              }}
-            />
+           
 
             {/* Floating Particles */}
             <div className="absolute inset-0 overflow-hidden">
@@ -193,34 +163,15 @@ const SportsFooter = () => {
               </motion.div>
 
               {/* Description */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+              <p
                 className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-white/90 font-medium max-w-2xl mx-auto px-4"
               >
                 Reach thousands of passionate sports fans and athletes. Premium
                 advertising space now available for sponsors and partners.
-              </motion.p>
+              </p>
             </div>
 
-            {/* Corner Accents */}
-            <motion.div
-              className="absolute top-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-3xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{ duration: 4, repeat: Infinity }}
-            />
-            <motion.div
-              className="absolute bottom-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-3xl"
-              animate={{
-                scale: [1.2, 1, 1.2],
-                opacity: [0.5, 0.3, 0.5],
-              }}
-              transition={{ duration: 4, repeat: Infinity }}
-            />
+          
           </div>
         </div>
 
@@ -267,42 +218,6 @@ const SportsFooter = () => {
           </svg>
         </div>
 
-        {/* Floating Sports Balls */}
-        <motion.div
-          className="absolute top-10 left-[10%] text-6xl"
-          variants={ballVariants}
-          animate="float"
-        >
-          🏀
-        </motion.div>
-
-        <motion.div
-          className="absolute top-20 right-[15%] text-5xl"
-          variants={ballVariants}
-          animate="float"
-          transition={{ delay: 1 }}
-        >
-          ⚽
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-32 left-[20%] text-5xl"
-          variants={ballVariants}
-          animate="float"
-          transition={{ delay: 2 }}
-        >
-          🏈
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-40 right-[10%] text-4xl"
-          variants={ballVariants}
-          animate="float"
-          transition={{ delay: 3 }}
-        >
-          🎾
-        </motion.div>
-
         {/* Animated Wave SVG */}
         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
           <svg
@@ -330,16 +245,12 @@ const SportsFooter = () => {
           >
             {/* Brand Section */}
             <motion.div variants={itemVariants}>
-              <motion.h2
+              <h2
                 className="text-3xl font-bold mb-4 bg-gradient-to-r from-red-500 to-yellow-500 bg-clip-text text-transparent"
-                whileHover={{ scale: 1.05 }}
               >
                 CHENANDA
-              </motion.h2>
-              <p className="text-gray-400 mb-6">
-                Your ultimate destination for sports news, updates, and live
-                action.
-              </p>
+              </h2>
+
               <div className="flex gap-3">
                 {socialIcons.map((social, idx) => (
                   <motion.div
@@ -458,7 +369,7 @@ const SportsFooter = () => {
             transition={{ delay: 0.5 }}
           >
             <p className="text-gray-500 text-sm mb-4 md:mb-0">
-              © 2024 Chennada okka. All rights reserved.
+              © 2026 Chennada okka. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm">
               {["Privacy Policy", "Terms of Service", "Cookie Policy"].map(
