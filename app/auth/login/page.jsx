@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/backOffice/auth/login-form";
+import { LoginForm } from "@/components/backOffice/auth/loginForm";
 
 const LoginPage = () => {
   return ( 

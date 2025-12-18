@@ -1,6 +1,6 @@
-import { ForgotPasswordForm } from "@/components/backOffice/auth/forget-password-form";
+import { ForgotPasswordForm } from "@/components/backOffice/auth/forgetPasswordForm";
 
-const RegisterPage = () => {
+const ForgotPasswordPage = () => {
   return (
     <section className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <ForgotPasswordForm />
@@ -8,4 +8,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default ForgotPasswordPage;

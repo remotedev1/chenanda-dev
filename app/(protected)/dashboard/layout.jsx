@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }) {
           </Header>
           {/* Main content */}
           <main>
-            <div className="w-full min-h-screen mx-auto bg-gray-300 p-6">
+            <div className="w-full min-h-screen mx-auto bg-blue-500 p-6">
               {children}
             </div>
           </main>

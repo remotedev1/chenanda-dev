@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { Check } from "lucide-react";
-import { useTheme } from "@/context/theme-context";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 export function ThemeSwitch() {
   const { theme, setTheme } = useTheme();

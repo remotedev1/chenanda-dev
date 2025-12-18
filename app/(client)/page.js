@@ -11,11 +11,11 @@ export default function Page() {
     <main className="relative min-h-screen flex flex-col bg-black text-white overflow-hidden">
       <Hero />
       <EventCountdown />
-      <PaymentBanner />
-      <LiveScoreCarousel />
-      <MatchSchedule />
+      {/* <PaymentBanner /> */}
+      {/* <LiveScoreCarousel /> */}
+      {/* <MatchSchedule /> */}
       <VenueDetails />
-      <SponsorsList />
+      {/* <SponsorsList /> */}
     </main>
   );
 }

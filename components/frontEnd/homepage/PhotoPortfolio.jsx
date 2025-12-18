@@ -1,5 +1,5 @@
 "use client";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";

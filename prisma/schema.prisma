@@ -7,66 +7,670 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Users {
-  id                        String         @id @default(auto()) @map("_id") @db.ObjectId
+model User {
+  id                        String    @id @default(auto()) @map("_id") @db.ObjectId
   firstName                 String
-  lastName                  String
-  email                     String         @unique
-  role                      UserRole       @default(user)
-  phoneNumber               String         @unique
-  alternateNumber           String?
+  lastName                  String?
+  email                     String    @unique
+  emailVerified             DateTime?
+  accounts                  Account[]
+  role                      UserRole  @default(USER)
+  phoneNumber               String    @unique
+  alternateNumber           String?   @unique
+  address                   Address?
   password                  String
-  isVerified                Boolean        @default(false)
-  isBlocked                 Boolean        @default(false)
-  isActive                  Boolean        @default(true)
-  images                    ImageGallery[]
-  passwordResetToken        String?
+  isBlocked                 Boolean   @default(false)
+  isActive                  Boolean   @default(true)
+  images                    String[] // Array of image URL strings
+  passwordResetToken        String?   @unique
   passwordResetTokenExpires DateTime?
-  verificationToken         String?
+  verificationToken         String?   @unique
   verificationTokenExpires  DateTime?
-  Event                      Event[]
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+}
+
+type Address {
+  address String
+  city    String
+  state   String
+  zip     String
+  phone   String
 }
 
 enum UserRole {
-  superadmin
-  admin
-  user
+  SUPER_ADMIN // Full system access
+  ADMIN // Tournament management
+  MODERATOR // Content management
+  SCORER // Match scoring/updates
+  USER // Basic access
 }
 
-model FamilyTree {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  treeData  Json
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// Core Tournament Model - Can host multiple sports
+model Tournament {
+  id                   String           @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String // e.g., "Summer Sports Festival 2024"
+  year                 Int
+  sports               SportType[] // List of sports in this tournament
+  startDate            DateTime
+  endDate              DateTime
+  registrationDeadline DateTime?
+  status               TournamentStatus @default(UPCOMING)
+  description          String?
+  sponsors             Json[] // Sponsor details
+  info                 Json[] // Additional info
+  images               String[] // Array of image URL strings
+
+  // Tournament participants (families registered for THIS tournament)
+  participation TournamentParticipation[]
+
+  // Matches in this tournament (across all sports)
+  matches Matches[]
+
+  // Winners/placements for this tournament (per sport)
+  placements TournamentPlacement[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Event {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  slug        String         @unique
-  excerpt     String?
-  content     String
-  images      ImageGallery[]
-  tags        String[]
-  isPublished Boolean        @default(false)
-  publishedAt DateTime?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  views       Int            @default(0)
-
-  category String  
-  authorId String @db.ObjectId
-  author   Users  @relation(fields: [authorId], references: [id])
+enum TournamentStatus {
+  DRAFT // Being set up
+  REGISTRATION // Open for registration
+  UPCOMING // Registration closed, not started
+  ONGOING // Currently playing
+  COMPLETED // Finished
+  CANCELLED // Cancelled
 }
 
-model Category {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  slug String @unique
+enum SportType {
+  FIELD_HOCKEY
+  FOOTBALL
+  CRICKET
+  RELAY
+  BASKETBALL
+  VOLLEYBALL
+  KABADDI
+  ATHLETICS
+  BADMINTON
+  TABLE_TENNIS
+  TENNIS
+  SQUASH
+  CARROM
+  CHESS
+  THROWBALL
+  KHO_KHO
+  SWIMMING
+  WRESTLING
+  BOXING
+  OTHER
 }
 
-type ImageGallery {
-  url    String
-  fileId String
+// Junction table: Links Families to Tournaments with tournament & sport-specific data
+model TournamentParticipation {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  tournamentId String     @db.ObjectId
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  familyId String   @db.ObjectId
+  family   Families @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  // Sport this family is participating in
+  sport SportType
+
+  // Tournament-specific data for this family in this sport
+  registeredAt DateTime @default(now())
+  pool         Pool? // Assigned pool
+  manager      String? // Manager for this tournament/sport
+  coach        String? // Coach for this tournament/sport
+  jerseyColor  String?
+
+  // Track this family's performance in THIS tournament & sport
+  matchesPlayed Int @default(0)
+  matchesWon    Int @default(0)
+  matchesLost   Int @default(0)
+  matchesDrawn  Int @default(0)
+
+  // Generic scoring (use based on sport)
+  pointsScored   Int @default(0) // Goals/Runs/Points scored
+  pointsConceded Int @default(0) // Goals/Runs/Points conceded
+  standingPoints Int @default(0) // Tournament standing points (win=3, draw=1, etc)
+
+  // Sport-specific stats stored as JSON
+  sportStats Json? // e.g., Cricket: { "runs": 450, "wickets": 23, "runRate": 7.5 }
+
+  isEliminated Boolean @default(false)
+  eliminatedIn Round?
+
+  @@unique([tournamentId, familyId, sport]) // Family can participate in multiple sports
+  @@index([tournamentId])
+  @@index([tournamentId, sport])
+  @@index([familyId])
+}
+
+// Families - Master data (reusable across tournaments and sports)
+model Families {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  familyName  String   @unique
+  shortName   String? // e.g., "Bulls" instead of "Bull Family"
+  description String?
+  colors      String[] // Team colors
+  info        Json[]
+  images      String[] // Array of image URL strings
+
+  // Historical data (across all tournaments and sports)
+  allTimeAchievements Achievements[]
+
+  // Players belonging to this family
+  players   Player[] @relation(fields: [playersId], references: [id])
+  playersId String[] @db.ObjectId
+
+  // Tournament participations (across all sports)
+  participations TournamentParticipation[]
+
+  // Tournament placements won (across all sports)
+  placements TournamentPlacement[]
+
+  // Payments made by this family
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Tournament Placements - Per sport, per tournament
+model TournamentPlacement {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  tournamentId String     @db.ObjectId
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  familyId String   @db.ObjectId
+  family   Families @relation(fields: [familyId], references: [id])
+
+  // Sport for this placement
+  sport SportType
+
+  placement Placements
+  prize     Json? // Prize details (cash, trophy, medal)
+
+  @@unique([tournamentId, sport, placement]) // Each sport has its own 1st, 2nd, 3rd
+  @@index([tournamentId])
+  @@index([tournamentId, sport])
+  @@index([familyId])
+}
+
+enum Placements {
+  FIRST
+  SECOND
+  THIRD
+  FOURTH
+  FIFTH
+  SIXTH
+  SEVENTH
+  EIGHTH
+}
+
+// Players - Master data (can play multiple sports)
+model Player {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  playerName  String
+  dateOfBirth DateTime?
+
+  primarySport SportType? // Primary sport this player plays
+
+  jerseyNumber Int?
+  biography    String?
+
+  // Player's achievements across all tournaments and sports
+  achievements Achievements[]
+
+  // Man of the match awards
+  manOfTheMatchIn Matches[]
+
+  // Families this player belongs to
+  familyId String[]   @db.ObjectId
+  families Families[] @relation(fields: [familyId], references: [id])
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([familyId])
+  @@index([primarySport])
+}
+
+type Achievements {
+  year        String?
+  sport       SportType? // Sport for this achievement
+  title       String // e.g., "Champion", "Top Scorer", "Best Goalkeeper"
+  description String?
+}
+
+// Matches - Now sport-specific within tournaments
+model Matches {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Tournament and Sport link
+  tournamentId String     @db.ObjectId
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  sport        SportType // Sport for this match
+
+  // Match details
+  matchNo         Int
+  name            String? // e.g., "Football - Pool A - Match 3" or "Cricket - Semi Final"
+  venue           Venues
+  scheduledOn     DateTime
+  actualStartTime DateTime?
+  actualEndTime   DateTime?
+
+  // Match structure
+  pool          Pool?
+  round         Round
+  currentPeriod MatchPeriod? // Current period of play
+  status        MatchStatus  @default(SCHEDULED)
+
+  // Teams playing
+  participants TeamMatchData[]
+
+  // Results
+  winnerId   String? @db.ObjectId
+  winnerName String? // Denormalized for easy access
+  isDraw     Boolean @default(false)
+
+  // Man of the match / Player of the match
+  manOfTheMatchId String? @db.ObjectId
+  manOfTheMatch   Player? @relation(fields: [manOfTheMatchId], references: [id])
+
+  // Tournament progression (for knockout stages)
+  nextMatchId     String?  @db.ObjectId // Winner goes to this match
+  previousMatches String[] @db.ObjectId // Matches that feed into this one
+
+  // Additional data
+  sponsor String?
+  notes   String?
+  images  String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tournamentId, sport, matchNo])
+  @@index([tournamentId, sport, status])
+  @@index([tournamentId, sport, round])
+  @@index([sport, status])
+  @@index([scheduledOn])
+}
+
+enum Pool {
+  A
+  B
+  C
+  D
+  E
+  F
+  G
+  H
+}
+
+enum Venues {
+  GROUND_1
+  GROUND_2
+  GROUND_3
+  GROUND_4
+  GROUND_5
+  GROUND_6
+  GROUND_7
+  GROUND_8
+  MAIN_STADIUM
+}
+
+enum Round {
+  POOL_STAGE
+  ROUND_1
+  ROUND_2
+  ROUND_3
+  ROUND_4
+  ROUND_5
+  ROUND_6
+  ROUND_OF_32
+  ROUND_OF_16
+  PRE_QUARTER
+  QUARTER_FINAL
+  SEMI_FINAL
+  THIRD_PLACE
+  FINAL
+}
+
+// Universal period enum covering all sports
+enum MatchPeriod {
+  // Football/Hockey/Field Hockey
+  WARM_UP
+  FULL_TIME
+  FIRST_HALF
+  HALF_TIME
+  SECOND_HALF
+  PENALTY_SHOOTOUT
+  TIE_BREAKER
+  EXTRA_TIME_FIRST
+  EXTRA_TIME_SECOND
+
+  // Basketball/Handball
+  FIRST_QUARTER
+  SECOND_QUARTER
+  THIRD_QUARTER
+  FOURTH_QUARTER
+  QUARTER_BREAK
+
+  // Cricket
+  FIRST_INNINGS
+  SECOND_INNINGS
+  INNINGS_BREAK
+  SUPER_OVER
+
+  // Tennis/Badminton/Table Tennis
+  SET_1
+  SET_2
+  SET_3
+  SET_4
+  SET_5
+  SET_BREAK
+}
+
+enum MatchStatus {
+  SCHEDULED
+  DELAYED
+  LIVE
+  SUSPENDED // Temporarily stopped (rain, injury, etc.)
+  COMPLETED
+  POSTPONED
+  CANCELLED
+  ABANDONED // Started but couldn't finish
+  WALKOVER
+  NO_RESULT
+}
+
+// ============================================================
+// TEAM MATCH DATA - Sport-Specific Structures
+// ============================================================
+
+type TeamMatchData {
+  familyId String @db.ObjectId
+  family   String // Family name (denormalized)
+
+  // Generic score for quick access and sorting
+  score Int @default(0)
+
+  // Sport-specific detailed records (use based on match sport)
+  hockeyData   HockeyMatchRecord?
+  footballData FootballMatchRecord?
+  cricketData  CricketMatchRecord?
+
+  // Match result flags
+  walkover Boolean?
+  forfeit  Boolean?
+}
+
+// ============================================================
+// HOCKEY MATCH RECORD
+// ============================================================
+type HockeyMatchRecord {
+  goals Int @default(0)
+
+  shootoutResults Boolean[] @default([])
+
+  // Goal details
+  goalDetails HockeyGoal[]
+}
+
+type HockeyGoal {
+  minute Int
+  period MatchPeriod    @default(FIRST_HALF)
+  type   HockeyGoalType @default(FIELD_GOAL)
+
+  playerId     String @db.ObjectId
+  playerName   String
+  jerseyNumber Int?
+}
+
+enum HockeyGoalType {
+  FIELD_GOAL
+  PENALTY_CORNER
+  PENALTY_STROKE
+  OWN_GOAL
+}
+
+// ============================================================
+// FOOTBALL MATCH RECORD
+// ============================================================
+type FootballMatchRecord {
+  goals Int @default(0)
+
+  shootoutResults Boolean[] @default([])
+
+  // Goal details
+  goalDetails FootballGoal[]
+}
+
+type FootballGoal {
+  minute Int
+  period MatchPeriod      @default(FIRST_HALF)
+  type   FootballGoalType @default(OPEN_PLAY)
+
+  playerId     String @db.ObjectId
+  playerName   String
+  jerseyNumber Int?
+}
+
+enum FootballGoalType {
+  OPEN_PLAY
+  PENALTY
+  FREE_KICK
+  CORNER
+  HEADER
+  VOLLEY
+  OWN_GOAL
+}
+
+// ============================================================
+// CRICKET MATCH RECORD
+// ============================================================
+type CricketMatchRecord {
+  innings    Int    @default(1) // 1st or 2nd innings
+  runs       Int    @default(0)
+  wickets    Int    @default(0)
+  overs      Float  @default(0) // 19.4 overs = 19.4
+  ballsFaced Int    @default(0)
+  runRate    Float?
+
+  // Extras
+  wides       Int @default(0)
+  noBalls     Int @default(0)
+  byes        Int @default(0)
+  legByes     Int @default(0)
+  penalties   Int @default(0)
+  totalExtras Int @default(0)
+
+  // Batting stats
+  fours Int @default(0)
+  sixes Int @default(0)
+
+  // Bowling stats (when fielding)
+  maidenOvers Int @default(0)
+  dotBalls    Int @default(0)
+
+  // Fall of wickets
+  fallOfWickets CricketWicket[]
+
+  // Batting performances
+  battingScores CricketBatting[]
+
+  // Bowling performances
+  bowlingFigures CricketBowling[]
+}
+
+type CricketWicket {
+  runs        Int // Team score when wicket fell
+  over        Float // 12.3 = 12th over, 3rd ball
+  playerId    String           @db.ObjectId
+  playerName  String
+  howOut      CricketDismissal
+  bowlerId    String?          @db.ObjectId
+  bowlerName  String?
+  fielderId   String?          @db.ObjectId
+  fielderName String?
+}
+
+enum CricketDismissal {
+  BOWLED
+  CAUGHT
+  LBW
+  RUN_OUT
+  STUMPED
+  HIT_WICKET
+  CAUGHT_AND_BOWLED
+  HANDLED_BALL
+  OBSTRUCTING_FIELD
+  HIT_BALL_TWICE
+  TIMED_OUT
+  RETIRED_HURT
+  RETIRED_OUT
+}
+
+type CricketBatting {
+  playerId    String            @db.ObjectId
+  playerName  String
+  runs        Int               @default(0)
+  ballsFaced  Int               @default(0)
+  fours       Int               @default(0)
+  sixes       Int               @default(0)
+  strikeRate  Float?
+  howOut      CricketDismissal?
+  bowlerId    String?           @db.ObjectId
+  bowlerName  String?
+  fielderId   String?           @db.ObjectId
+  fielderName String?
+}
+
+type CricketBowling {
+  playerId   String @db.ObjectId
+  playerName String
+  overs      Float  @default(0)
+  maidens    Int    @default(0)
+  runs       Int    @default(0)
+  wickets    Int    @default(0)
+  economy    Float?
+  wides      Int    @default(0)
+  noBalls    Int    @default(0)
+}
+
+// Payment Model - Track payments from families
+model Payment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Family making the payment
+  familyId String   @db.ObjectId
+  family   Families @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  // Payment details
+  amount        Float
+  currency      String        @default("INR")
+  paymentType   PaymentType
+  paymentMethod PaymentMethod
+  status        PaymentStatus @default(PENDING)
+
+  // Payment gateway details
+  transactionId String? @unique // From payment gateway
+  orderId       String? // Your internal order ID
+  receiptNumber String? @unique // Receipt/invoice number
+
+  // Payment purpose
+  purpose     String // e.g., "Tournament Registration Fee - Football"
+  description String?
+
+  // Tournament & Sport specific (if applicable)
+  tournamentId   String?    @db.ObjectId
+  tournamentName String? // Denormalized
+  sport          SportType? // If payment is sport-specific
+
+  // Payment metadata
+  paymentDate DateTime  @default(now())
+  paidAt      DateTime?
+
+  // Contact info
+  payerName  String
+  payerEmail String?
+  payerPhone String?
+
+  // Additional details
+  notes       String?
+  attachments String[] // URLs to payment proofs/receipts
+
+  // Refund details (if applicable)
+  isRefunded   Boolean   @default(false)
+  refundAmount Float?
+  refundedAt   DateTime?
+  refundReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([familyId])
+  @@index([status])
+  @@index([sport])
+  @@index([paymentDate])
+}
+
+enum PaymentType {
+  TOURNAMENT_FEE // Per tournament fee
+  MERCHANDISE // Team merchandise
+  OTHER // Other payments
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CREDIT_CARD
+  DEBIT_CARD
+  NET_BANKING
+  CHEQUE
+  BANK_TRANSFER
+  RAZORPAY
+  STRIPE
+  PAYTM
+  PHONEPE
+  GPAY
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING // Payment initiated but not completed
+  PROCESSING // Payment being processed
+  COMPLETED // Payment successful
+  FAILED // Payment failed
+  CANCELLED // Payment cancelled
+  REFUNDED // Payment refunded
+  PARTIALLY_REFUNDED // Partial refund issued
 }

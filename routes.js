@@ -2,22 +2,34 @@
  * An array of routes that are accessible to the public
  * These routes do not require authentication
  * @type {string[]}
-test 
-*/
-export const publicRoutes = ["/", "/about-us", "/gallery", "/contact-us"];
+ */
+export const publicRoutes = [
+  "/",
+  "/about-us",
+  "/gallery",
+  "/contact-us",
+  // Add verification pages to public routes
+  "/api/verify-email",
+  "/auth/verify-success",
+  "/auth/verify-error",
+];
 
 /**
- * An array of routes that are used for authenticationS
- * These routes will redirect logged in users to /settings
+ * An array of routes that are used for authentication
+ * These routes will redirect logged in users to dashboard
  * @type {string[]}
  */
 export const authRoutes = [
   "/auth/login",
-  "/auth/email-verification",
-  "/auth/forgot-password",
-  "/auth/reset-password",
   "/auth/register",
-  "/auth/reset",
+  "/api/auth/verify-email",
+  "/api/auth/resend-email-verification",
+  "/auth/verify-email/error",
+  "/auth/verify-email/success",
+  "/auth/forgot-password",
+  "/api/auth/forgot-password",
+  "/auth/reset-password",
+  "/api/auth/reset-password",
 ];
 
 /**
@@ -32,3 +44,9 @@ export const apiAuthPrefix = "/api";
  * @type {string}
  */
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard";
+
+/**
+ * Admin-only routes (enforced in middleware)
+ * @type {string[]}
+ */
+export const adminRoutes = ["/dashboard"];

@@ -1,4 +1,4 @@
-import { RegisterForm } from "@/components/backOffice/auth/register-form";
+import { RegisterForm } from "@/components/backOffice/auth/registerForm";
 
 const RegisterPage = () => {
   return (

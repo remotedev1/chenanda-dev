@@ -29,7 +29,7 @@ export const TestimonialSchema = z.object({
     .string()
     .url("Image must be a valid URL")
     .optional()
-    .or(z.literal("")), 
+    .or(z.literal("")),
   quote: z.string().min(1, "Quote is required"),
   isArchived: z.boolean().optional(),
 });
@@ -37,18 +37,20 @@ export const SolutionsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   isArchived: z.boolean().optional(),
-  image: z.array(
+  image: z
+    .array(
       z.union([
         // Case 1: Uploaded file
         z.instanceof(File),
-  
+
         // Case 2: Saved image object
         z.object({
           url: z.string().url(),
           fileId: z.string(),
         }),
       ])
-    ).optional(),
+    )
+    .optional(),
 });
 
 export const SettingsSchema = z
@@ -121,30 +123,54 @@ export const RegisterSchema = z
   .object({
     firstName: z
       .string()
-      .min(3, "First name is required")
-      .max(30, "Must be less than or equal to 30 characters."),
+      .min(2, "First name must be at least 2 characters.")
+      .max(30, "First name must be less than 30 characters.")
+      .trim(),
+
     lastName: z
       .string()
-      .max(30, "Must be less than or equal to 30 characters.")
-      .optional(),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters long."),
-    confirmPassword: z
-      .string()
-      .min(6, "Confirm Password must be at least 6 characters long."),
+      .max(30, "Last name must be less than 30 characters.")
+      .trim()
+      .optional()
+      .or(z.literal("")),
+
+    email: z.string().email("Invalid email address.").toLowerCase().trim(),
+
     phoneNumber: z
       .string()
-      .regex(IndianPhoneNumberRegex, "Enter a valid contact number."),
+      .regex(IndianPhoneNumberRegex, "Enter a valid 10-digit phone number.")
+      .trim(),
+
     alternateNumber: z
       .string()
-      .regex(IndianPhoneNumberRegex, "Enter a valid alternate contact number.")
-      .optional(),
+      .regex(IndianPhoneNumberRegex, "Enter a valid 10-digit phone number.")
+      .trim()
+      .optional()
+      .or(z.literal("")),
+
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters.")
+      .max(100, "Password is too long."),
+
+    confirmPassword: z.string().min(1, "Please confirm your password."),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords must match.",
-    path: ["confirmPassword"], // shows the error under confirmPassword
-  });
-
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  })
+  .refine(
+    (data) => {
+      if (data.alternateNumber && data.alternateNumber.length > 0) {
+        return data.phoneNumber !== data.alternateNumber;
+      }
+      return true;
+    },
+    {
+      message: "Alternate number must be different from primary phone.",
+      path: ["alternateNumber"],
+    }
+  );
 
 export const NewsSchema = z.object({
   title: z.string().min(3, "Title is required"),
