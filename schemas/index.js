@@ -1,4 +1,3 @@
-import { title } from "process";
 import * as z from "zod";
 
 const IndianPhoneNumberRegex = /^[6789]\d{9}$/;
@@ -11,47 +10,6 @@ export const indianStates = [
   "Tamil Nadu",
   "Telangana",
 ];
-
-export const ConsultationSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().regex(/^[6-9]\d{9}$/, "Invalid Indian phone number"), // Valid 10-digit Indian mobile
-  state: z.enum(indianStates, {
-    errorMap: () => ({ message: "Invalid Indian state" }),
-  }),
-  details: z.string().optional(),
-});
-
-export const TestimonialSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  role: z.string().min(1).optional(),
-  image: z
-    .string()
-    .url("Image must be a valid URL")
-    .optional()
-    .or(z.literal("")),
-  quote: z.string().min(1, "Quote is required"),
-  isArchived: z.boolean().optional(),
-});
-export const SolutionsSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  isArchived: z.boolean().optional(),
-  image: z
-    .array(
-      z.union([
-        // Case 1: Uploaded file
-        z.instanceof(File),
-
-        // Case 2: Saved image object
-        z.object({
-          url: z.string().url(),
-          fileId: z.string(),
-        }),
-      ])
-    )
-    .optional(),
-});
 
 export const SettingsSchema = z
   .object({
@@ -171,38 +129,63 @@ export const RegisterSchema = z
       path: ["alternateNumber"],
     }
   );
+// tournament schemas
+export const SportTypeEnum = z.enum([
+  "FIELD_HOCKEY",
+  "FOOTBALL",
+  "CRICKET",
+  "RELAY",
+  "BASKETBALL",
+  "VOLLEYBALL",
+  "KABADDI",
+  "ATHLETICS",
+  "BADMINTON",
+  "TABLE_TENNIS",
+  "TENNIS",
+  "SQUASH",
+  "CARROM",
+  "CHESS",
+  "THROWBALL",
+  "KHO_KHO",
+  "SWIMMING",
+  "WRESTLING",
+  "BOXING",
+  "OTHER",
+]);
 
-export const NewsSchema = z.object({
-  title: z.string().min(3, "Title is required"),
-  slug: z.string().min(3, "Slug is required").optional(),
-  content: z.string().min(10, "Content must be at least 10 characters"),
-  images: z.array(
-    z.union([
-      // Case 1: Uploaded file
-      z.instanceof(File),
+const TournamentStatusEnum = z.enum([
+  "DRAFT",
+  "REGISTRATION",
+  "UPCOMING",
+  "ONGOING",
+  "COMPLETED",
+  "CANCELLED",
+]);
 
-      // Case 2: Saved image object
-      z.object({
-        url: z.string().url(),
-        fileId: z.string(),
-      }),
-    ])
-  ),
-  tags: z.array(z.string()).optional(),
-  categoryId: z.string().min(3, "Category is required"),
-  isPublished: z.boolean().default(false),
-  deletedFileIds: z.array(z.string()).optional(),
+export const createTournamentSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  year: z.number().int().min(2000).max(2100),
+  sports: z.array(SportTypeEnum).min(1, "At least one sport is required"),
+  startDate: z.string().datetime(),
+  endDate: z.string().datetime(),
+  registrationDeadline: z.string().datetime().optional(),
+  status: TournamentStatusEnum.optional(),
+  description: z.string().optional(),
+  sponsors: z.array(z.any()).optional(),
+  info: z.array(z.any()).optional(),
+  images: z.array(z.string().url()).optional(),
 });
 
-// ✅ Update Schema (all optional, but keeps same shape)
-export const NewsUpdateSchema = NewsSchema.partial();
-
-export const CategorySchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  slug: z.string().min(2, "Slug is required"),
-});
-
-export const CategoryUpdateSchema = z.object({
-  name: z.string().optional(),
-  slug: z.string().optional(),
+export const querySchema = z.object({
+  page: z.string().optional().default("1"),
+  limit: z.string().optional().default("10"),
+  status: TournamentStatusEnum.optional(),
+  sport: SportTypeEnum.optional(),
+  year: z.string().optional(),
+  search: z.string().optional(),
+  sortBy: z
+    .enum(["startDate", "name", "createdAt"])
+    .optional()
+    .default("startDate"),
+  sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });

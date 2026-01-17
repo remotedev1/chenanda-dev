@@ -8,26 +8,30 @@ generator client {
 }
 
 model User {
-  id                        String    @id @default(auto()) @map("_id") @db.ObjectId
+  id                        String        @id @default(auto()) @map("_id") @db.ObjectId
   firstName                 String
   lastName                  String?
-  email                     String    @unique
+  email                     String        @unique
   emailVerified             DateTime?
   accounts                  Account[]
-  role                      UserRole  @default(USER)
-  phoneNumber               String    @unique
-  alternateNumber           String?   @unique
+  role                      UserRole      @default(USER)
+  phoneNumber               String        @unique
+  alternateNumber           String?       @unique
   address                   Address?
   password                  String
-  isBlocked                 Boolean   @default(false)
-  isActive                  Boolean   @default(true)
+  isBlocked                 Boolean       @default(false)
+  isActive                  Boolean       @default(true)
   images                    String[] // Array of image URL strings
-  passwordResetToken        String?   @unique
+  passwordResetToken        String?       @unique
   passwordResetTokenExpires DateTime?
-  verificationToken         String?   @unique
+  verificationToken         String?       @unique
   verificationTokenExpires  DateTime?
-  createdAt                 DateTime  @default(now())
-  updatedAt                 DateTime  @updatedAt
+  activityLogs              ActivityLog[]
+
+  lastLoginAt DateTime?
+  lastLoginIp String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 type Address {
@@ -68,20 +72,35 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-// Core Tournament Model - Can host multiple sports
+model ActivityLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String // Who did it
+  action      String // What they did (created, updated, deleted, etc.)
+  entity      String // What they acted on (tournament, match, family, etc.)
+  entityId    String? // ID of the item
+  entityName  String? // Name of the item
+  description String // Human-readable text
+  timestamp   DateTime // When it happened
+  ipAddress   String? // Where from (optional)
+  userAgent   String? // Device info (optional)
+  User        User     @relation(fields: [userId], references: [id])
+}
+
+// Core Tournament Model - Can host multiple sports with individual games/events
 model Tournament {
-  id                   String           @id @default(auto()) @map("_id") @db.ObjectId
-  name                 String // e.g., "Summer Sports Festival 2024"
-  year                 Int
-  sports               SportType[] // List of sports in this tournament
-  startDate            DateTime
-  endDate              DateTime
-  registrationDeadline DateTime?
-  status               TournamentStatus @default(UPCOMING)
-  description          String?
-  sponsors             Json[] // Sponsor details
-  info                 Json[] // Additional info
-  images               String[] // Array of image URL strings
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  name        String // e.g., "Summer Sports Festival 2024"
+  year        Int
+  startDate   DateTime
+  endDate     DateTime
+  status      TournamentStatus @default(DRAFT)
+  description String?
+  sponsors    Json[] // Sponsor details
+  info        Json[] // Additional info
+  images      String[] // Array of image URL strings
+
+  // Games/Sports being played in this tournament with individual configs
+  games TournamentGame[]
 
   // Tournament participants (families registered for THIS tournament)
   participation TournamentParticipation[]
@@ -94,6 +113,103 @@ model Tournament {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Games/Sports Configuration within a Tournament
+// Each game represents a specific event/category (e.g., Men's 7s Hockey, Women's Cricket)
+model TournamentGame {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  tournamentId String     @db.ObjectId
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  // Game Details
+  sportType SportType // FIELD_HOCKEY, CRICKET, FOOTBALL, etc.
+  name      String // e.g., "Men's 7s Tournament", "Women's T20 Cricket"
+  format    String? // e.g., "7-a-side", "T20", "5s League", "11-a-side"
+  category  GameCategory // MENS, WOMENS, JUNIOR, VETERANS, MIXED
+
+  // Scheduling
+  date  DateTime
+  time  String // e.g., "9:00 AM"
+  venue String // e.g., "Stadium A", "Ground C"
+
+  // Registration & Payment
+  registrationDeadline DateTime
+  registrationFee      Float // Price in rupees
+  maxTeams             Int? // Maximum teams/families allowed
+  minTeams             Int? // Minimum teams required to run the event
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Metadata
+  icon        String? // Emoji or icon identifier
+  description String?
+  rules       String?
+
+  // Relations
+  registrations GameRegistration[]
+  matches       Matches[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tournamentId])
+  @@index([tournamentId, sportType])
+}
+
+// Individual Game Registrations - Teams/Families registering for specific games
+model GameRegistration {
+  id              String                  @id @default(auto()) @map("_id") @db.ObjectId
+  gameId          String                  @db.ObjectId
+  game            TournamentGame          @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  participationId String                  @db.ObjectId
+  participation   TournamentParticipation @relation(fields: [participationId], references: [id], onDelete: Cascade)
+
+  // Team/Player Details for this specific game
+  teamName String?
+  players  Json[] // Array of player details for this game
+  pool     Pool? // Assigned pool for this game
+
+  // Payment for this specific game
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentAmount Float
+  paymentDate   DateTime?
+  paymentId     String? // Link to Payment model transaction ID
+
+  // Registration Status
+  status       RegistrationStatus @default(PENDING)
+  registeredAt DateTime           @default(now())
+  confirmedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([gameId, participationId])
+  @@index([gameId])
+  @@index([participationId])
+  @@index([paymentStatus])
+}
+
+enum GameCategory {
+  MENS
+  WOMENS
+  JUNIOR
+  VETERANS
+  MIXED
+  OPEN
+  KIDS
+  TEENS
+  ADULTS
+  SENIORS
+}
+
+enum RegistrationStatus {
+  PENDING // Registration submitted, awaiting confirmation
+  CONFIRMED // Registration confirmed
+  WAITLISTED // On waiting list
+  CANCELLED // Registration cancelled
+  REJECTED // Registration rejected
 }
 
 enum TournamentStatus {
@@ -128,7 +244,7 @@ enum SportType {
   OTHER
 }
 
-// Junction table: Links Families to Tournaments with tournament & sport-specific data
+// Junction table: Links Families to Tournaments
 model TournamentParticipation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
@@ -138,36 +254,18 @@ model TournamentParticipation {
   familyId String   @db.ObjectId
   family   Families @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
-  // Sport this family is participating in
-  sport SportType
+  // Game-specific registrations for this family in this tournament
+  gameRegistrations GameRegistration[]
 
-  // Tournament-specific data for this family in this sport
-  registeredAt DateTime @default(now())
-  pool         Pool? // Assigned pool
-  manager      String? // Manager for this tournament/sport
-  coach        String? // Coach for this tournament/sport
-  jerseyColor  String?
+  // Overall participation tracking
+  registeredAt    DateTime @default(now())
+  totalAmountPaid Float    @default(0) // Total across all games registered
 
-  // Track this family's performance in THIS tournament & sport
-  matchesPlayed Int @default(0)
-  matchesWon    Int @default(0)
-  matchesLost   Int @default(0)
-  matchesDrawn  Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // Generic scoring (use based on sport)
-  pointsScored   Int @default(0) // Goals/Runs/Points scored
-  pointsConceded Int @default(0) // Goals/Runs/Points conceded
-  standingPoints Int @default(0) // Tournament standing points (win=3, draw=1, etc)
-
-  // Sport-specific stats stored as JSON
-  sportStats Json? // e.g., Cricket: { "runs": 450, "wickets": 23, "runRate": 7.5 }
-
-  isEliminated Boolean @default(false)
-  eliminatedIn Round?
-
-  @@unique([tournamentId, familyId, sport]) // Family can participate in multiple sports
+  @@unique([tournamentId, familyId])
   @@index([tournamentId])
-  @@index([tournamentId, sport])
   @@index([familyId])
 }
 
@@ -175,18 +273,16 @@ model TournamentParticipation {
 model Families {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   familyName  String   @unique
-  shortName   String? // e.g., "Bulls" instead of "Bull Family"
   description String?
-  colors      String[] // Team colors
+  colors      String? // Team colors
   info        Json[]
   images      String[] // Array of image URL strings
 
   // Historical data (across all tournaments and sports)
   allTimeAchievements Achievements[]
 
-  // Players belonging to this family
-  players   Player[] @relation(fields: [playersId], references: [id])
-  playersId String[] @db.ObjectId
+  // Player belonging to this family
+  players Player[]
 
   // Tournament participations (across all sports)
   participations TournamentParticipation[]
@@ -236,11 +332,10 @@ enum Placements {
 
 // Players - Master data (can play multiple sports)
 model Player {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  playerName  String
-  dateOfBirth DateTime?
-
-  primarySport SportType? // Primary sport this player plays
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  playerName   String
+  dateOfBirth  DateTime?
+  primarySport SportType?
 
   jerseyNumber Int?
   biography    String?
@@ -252,8 +347,8 @@ model Player {
   manOfTheMatchIn Matches[]
 
   // Families this player belongs to
-  familyId String[]   @db.ObjectId
-  families Families[] @relation(fields: [familyId], references: [id])
+  familyId String   @db.ObjectId // Single ID (not an array)
+  family   Families @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -265,12 +360,11 @@ model Player {
 
 type Achievements {
   year        String?
-  sport       SportType? // Sport for this achievement
-  title       String // e.g., "Champion", "Top Scorer", "Best Goalkeeper"
-  description String?
+  title       String 
+  description String
 }
 
-// Matches - Now sport-specific within tournaments
+// Matches - Now sport-specific within tournaments and can link to specific games
 model Matches {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
@@ -278,6 +372,10 @@ model Matches {
   tournamentId String     @db.ObjectId
   tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   sport        SportType // Sport for this match
+
+  // Link to specific game/event (optional - for tournaments with multiple game types)
+  gameId String?         @db.ObjectId
+  game   TournamentGame? @relation(fields: [gameId], references: [id], onDelete: SetNull)
 
   // Match details
   matchNo         Int
@@ -320,6 +418,7 @@ model Matches {
   @@unique([tournamentId, sport, matchNo])
   @@index([tournamentId, sport, status])
   @@index([tournamentId, sport, round])
+  @@index([gameId])
   @@index([sport, status])
   @@index([scheduledOn])
 }
@@ -614,6 +713,7 @@ model Payment {
   tournamentId   String?    @db.ObjectId
   tournamentName String? // Denormalized
   sport          SportType? // If payment is sport-specific
+  gameId         String?    @db.ObjectId // Link to specific game if applicable
 
   // Payment metadata
   paymentDate DateTime  @default(now())
@@ -640,11 +740,13 @@ model Payment {
   @@index([familyId])
   @@index([status])
   @@index([sport])
+  @@index([gameId])
   @@index([paymentDate])
 }
 
 enum PaymentType {
   TOURNAMENT_FEE // Per tournament fee
+  GAME_FEE // Per game/event fee
   MERCHANDISE // Team merchandise
   OTHER // Other payments
 }

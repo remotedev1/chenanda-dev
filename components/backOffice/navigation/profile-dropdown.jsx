@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { LogoutButton } from "../auth/logout-button";
 import { ExitIcon } from "@radix-ui/react-icons";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export function ProfileDropdown() {
   const { user } = useCurrentUser();

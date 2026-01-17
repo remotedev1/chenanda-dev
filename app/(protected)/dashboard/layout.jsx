@@ -7,7 +7,7 @@ import { AppSidebar } from "@/components/backOffice/navigation/sidebar";
 import { ThemeSwitch } from "@/components/backOffice/navigation/theme-switch";
 import { TopNav } from "@/components/backOffice/navigation/top-nav";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 

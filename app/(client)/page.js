@@ -14,7 +14,7 @@ export default function Page() {
       {/* <PaymentBanner /> */}
       {/* <LiveScoreCarousel /> */}
       {/* <MatchSchedule /> */}
-      <VenueDetails />
+      {/* <VenueDetails /> */}
       {/* <SponsorsList /> */}
     </main>
   );

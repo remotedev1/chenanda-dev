@@ -26,11 +26,13 @@ export function ThemeProvider({
       const effectiveTheme = theme === "system" ? systemTheme : theme;
       root.classList.remove("light", "dark");
       root.classList.add(effectiveTheme);
+
     };
 
     const handleSystemChange = () => {
       if (theme === "system") {
         applyTheme("system");
+
       }
     };
 

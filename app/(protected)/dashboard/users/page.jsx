@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAbilityContext } from "@/components/providers/AbilityProvider";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const UserManagementSystem = () => {
   const { user: currentUser } = useCurrentUser();

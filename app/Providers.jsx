@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ImageKitProvider } from "imagekitio-next";
 import { useEffect, useState } from "react";
-import { AbilityProvider } from "@/components/providers/AbilityProvider";
+import { AbilityProvider } from "@/hooks/useAbility";
 
 const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
@@ -37,9 +37,7 @@ export const Providers = ({ children }) => {
           urlEndpoint={urlEndpoint}
           authenticator={authenticator}
         >
-          <AbilityProvider>
-          {children}
-          </AbilityProvider>
+          <AbilityProvider>{children}</AbilityProvider>
         </ImageKitProvider>
 
         <Toaster position="top-right" richColors />

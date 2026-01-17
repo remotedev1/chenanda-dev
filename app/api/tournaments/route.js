@@ -1,287 +1,170 @@
-import { NextResponse } from "next/server";
-import {
-  checkRateLimit,
-  clearRateLimit,
-  incrementRateLimit,
-} from "@/lib/rate-limit/rateLimiter";
-import { RATE_LIMIT_PRESETS } from "@/lib/rate-limit/presets";
-import { getRateLimitKey } from "@/lib/rate-limit/getRateLimitKey";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import {
+  setupApiHandler,
+  parsePagination,
+  buildPaginationResponse,
+  buildSearchWhere,
+  successResponse,
+  errorResponse,
+  logActivity,
+  withErrorHandling,
+} from "@/lib/api/helpers";
+import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
+import { auth } from "@/auth";
 
-// Validation schemas
-const SportTypeEnum = z.enum([
-  "FIELD_HOCKEY",
-  "FOOTBALL",
-  "CRICKET",
-  "RELAY",
-  "BASKETBALL",
-  "VOLLEYBALL",
-  "KABADDI",
-  "ATHLETICS",
-  "BADMINTON",
-  "TABLE_TENNIS",
-  "TENNIS",
-  "SQUASH",
-  "CARROM",
-  "CHESS",
-  "THROWBALL",
-  "KHO_KHO",
-  "SWIMMING",
-  "WRESTLING",
-  "BOXING",
-  "OTHER",
-]);
-
-const TournamentStatusEnum = z.enum([
-  "DRAFT",
-  "REGISTRATION",
-  "UPCOMING",
-  "ONGOING",
-  "COMPLETED",
-  "CANCELLED",
-]);
-
-const createTournamentSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  year: z.number().int().min(2000).max(2100),
-  sports: z.array(SportTypeEnum).min(1, "At least one sport is required"),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime(),
-  registrationDeadline: z.string().datetime().optional(),
-  status: TournamentStatusEnum.optional(),
-  description: z.string().optional(),
-  sponsors: z.array(z.any()).optional(),
-  info: z.array(z.any()).optional(),
-  images: z.array(z.string().url()).optional(),
-});
+/* ---------------- SCHEMAS ---------------- */
 
 const querySchema = z.object({
-  page: z.string().optional().default("1"),
-  limit: z.string().optional().default("10"),
-  status: TournamentStatusEnum.optional(),
-  sport: SportTypeEnum.optional(),
-  year: z.string().optional(),
+  page: z.string().default("1"),
+  limit: z.string().default("10"),
   search: z.string().optional(),
   sortBy: z
-    .enum(["startDate", "name", "createdAt"])
-    .optional()
-    .default("startDate"),
-  sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
+    .enum(["createdAt", "name", "year", "startDate"])
+    .default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
-// GET - List tournaments with filtering and pagination
-export async function GET(request) {
-  try {
-    // Rate limiting
-    const rateLimitKey = getRateLimitKey(request, "tournaments:list");
-    const rateLimitCheck = checkRateLimit(
-      rateLimitKey,
-      RATE_LIMIT_PRESETS.ADMIN_API
-    );
+const createTournamentSchema = z.object({
+  name: z.string().min(3).max(150),
+  year: z.number().int(),
+  startDate: z.string().datetime(),
+  endDate: z.string().datetime(),
+  status: z
+    .enum([
+      "DRAFT",
+      "REGISTRATION",
+      "UPCOMING",
+      "ONGOING",
+      "COMPLETED",
+      "CANCELLED",
+    ])
+    .optional(),
+  description: z.string().max(500).optional(),
+  sponsors: z.array(z.any()).max(20).optional(),
+  info: z.array(z.any()).max(20).optional(),
+  images: z.array(z.string().url()).max(10).optional(),
+  // Remove games from here - it will be added via separate update endpoint
+});
 
-    if (!rateLimitCheck.allowed) {
-      return NextResponse.json(
-        {
-          error: "Too many requests",
-          retryAfter: rateLimitCheck.retryAfter,
-        },
-        { status: 429 }
-      );
-    }
+/* ---------------- HANDLERS ---------------- */
 
-    await incrementRateLimit(rateLimitKey, RATE_LIMIT_PRESETS.ADMIN_API);
+async function handleGet(request) {
+  // Setup (auth + rate limit)
+  const setup = await setupApiHandler(request, "tournaments:list");
+  if (setup.error) return setup.error;
 
-    // Parse and validate query parameters
-    const { searchParams } = new URL(request.url);
-    const queryParams = {
-      page: searchParams.get("page") || "1",
-      limit: searchParams.get("limit") || "10",
-      status: searchParams.get("status") || undefined,
-      sport: searchParams.get("sport") || undefined,
-      year: searchParams.get("year") || undefined,
-      search: searchParams.get("search") || undefined,
-      sortBy: searchParams.get("sortBy") || "startDate",
-      sortOrder: searchParams.get("sortOrder") || "desc",
-    };
+  // Query params
+  const { searchParams } = new URL(request.url);
+  const validated = querySchema.parse({
+    page: searchParams.get("page"),
+    limit: searchParams.get("limit"),
+    search: searchParams.get("search") || undefined,
+    sortBy: searchParams.get("sortBy") || undefined,
+    sortOrder: searchParams.get("sortOrder") || undefined,
+  });
 
-    const validated = querySchema.parse(queryParams);
-    const page = parseInt(validated.page);
-    const limit = Math.min(parseInt(validated.limit), 100); // Max 100 items
-    const skip = (page - 1) * limit;
+  const { page, limit, skip } = parsePagination(searchParams);
 
-    // Build where clause
-    const where = {};
+  // Search filter
+  const where = buildSearchWhere(validated.search, ["name", "description"]);
 
-    if (validated.status) {
-      where.status = validated.status;
-    }
-
-    if (validated.sport) {
-      where.sports = {
-        has: validated.sport,
-      };
-    }
-
-    if (validated.year) {
-      where.year = parseInt(validated.year);
-    }
-
-    if (validated.search) {
-      where.OR = [
-        { name: { contains: validated.search, mode: "insensitive" } },
-        { description: { contains: validated.search, mode: "insensitive" } },
-      ];
-    }
-
-    // Get tournaments with pagination
-    const [tournaments, total] = await Promise.all([
-      db.tournament.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: {
-          [validated.sortBy]: validated.sortOrder,
-        },
-        include: {
-          _count: {
-            select: {
-              participation: true,
-              matches: true,
-              placements: true,
-            },
-          },
-        },
-      }),
-      db.tournament.count({ where }),
-    ]);
-
-    return NextResponse.json({
-      success: true,
-      data: tournaments,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-        hasMore: skip + tournaments.length < total,
-      },
-    });
-  } catch (error) {
-    console.error("GET /api/tournaments error:", error);
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid query parameters", details: error.errors },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Failed to fetch tournaments" },
-      { status: 500 }
-    );
-  }
-}
-
-// POST - Create a new tournament
-export async function POST(request) {
-  try {
-    // Rate limiting
-    const rateLimitKey = getRateLimitKey(request, "tournaments:create");
-    const rateLimitCheck = await checkRateLimit(
-      rateLimitKey,
-      RATE_LIMIT_PRESETS.ADMIN_API
-    );
-
-    if (!rateLimitCheck.allowed) {
-      return NextResponse.json(
-        {
-          error: "Too many requests",
-          retryAfter: rateLimitCheck.retryAfter,
-        },
-        { status: 429 }
-      );
-    }
-
-     incrementRateLimit(rateLimitKey, RATE_LIMIT_PRESETS.ADMIN_API);
-
-    // Parse and validate request body
-    const body = await request.json();
-    const validated = createTournamentSchema.parse(body);
-
-    // Validate dates
-    const startDate = new Date(validated.startDate);
-    const endDate = new Date(validated.endDate);
-
-    if (endDate <= startDate) {
-      return NextResponse.json(
-        { error: "End date must be after start date" },
-        { status: 400 }
-      );
-    }
-
-    if (validated.registrationDeadline) {
-      const regDeadline = new Date(validated.registrationDeadline);
-      if (regDeadline >= startDate) {
-        return NextResponse.json(
-          { error: "Registration deadline must be before start date" },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Create tournament
-    const tournament = await db.tournament.create({
-      data: {
-        name: validated.name,
-        year: validated.year,
-        sports: validated.sports,
-        startDate: new Date(validated.startDate),
-        endDate: new Date(validated.endDate),
-        registrationDeadline: validated.registrationDeadline
-          ? new Date(validated.registrationDeadline)
-          : undefined,
-        status: validated.status || "DRAFT",
-        description: validated.description,
-        sponsors: validated.sponsors || [],
-        info: validated.info || [],
-        images: validated.images || [],
-      },
+  // Fetch data
+  const [tournaments, total] = await Promise.all([
+    db.tournament.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { [validated.sortBy]: validated.sortOrder },
       include: {
-        _count: {
-          select: {
-            participation: true,
-            matches: true,
-            placements: true,
-          },
-        },
+        games: true,
+        participation: true,
+        matches: true,
+        placements: true,
       },
-    });
+    }),
+    db.tournament.count({ where }),
+  ]);
 
-    clearRateLimit(rateLimitKey);
+  return successResponse({
+    tournaments,
+    pagination: buildPaginationResponse(page, limit, total, tournaments),
+  });
+}
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: tournament,
-        message: "Tournament created successfully",
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("POST /api/tournaments error:", error);
+async function handlePost(request) {
+  // Setup (auth + rate limit)
+  const setup = await setupApiHandler(request, "tournaments:create");
+  if (setup.error) return setup.error;
 
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
-        { status: 400 }
-      );
-    }
+  const user = await auth();
 
-    return NextResponse.json(
-      { error: "Failed to create tournament" },
-      { status: 500 }
+  // Ability
+  const ability = defineAbilityFor(user);
+
+  if (!ability.can(ACTIONS.MANAGE, "all")) {
+    return errorResponse(
+      "You don't have permission to create tournaments",
+      403
     );
   }
+
+  // Validate body
+  const body = await request.json();
+  const validated = createTournamentSchema.parse(body);
+
+  // Duplicate check (same name + year)
+  const isDuplicate = await db.tournament.findFirst({
+    where: {
+      name: validated.name,
+      year: validated.year,
+    },
+  });
+
+  if (isDuplicate) {
+    return errorResponse(
+      "Tournament with this name and year already exists",
+      409
+    );
+  }
+
+  // Create tournament (without games - those will be added separately)
+  const tournament = await db.tournament.create({
+    data: {
+      name: validated.name,
+      year: validated.year,
+      startDate: new Date(validated.startDate),
+      endDate: new Date(validated.endDate),
+      registrationDeadline: new Date(validated.registrationDeadline),
+      status: validated.status || "DRAFT",
+      description: validated.description,
+      sponsors: validated.sponsors || [],
+      info: validated.info || [],
+      images: validated.images || [],
+    },
+    include: {
+      games: true,
+      participation: true,
+      matches: true,
+      placements: true,
+    },
+  });
+
+  // Log activity
+  await logActivity({
+    userId: setup.user.userId,
+    action: "created",
+    entity: "tournament",
+    entityId: tournament.id,
+    entityName: tournament.name,
+    description: `Created tournament "${tournament.name} ${tournament.year}"`,
+    request,
+  });
+
+  return successResponse(tournament, "Tournament created successfully", 201);
 }
+
+/* ---------------- EXPORTS ---------------- */
+
+export const GET = withErrorHandling(handleGet, "tournaments");
+export const POST = withErrorHandling(handlePost, "tournament");
