@@ -3,12 +3,9 @@
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { TournamentForm } from "./TournamentForm";
 import { TournamentDetailSkeleton } from "./TournamentSkeleton";
-import {
-  useTournament,
-  useUpdateTournament,
-} from "@/hooks/useTournament";
+import { TournamentForm } from "./TournamentForm";
+import { useTournament, useUpdateTournament } from "@/hooks/useTournament";
 
 export default function TournamentEditPage({ params }) {
   const router = useRouter();
@@ -34,10 +31,10 @@ export default function TournamentEditPage({ params }) {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Edit Tournament</h1>
-            <p className="text-muted-foreground">
-              Update tournament details
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Edit Tournament
+            </h1>
+            <p className="text-muted-foreground">Update tournament details</p>
           </div>
         </div>
         <TournamentDetailSkeleton />
@@ -84,7 +81,9 @@ export default function TournamentEditPage({ params }) {
         <TournamentForm
           tournament={tournament}
           onSubmit={handleUpdate}
-          onCancel={() => router.push(`/dashboard/tournaments/${tournament.id}`)}
+          onCancel={() =>
+            router.push(`/dashboard/tournaments/${tournament.id}`)
+          }
           loading={updating}
         />
       </div>
