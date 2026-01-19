@@ -8,11 +8,9 @@ import {
   errorResponse,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import {
-  getUserByEmail,
-  generateemailVerificationToken,
-  sendVerificationEmail,
-} from "@/helpers/user";
+import { getUserByEmail } from "@/helpers/user";
+import { sendVerificationEmail } from "@/lib/mail";
+import { generateEmailVerificationToken } from "@/lib/tokens";
 
 /* ---------------- CONSTANTS ---------------- */
 
@@ -97,7 +95,7 @@ async function handlePost(request) {
   }
 
   if (!existingUser.emailVerified) {
-    const tokenData = await generateemailVerificationToken(normalizedEmail);
+    const tokenData = await generateEmailVerificationToken(normalizedEmail);
 
     if (tokenData?.token) {
       await sendVerificationEmail(tokenData);

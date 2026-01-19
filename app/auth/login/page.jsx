@@ -92,9 +92,9 @@ export default function TournamentLogin({ redirectTo = "/dashboard" }) {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          values: { email, password }, 
-          callbackUrl 
+        body: JSON.stringify({
+          values: { email, password },
+          callbackUrl,
         }),
       });
 
@@ -102,17 +102,17 @@ export default function TournamentLogin({ redirectTo = "/dashboard" }) {
 
       if (data.error) {
         toast.error(data.error);
-        
+
         // Show remaining attempts if available
         if (data.remainingAttempts !== undefined) {
           toast.warning(`${data.remainingAttempts} attempts remaining`);
         }
-        
+
         // Check if it's a verification error
         if (data.requiresVerification) {
           toast.error("Please verify your email to continue");
         }
-        
+
         setLoading(false);
       }
 
@@ -232,7 +232,7 @@ export default function TournamentLogin({ redirectTo = "/dashboard" }) {
                       disabled={loading}
                       className="text-sm"
                     >
-                      Didn't receive OTP? Resend
+                      Didn&apos;t receive OTP? Resend
                     </Button>
                   </div>
                 </form>
@@ -284,7 +284,7 @@ export default function TournamentLogin({ redirectTo = "/dashboard" }) {
           </Tabs>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a
               href="/register"
               className="text-primary hover:underline font-medium"
