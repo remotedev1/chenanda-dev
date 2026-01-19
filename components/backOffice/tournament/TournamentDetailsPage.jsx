@@ -304,13 +304,25 @@ export default function TournamentDetailPage() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
+              <Can I="manage" a="Games">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() =>
+                    router.push(`/dashboard/tournaments/${tournament.id}/games`)
+                  }
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Games
+                </Button>
+              </Can>
               <Can I="manage" a="Participation">
                 <Button
                   variant="outline"
                   className="w-full justify-start"
                   onClick={() =>
                     router.push(
-                      `/dashboard/tournaments/${tournament.id}/participants`
+                      `/dashboard/tournaments/${tournament.id}/participants`,
                     )
                   }
                 >
@@ -324,7 +336,7 @@ export default function TournamentDetailPage() {
                   className="w-full justify-start"
                   onClick={() =>
                     router.push(
-                      `/dashboard/tournaments/${tournament.id}/matches`
+                      `/dashboard/tournaments/${tournament.id}/matches`,
                     )
                   }
                 >
@@ -338,7 +350,7 @@ export default function TournamentDetailPage() {
                   className="w-full justify-start"
                   onClick={() =>
                     router.push(
-                      `/dashboard/tournaments/${tournament.id}/placements`
+                      `/dashboard/tournaments/${tournament.id}/placements`,
                     )
                   }
                 >

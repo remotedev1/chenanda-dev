@@ -45,26 +45,21 @@ export const sidebarData = {
           url: "/dashboard",
           icon: LayoutDashboard,
         },
+      ],
+    },
+    {
+      title: "Management",
+      items: [
         {
-          title: "Categories",
-          url: "/dashboard/categories",
-          // badge: "3",
-          icon: PhoneIncoming,
-        },
-        {
-          title: "News",
-          url: "/dashboard/news",
-          icon: Megaphone,
-        },
-        {
-          title: "Projects",
-          url: "/dashboard/projects",
-          icon: Megaphone,
-        },
-        {
-          title: "Testimonials",
-          url: "/dashboard/testimonials",
-          icon: Megaphone,
+          title: "Tournament settings",
+          icon: Settings,
+          items: [
+            {
+              title: "Tournament List",
+              url: "/dashboard/tournaments",
+              icon: UserCog,
+            },
+          ],
         },
       ],
     },

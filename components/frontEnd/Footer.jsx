@@ -7,16 +7,8 @@ const SportsFooter = () => {
   const [hoveredSocial, setHoveredSocial] = useState(null);
 
   const footerLinks = {
-    sports: [
-      "Basketball",
-      "Football",
-      "Soccer",
-      "Tennis",
-      "Baseball",
-      "Hockey",
-    ],
-    company: ["About Us", "Careers", "Press", "Partners", "Contact"],
-    resources: ["Blog", "Newsletter", "Events", "Help Center", "Support"],
+    sports: ["Hockey"],
+    company: ["About Us", "Contact"],
   };
 
   const socialIcons = [
@@ -88,8 +80,6 @@ const SportsFooter = () => {
         <div className="relative z-10 text-center text-white max-w-4xl">
           {/* Top Badge */}
           <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
-           
-
             {/* Floating Particles */}
             <div className="absolute inset-0 overflow-hidden">
               {[...Array(20)].map((_, i) => (
@@ -163,15 +153,11 @@ const SportsFooter = () => {
               </motion.div>
 
               {/* Description */}
-              <p
-                className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-white/90 font-medium max-w-2xl mx-auto px-4"
-              >
+              <p className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-white/90 font-medium max-w-2xl mx-auto px-4">
                 Reach thousands of passionate sports fans and athletes. Premium
                 advertising space now available for sponsors and partners.
               </p>
             </div>
-
-          
           </div>
         </div>
 
@@ -245,9 +231,7 @@ const SportsFooter = () => {
           >
             {/* Brand Section */}
             <motion.div variants={itemVariants}>
-              <h2
-                className="text-3xl font-bold mb-4 bg-gradient-to-r from-red-500 to-yellow-500 bg-clip-text text-transparent"
-              >
+              <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-red-500 to-yellow-500 bg-clip-text text-transparent">
                 CHENANDA
               </h2>
 
@@ -371,7 +355,8 @@ const SportsFooter = () => {
             <p className="text-gray-500 text-sm mb-4 md:mb-0">
               © 2026 Chennada okka. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm">
+            {/* TODO */}
+            {/* <div className="flex gap-6 text-sm">
               {["Privacy Policy", "Terms of Service", "Cookie Policy"].map(
                 (item) => (
                   <motion.a
@@ -382,9 +367,9 @@ const SportsFooter = () => {
                   >
                     {item}
                   </motion.a>
-                )
+                ),
               )}
-            </div>
+            </div> */}
           </motion.div>
         </div>
       </footer>

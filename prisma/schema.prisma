@@ -8,30 +8,34 @@ generator client {
 }
 
 model User {
-  id                        String        @id @default(auto()) @map("_id") @db.ObjectId
-  firstName                 String
-  lastName                  String?
-  email                     String        @unique
-  emailVerified             DateTime?
-  accounts                  Account[]
-  role                      UserRole      @default(USER)
-  phoneNumber               String        @unique
-  alternateNumber           String?       @unique
-  address                   Address?
-  password                  String
-  isBlocked                 Boolean       @default(false)
-  isActive                  Boolean       @default(true)
-  images                    String[] // Array of image URL strings
-  passwordResetToken        String?       @unique
-  passwordResetTokenExpires DateTime?
-  verificationToken         String?       @unique
-  verificationTokenExpires  DateTime?
-  activityLogs              ActivityLog[]
-
-  lastLoginAt DateTime?
-  lastLoginIp String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                            String        @id @default(auto()) @map("_id") @db.ObjectId
+  firstName                     String
+  lastName                      String?
+  email                         String        @unique
+  emailVerified                 DateTime?
+  accounts                      Account[]
+  role                          UserRole      @default(USER)
+  phoneNumber                   String        @unique
+  alternateNumber               String?       @unique
+  phoneOtp                      String?
+  phoneOtpExpires               DateTime?
+  phoneVerified                 DateTime?
+  address                       Address?
+  password                      String
+  familyId                      String?       @db.ObjectId
+  isBlocked                     Boolean       @default(false)
+  isActive                      Boolean       @default(true)
+  images                        String[] // Array of image URL strings
+  passwordResetToken            String?       @unique
+  passwordResetTokenExpires     DateTime?
+  emailVerificationToken        String?       @unique
+  emailVerificationTokenExpires DateTime?
+  activityLogs                  ActivityLog[]
+  lastLoginAt                   DateTime?
+  lastLoginIp                   String?
+  createdAt                     DateTime      @default(now())
+  updatedAt                     DateTime      @updatedAt
+  Tournament                    Tournament[]
 }
 
 type Address {
@@ -47,6 +51,7 @@ enum UserRole {
   ADMIN // Tournament management
   MODERATOR // Content management
   SCORER // Match scoring/updates
+  FAMILY // family manager
   USER // Basic access
 }
 
@@ -111,6 +116,9 @@ model Tournament {
   // Winners/placements for this tournament (per sport)
   placements TournamentPlacement[]
 
+  createdById String @db.ObjectId
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -129,15 +137,11 @@ model TournamentGame {
   category  GameCategory // MENS, WOMENS, JUNIOR, VETERANS, MIXED
 
   // Scheduling
-  date  DateTime
-  time  String // e.g., "9:00 AM"
-  venue String // e.g., "Stadium A", "Ground C"
+  date DateTime
 
   // Registration & Payment
   registrationDeadline DateTime
   registrationFee      Float // Price in rupees
-  maxTeams             Int? // Maximum teams/families allowed
-  minTeams             Int? // Minimum teams required to run the event
 
   // Status
   isActive Boolean @default(true)
@@ -158,6 +162,15 @@ model TournamentGame {
   @@index([tournamentId, sportType])
 }
 
+enum TournamentStatus {
+  DRAFT // Being set up
+  REGISTRATION // Open for registration
+  UPCOMING // Registration closed, not started
+  ONGOING // Currently playing
+  COMPLETED // Finished
+  CANCELLED // Cancelled
+}
+
 // Individual Game Registrations - Teams/Families registering for specific games
 model GameRegistration {
   id              String                  @id @default(auto()) @map("_id") @db.ObjectId
@@ -168,7 +181,6 @@ model GameRegistration {
 
   // Team/Player Details for this specific game
   teamName String?
-  players  Json[] // Array of player details for this game
   pool     Pool? // Assigned pool for this game
 
   // Payment for this specific game
@@ -212,15 +224,6 @@ enum RegistrationStatus {
   REJECTED // Registration rejected
 }
 
-enum TournamentStatus {
-  DRAFT // Being set up
-  REGISTRATION // Open for registration
-  UPCOMING // Registration closed, not started
-  ONGOING // Currently playing
-  COMPLETED // Finished
-  CANCELLED // Cancelled
-}
-
 enum SportType {
   FIELD_HOCKEY
   FOOTBALL
@@ -259,6 +262,8 @@ model TournamentParticipation {
 
   // Overall participation tracking
   registeredAt    DateTime @default(now())
+  registeredBy    String // User ID who registered
+  registeredVia   String   @default("PHONE") // PHONE, WEB, ADMIN
   totalAmountPaid Float    @default(0) // Total across all games registered
 
   createdAt DateTime @default(now())
@@ -360,7 +365,7 @@ model Player {
 
 type Achievements {
   year        String?
-  title       String 
+  title       String
   description String
 }
 
@@ -518,9 +523,6 @@ enum MatchStatus {
 type TeamMatchData {
   familyId String @db.ObjectId
   family   String // Family name (denormalized)
-
-  // Generic score for quick access and sorting
-  score Int @default(0)
 
   // Sport-specific detailed records (use based on match sport)
   hockeyData   HockeyMatchRecord?

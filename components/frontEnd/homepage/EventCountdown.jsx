@@ -192,7 +192,7 @@ const EventCountdown = () => {
           </motion.div>
 
           {/* CTA Buttons */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
@@ -221,7 +221,7 @@ const EventCountdown = () => {
                 <span className="truncate">LIVE SCORES</span>
               </span>
             </motion.button>
-          </motion.div>
+          </motion.div> */}
 
           {/* Optimized Countdown Timer */}
           <motion.div

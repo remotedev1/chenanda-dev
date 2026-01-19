@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
-import { getVerificationTokenByToken } from "@/lib/tokens";
+import { getemailVerificationTokenByToken } from "@/lib/tokens";
 import { hashToken } from "@/helpers/token";
 
 // Rate limiting for verification attempts (use Redis in production)
@@ -87,7 +87,7 @@ export async function GET(req) {
     console.log(hashToken);
 
     // Get token from database
-    const existingToken = await getVerificationTokenByToken(hashedToken);
+    const existingToken = await getemailVerificationTokenByToken(hashedToken);
 
     if (!existingToken) {
       recordVerificationAttempt(ip);
@@ -99,8 +99,8 @@ export async function GET(req) {
     // Check expiration
     const now = new Date();
     if (
-      !existingToken.verificationTokenExpires ||
-      existingToken.verificationTokenExpires < now
+      !existingToken.emailVerificationTokenExpires ||
+      existingToken.emailVerificationTokenExpires < now
     ) {
       recordVerificationAttempt(ip);
       return NextResponse.redirect(
@@ -143,8 +143,8 @@ export async function GET(req) {
       where: { email: existingToken.email },
       data: {
         emailVerified: now,
-        verificationToken: null,
-        verificationTokenExpires: null,
+        emailVerificationToken: null,
+        emailVerificationTokenExpires: null,
         isActive: true,
       },
     });

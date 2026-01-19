@@ -83,8 +83,8 @@ export async function GET(req) {
     await db.user.update({
       where: { email: normalizedEmail },
       data: {
-        verificationToken: token,
-        verificationTokenExpiry: expires,
+        emailVerificationToken: token,
+        emailVerificationTokenExpiry: expires,
       },
     });
 

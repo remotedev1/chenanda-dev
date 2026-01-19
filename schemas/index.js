@@ -31,7 +31,7 @@ export const SettingsSchema = z
     {
       message: "New password is required!",
       path: ["newPassword"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -44,7 +44,7 @@ export const SettingsSchema = z
     {
       message: "Password is required!",
       path: ["password"],
-    }
+    },
   );
 
 export const ResetPasswordSchema = z.object({
@@ -127,8 +127,32 @@ export const RegisterSchema = z
     {
       message: "Alternate number must be different from primary phone.",
       path: ["alternateNumber"],
-    }
+    },
   );
+
+/**
+ * Login with phone OTP
+ */
+export const PhoneLoginSchema = z.object({
+  phoneNumber: z.string().min(10, "Phone number is required"),
+  otp: z.string().length(6, "OTP must be 6 digits"),
+});
+
+/**
+ * Send OTP
+ */
+export const SendOTPSchema = z.object({
+  phoneNumber: z.string().min(10, "Phone number is required"),
+});
+
+/**
+ * Verify OTP
+ */
+export const VerifyOTPSchema = z.object({
+  phoneNumber: z.string().min(10, "Phone number is required"),
+  code: z.string().length(6, "OTP must be 6 digits"),
+});
+
 // tournament schemas
 export const SportTypeEnum = z.enum([
   "FIELD_HOCKEY",

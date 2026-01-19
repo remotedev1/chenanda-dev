@@ -20,7 +20,6 @@ import {
   Search,
   Settings,
   Home,
-  LayoutDashboard,
 } from "lucide-react";
 
 export function CommandPalette({ tournaments = [] }) {

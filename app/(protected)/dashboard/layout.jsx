@@ -1,8 +1,8 @@
 "use client";
 
+import { CommandPalette } from "@/components/backOffice/navigation/CommandPallete";
 import { Header } from "@/components/backOffice/navigation/header";
 import { ProfileDropdown } from "@/components/backOffice/navigation/profile-dropdown";
-import { Search } from "@/components/backOffice/navigation/search";
 import { AppSidebar } from "@/components/backOffice/navigation/sidebar";
 import { ThemeSwitch } from "@/components/backOffice/navigation/theme-switch";
 import { TopNav } from "@/components/backOffice/navigation/top-nav";
@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }) {
           <Header>
             <TopNav links={topNav} />
             <div className="ml-auto flex items-center space-x-4">
-              <Search />
+              <CommandPalette />  
               <ThemeSwitch />
               <ProfileDropdown />
             </div>
