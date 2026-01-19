@@ -45,7 +45,7 @@ import {
   TournamentStatus,
 } from "@/schemas/tournament.schema";
 
-export default function TournamentForm({
+export function TournamentForm({
   tournament = null,
   onSubmit,
   onCancel,
