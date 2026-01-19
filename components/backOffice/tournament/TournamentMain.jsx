@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Trophy } from "lucide-react";
 import { TournamentTable } from "./TournamentTable";
-import { TournamentForm } from "./TournamentForm";
+import TournamentForm  from "./TournamentForm";
 import { EmptyState } from "@/components/common/EmptyState";
 import { TournamentTableSkeleton } from "./TournamentSkeleton";
 import {

@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { TournamentDetailSkeleton } from "./TournamentSkeleton";
-import { TournamentForm } from "./TournamentForm";
+import TournamentForm  from "./TournamentForm";
 import { useTournament, useUpdateTournament } from "@/hooks/useTournament";
 
 export default function TournamentEditPage({ params }) {
