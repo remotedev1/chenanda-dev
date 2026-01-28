@@ -1,11 +1,11 @@
 // import FamilyTree from "@/components/backOffice/features/family-tree/FamilyTree";
 
-import AboutComponent from "@/components/frontEnd/about/aboutComponent";
+import AboutChenanda from "@/components/frontEnd/about/AboutPage";
 
 export default function AboutSection() {
   return (
     <section className="bg-white">
-      <AboutComponent />
+      <AboutChenanda />
       {/* <FamilyTree /> */}
     </section>
   );

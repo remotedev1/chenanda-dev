@@ -21,7 +21,7 @@ export default function ContactUs() {
             viewport={{ once: true }}
           >
             <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-2">
-              Contact <span className="text-secondary bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text">Us</span>
+              Contact <span className="text-secondary bg-gradient-to-r from-yellow-500 to-orange-500">us</span>
             </h3>
             <div className="w-12 sm:w-16 h-1 bg-gradient-to-r from-yellow-500 to-orange-500 mx-auto rounded-full mb-2 sm:mb-3"></div>
           </motion.div>

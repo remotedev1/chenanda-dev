@@ -52,7 +52,7 @@ export default function Header() {
             transition-all duration-700
             ${
               pathname !== "/" || isFixed
-                ? "bg-primary shadow-lg shadow-black/30"
+                ? "bg-white shadow-lg shadow-black/30"
                 : "bg-black/40 shadow-lg"
             }
           `}

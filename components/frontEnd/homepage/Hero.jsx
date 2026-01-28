@@ -18,7 +18,7 @@ export default function Hero() {
         const [entry] = entries;
         setIsInView(entry.isIntersecting);
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     if (sectionRef.current) {
@@ -83,26 +83,15 @@ export default function Hero() {
         </motion.div>
 
         {/* Button */}
-
-        <motion.button
-          className="px-8 py-4  rounded-2xl shadow-xl"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Link
-            href="/about-us"
-            className="bg-yellow-500 rounded-full text-black text-base px-8 py-3 hover:bg-yellow-300 transition-colors"
-          >
-            About Us
-          </Link>
-        </motion.button>
       </div>
-      <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex flex-col items-center">
-        <p className="text-white text-sm mb-1 animate-pulse">Scroll down</p>
-        <ChevronDown
-          className="w-6 h-6 text-white animate-bounce"
-          strokeWidth={2}
-        />
+      <div className="absolute bottom-14 left-1/2 -translate-x-1/2 ">
+        <Link href="#about-us-section" className="flex flex-col justify-center items-center">
+          <p className="text-white text-sm mb-1 animate-pulse">Scroll down</p>
+          <ChevronDown
+            className="w-6 h-6 text-white animate-bounce"
+            strokeWidth={2}
+          />
+        </Link>
       </div>
     </section>
   );

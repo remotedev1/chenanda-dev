@@ -50,10 +50,9 @@ const SportsFooter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-indigo-700 flex flex-col ">
-      {/* Demo Content */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
-        {/* Floating Particles */}
+    <div className=" bg-indigo-700 flex flex-col ">
+      {/* adv Content */}
+      {/* <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(20)].map((_, i) => (
             <motion.div
@@ -76,11 +75,8 @@ const SportsFooter = () => {
           ))}
         </div>
 
-        {/* Main Content */}
-        <div className="relative z-10 text-center text-white max-w-4xl">
-          {/* Top Badge */}
+      <div className="relative z-10 text-center text-white max-w-4xl">
           <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
-            {/* Floating Particles */}
             <div className="absolute inset-0 overflow-hidden">
               {[...Array(20)].map((_, i) => (
                 <motion.div
@@ -103,9 +99,7 @@ const SportsFooter = () => {
               ))}
             </div>
 
-            {/* Main Content */}
             <div className="relative z-10 text-center text-white max-w-4xl">
-              {/* Top Advertisement */}
               <motion.div
                 initial={{ opacity: 0, y: -30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -119,7 +113,6 @@ const SportsFooter = () => {
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.div>
 
-              {/* Main Title with Stagger Animation */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -152,16 +145,14 @@ const SportsFooter = () => {
                 </h1>
               </motion.div>
 
-              {/* Description */}
               <p className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-white/90 font-medium max-w-2xl mx-auto px-4">
                 Reach thousands of passionate sports fans and athletes. Premium
                 advertising space now available for sponsors and partners.
               </p>
             </div>
           </div>
-        </div>
+        </div> 
 
-        {/* Corner Accents */}
         <motion.div
           className="absolute top-0 left-0 w-32 h-32 sm:w-48 sm:h-48 bg-white/10 rounded-full blur-3xl"
           animate={{
@@ -178,7 +169,7 @@ const SportsFooter = () => {
           }}
           transition={{ duration: 4, repeat: Infinity }}
         />
-      </div>
+      </div> */}
 
       {/* Footer Section */}
       <footer className="relative bg-gradient-to-b from-slate-900 to-slate-950 text-white overflow-hidden">
