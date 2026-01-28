@@ -5,11 +5,6 @@ import Image from "next/image";
 import {
   Menu,
   User,
-  Globe,
-  Linkedin,
-  Facebook,
-  Twitter,
-  X,
   CircleX,
 } from "lucide-react";
 import {
@@ -22,7 +17,6 @@ import clsx from "clsx";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 
 export default function Header() {
   const [isFixed, setIsFixed] = useState(false);
@@ -72,7 +66,7 @@ export default function Header() {
                 ${
                   pathname !== "/" || isFixed
                     ? "translate-y-0"
-                    : "-translate-y-16 xs:-translate-y-20 sm:-translate-y-24 md:-translate-y-28"
+                    : "-translate-y-20 xs:-translate-y-20 sm:-translate-y-24 md:-translate-y-28"
                 }
               `}
             >

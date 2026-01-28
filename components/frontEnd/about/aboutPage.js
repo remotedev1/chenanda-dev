@@ -1,5 +1,5 @@
 "use client";
-export default function AboutPage() {
+export default function AboutChenanda() {
   return (
     <section className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 py-20 px-4 sm:px-6 lg:px-8 overflow-hidden mt-20">
       {/* Decorative background pattern */}

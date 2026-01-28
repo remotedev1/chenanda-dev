@@ -85,7 +85,10 @@ export default function Hero() {
         {/* Button */}
       </div>
       <div className="absolute bottom-14 left-1/2 -translate-x-1/2 ">
-        <Link href="#about-us-section" className="flex flex-col justify-center items-center">
+        <Link
+          href="#about-us-section"
+          className="flex flex-col justify-center items-center"
+        >
           <p className="text-white text-sm mb-1 animate-pulse">Scroll down</p>
           <ChevronDown
             className="w-6 h-6 text-white animate-bounce"

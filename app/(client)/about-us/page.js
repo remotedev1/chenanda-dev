@@ -1,6 +1,6 @@
 // import FamilyTree from "@/components/backOffice/features/family-tree/FamilyTree";
 
-import AboutChenanda from "@/components/frontEnd/about/AboutPage";
+import AboutChenanda from "@/components/frontEnd/about/aboutPage";
 
 export default function AboutSection() {
   return (
