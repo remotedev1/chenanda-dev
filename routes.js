@@ -6,6 +6,7 @@
 export const publicRoutes = [
   "/",
   "/about-us",
+  "/about-tournament",
   "/gallery",
   "/contact-us",
   // Add verification pages to public routes
