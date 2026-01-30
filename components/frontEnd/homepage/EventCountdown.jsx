@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Users, MapPin, Zap, Calendar, Flame } from "lucide-react";
+import Link from "next/link";
 
 // Optimized: Memoized animated number component to prevent unnecessary re-renders
 const AnimatedNumber = React.memo(({ value }) => {
@@ -10,8 +10,7 @@ const AnimatedNumber = React.memo(({ value }) => {
 
   return (
     <div className="relative h-8 w-6 xs:h-10 xs:w-8 sm:h-12 sm:w-10 md:h-14 md:w-14 lg:h-16 lg:w-16 overflow-hidden flex justify-center items-center">
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.span
+        <span
           key={formattedValue}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -20,8 +19,7 @@ const AnimatedNumber = React.memo(({ value }) => {
           className="absolute text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-mono text-yellow-400 drop-shadow-lg will-change-transform"
         >
           {formattedValue}
-        </motion.span>
-      </AnimatePresence>
+        </span>
     </div>
   );
 });
@@ -122,16 +120,10 @@ const EventCountdown = () => {
 
         {/* Main Content */}
         <div className="relative z-10 text-center px-2 xs:px-3 sm:px-4 md:px-6 max-w-6xl w-full">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.8, type: "spring" }}
-          >
+          
             {/* Championship Badge */}
-            <motion.div
+            <div
               className="inline-block mb-3 xs:mb-4 sm:mb-5 md:mb-6 will-change-transform"
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur-lg sm:blur-xl opacity-60" />
@@ -145,7 +137,7 @@ const EventCountdown = () => {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Title */}
             <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-black mb-2 xs:mb-3 sm:mb-4 relative px-2">
@@ -158,13 +150,9 @@ const EventCountdown = () => {
                 </span>
               </span>
             </h1>
-          </motion.div>
 
           {/* Event Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+          <div
             className="flex flex-col sm:flex-row gap-2 xs:gap-3 sm:gap-4 md:gap-5 lg:gap-6 justify-center items-stretch sm:items-center mb-4 xs:mb-5 sm:mb-6 md:mb-8 lg:mb-10 max-w-4xl mx-auto"
           >
             <div className="flex items-center gap-2 xs:gap-2.5 sm:gap-3 bg-black/60 backdrop-blur-lg px-2.5 py-2 xs:px-3 xs:py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 lg:px-6 lg:py-4 rounded-full border-2 border-cyan-500/50 w-full sm:w-auto">
@@ -189,16 +177,16 @@ const EventCountdown = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* CTA Buttons */}
-          {/* <motion.div
+          {/* <div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-col lg:flex-row xs:flex-row gap-2 xs:gap-3 sm:gap-4 md:gap-5 lg:gap-6 justify-center mb-6 xs:mb-7 sm:mb-8 md:mb-10 lg:mb-12 max-w-2xl mx-auto"
           >
-            <motion.button
+            <button
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => (window.location.href = "#payment")}
@@ -209,8 +197,8 @@ const EventCountdown = () => {
                 <span className="truncate">REGISTER NOW</span>
                 <Flame className="w-4 h-4 xs:w-5 xs:h-5 md:w-6 md:h-6 flex-shrink-0" />
               </span>
-            </motion.button>
-            <motion.button
+            </button>
+            <button
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => (window.location.href = "#live-scores")}
@@ -220,14 +208,11 @@ const EventCountdown = () => {
                 <Zap className="w-4 h-4 xs:w-5 xs:h-5 md:w-6 md:h-6 flex-shrink-0" />
                 <span className="truncate">LIVE SCORES</span>
               </span>
-            </motion.button>
-          </motion.div> */}
+            </button>
+          </div> */}
 
           {/* Optimized Countdown Timer */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
+          <div
             className="mb-6 xs:mb-7 sm:mb-8 md:mb-10 lg:mb-12"
           >
             <div className="bg-black/60 backdrop-blur-lg rounded-xl xs:rounded-2xl sm:rounded-3xl p-3 xs:p-4 sm:p-5 md:p-6 lg:p-8 border-2 border-yellow-500/50 shadow-2xl max-w-4xl mx-auto">
@@ -254,7 +239,7 @@ const EventCountdown = () => {
                   ))}
                 </div>
               ) : (
-                <motion.div
+                <div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="text-center px-2"
@@ -265,16 +250,13 @@ const EventCountdown = () => {
                   <p className="text-sm xs:text-base sm:text-lg md:text-xl text-white">
                     The tournament has begun!
                   </p>
-                </motion.div>
+                </div>
               )}
             </div>
-          </motion.div>
+          </div>
 
           {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.9 }}
+          <div
             className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-3 xs:gap-4 sm:gap-5 md:gap-6 lg:gap-8"
           >
             {stats.map((stat, i) => (
@@ -287,8 +269,29 @@ const EventCountdown = () => {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
+             <Link
+            href="/about-tournament"
+            className="mt-10 inline-flex items-center gap-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+          >
+            <span>About the Tournament</span>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </Link>
         </div>
+
+     
 
         {/* Corner Decorations */}
         <div className="absolute top-0 left-0 w-12 h-12 xs:w-16 xs:h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 border-l-2 border-t-2 sm:border-l-3 sm:border-t-3 md:border-l-4 md:border-t-4 border-yellow-400 opacity-30" />
