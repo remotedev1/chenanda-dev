@@ -1,5 +1,5 @@
 
-import KodavaHockeyAbout from "@/components/frontEnd/homepage/KodavaHockeyAbout";
+import KodavaHockeyAbout from "@/components/frontEnd/about/KodavaHockeyAbout";
 
 export default function AboutSection() {
   return (

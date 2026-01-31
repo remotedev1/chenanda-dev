@@ -93,18 +93,7 @@ function HeroSection() {
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={itemVariants} className="hero-emblem">
-          <div className="emblem-pattern" aria-hidden="true">
-            <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-              <path
-                d="M30 5L35 20H50L38 28L43 43L30 35L17 43L22 28L10 20H25L30 5Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-              />
-            </svg>
-          </div>
-        </motion.div>
+   
 
         <motion.h1 variants={itemVariants} className="hero-title">
           The Kodava Hockey Festival
@@ -260,7 +249,7 @@ function OriginsSection() {
             <div className="timeline-content">
               <h4>The First Tournament</h4>
               <p>
-                What began with 16 teams representing Kodava families quickly
+                What began with 60 teams representing Kodava families quickly
                 captured the imagination of the community. The tournament was
                 held on modest grounds, yet the spirit was boundless. Families
                 traveled from near and far, not just to compete, but to
@@ -937,7 +926,7 @@ function ImpactSection() {
 export default function KodavaHockeyAbout() {
   return (
     <LazyMotion features={domAnimation}>
-      <main className="about-tournament">
+      <main className="about-tournament mt-10">
         <HeroSection />
         <AboutSection />
         <OriginsSection />
@@ -1031,7 +1020,7 @@ export default function KodavaHockeyAbout() {
           /* About Section */
           .about-section {
             background: var(--color-cream);
-            padding-top: var(--space-2xl);
+            padding-top: var(--space-xl);
             padding-bottom: var(--space-2xl);
           }
 
@@ -1533,8 +1522,8 @@ export default function KodavaHockeyAbout() {
             .traditions-section,
             .culture-section,
             .impact-section {
-              padding-top: var(--space-xl);
-              padding-bottom: var(--space-xl);
+              padding-top: var(--space-lg);
+              padding-bottom: var(--space-md);
             }
 
             .timeline {
