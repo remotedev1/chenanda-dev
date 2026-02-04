@@ -150,7 +150,7 @@ export default function ContactUs() {
             </m.div>
 
             <p className="text-gray-600 text-xs sm:text-sm md:text-base font-medium mb-3 sm:mb-4 px-2">
-              Get in touch with us to start your project.
+              Get in touch with us.
             </p>
 
             {/* Email Section */}
