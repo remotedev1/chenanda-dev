@@ -56,14 +56,13 @@ export function TournamentForm({
 
   const form = useForm({
     resolver: zodResolver(
-      isEditing ? updateTournamentSchema : createTournamentSchema
+      isEditing ? updateTournamentSchema : createTournamentSchema,
     ),
     defaultValues: {
       name: tournament?.name || "",
       year: tournament?.year || new Date().getFullYear(),
       startDate: tournament?.startDate || "",
       endDate: tournament?.endDate || "",
-      registrationDeadline: tournament?.registrationDeadline || null,
       status: tournament?.status || "DRAFT",
       description: tournament?.description || "",
       sponsors: tournament?.sponsors || [],
@@ -166,14 +165,14 @@ export function TournamentForm({
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="max-h-60 overflow-y-auto bg-slate-500 text-white">
                         {Object.entries(TournamentStatus).map(
                           ([key, value]) => (
                             <SelectItem key={value} value={value}>
                               {key.charAt(0) +
                                 key.slice(1).toLowerCase().replace("_", " ")}
                             </SelectItem>
-                          )
+                          ),
                         )}
                       </SelectContent>
                     </Select>
@@ -216,6 +215,7 @@ export function TournamentForm({
                               : "";
                             field.onChange(date);
                           }}
+                          className="block w-full bg-black/5 text-black [color-scheme:light]"
                         />
                       </FormControl>
                       <FormMessage />
@@ -231,7 +231,7 @@ export function TournamentForm({
                       <FormLabel>End Date *</FormLabel>
                       <FormControl>
                         <Input
-                          className="block w-full bg-black/5"
+                          className="block w-full bg-black/5 [color-scheme:light]"
                           type="date"
                           value={
                             field.value
@@ -253,36 +253,6 @@ export function TournamentForm({
                   )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="registrationDeadline"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Registration Deadline</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        value={
-                          field.value
-                            ? new Date(field.value).toISOString().split("T")[0]
-                            : ""
-                        }
-                        onChange={(e) => {
-                          const date = e.target.value
-                            ? new Date(e.target.value).toISOString()
-                            : null;
-                          field.onChange(date);
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Last date for teams to register
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </CardContent>
           </Card>
 
@@ -302,7 +272,7 @@ export function TournamentForm({
 
       {/* Confirmation Dialog */}
       <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white dark:bg-slate-800 dark:text-white">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {isEditing ? "Update Tournament?" : "Create Tournament?"}
@@ -315,7 +285,11 @@ export function TournamentForm({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmSubmit} disabled={loading}>
+            <AlertDialogAction
+              onClick={confirmSubmit}
+              disabled={loading}
+              className="bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+            >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Confirm
             </AlertDialogAction>

@@ -87,7 +87,7 @@ export default function TournamentDetailPage() {
             Back to Tournaments
           </Button>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-3xl font-bold tracking-tight text-orange-600 capitalize">
               {tournament.name}
             </h1>
             <TournamentStatusBadge status={tournament.status} />
@@ -127,25 +127,25 @@ export default function TournamentDetailPage() {
       <TournamentStats tournament={tournament} />
 
       {/* Main Content */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 ">
         {/* Left Column - Details */}
-        <div className="lg:col-span-2 space-y-6">
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="participants">
+        <div className="lg:col-span-2 space-y-6 ">
+          <Tabs defaultValue="overview" className="w-full ">
+            <TabsList className="grid w-full grid-cols-4 mb-4">
+              <TabsTrigger value="overview"  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Overview</TabsTrigger>
+              <TabsTrigger value="participants"  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
                 Participants
                 <Badge variant="secondary" className="ml-2">
                   {tournament._count?.participation || 0}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="matches">
+              <TabsTrigger value="matches"  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
                 Matches
                 <Badge variant="secondary" className="ml-2">
                   {tournament._count?.matches || 0}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="placements">
+              <TabsTrigger value="placements"  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white rounded-lg">
                 Placements
                 <Badge variant="secondary" className="ml-2">
                   {tournament._count?.placements || 0}
@@ -153,8 +153,8 @@ export default function TournamentDetailPage() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-4">
-              <Card>
+            <TabsContent value="overview" className="space-y-4  rounded-lg">
+              <Card className="bg-slate-50 dark:bg-slate-800 text-blue-500 dark:text-blue-400">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Info className="h-5 w-5" />
@@ -164,7 +164,7 @@ export default function TournamentDetailPage() {
                 <CardContent className="space-y-4">
                   {tournament.description && (
                     <div>
-                      <h4 className="text-sm font-medium mb-2">Description</h4>
+                      <h4 className="text-sm  font-medium mb-2 dark:text-blue-600">Description</h4>
                       <p className="text-sm text-muted-foreground">
                         {tournament.description}
                       </p>
@@ -173,7 +173,7 @@ export default function TournamentDetailPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <h4 className="text-sm font-medium mb-2">Start Date</h4>
+                      <h4 className="text-sm  font-medium mb-2 dark:text-blue-600">Start Date</h4>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
                         {formatDateTime(tournament.startDate)}
@@ -181,14 +181,14 @@ export default function TournamentDetailPage() {
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-medium mb-2">End Date</h4>
+                      <h4 className="text-sm  font-medium mb-2 dark:text-blue-600">End Date</h4>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
                         {formatDateTime(tournament.endDate)}
                       </div>
                     </div>
 
-                    {tournament.registrationDeadline && (
+                    {/* {tournament.registrationDeadline && (
                       <div>
                         <h4 className="text-sm font-medium mb-2">
                           Registration Deadline
@@ -198,10 +198,10 @@ export default function TournamentDetailPage() {
                           {formatDateTime(tournament.registrationDeadline)}
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </div>
 
-                  {tournament.sponsors && tournament.sponsors.length > 0 && (
+                  {/* {tournament.sponsors && tournament.sponsors.length > 0 && (
                     <div>
                       <h4 className="text-sm font-medium mb-2">Sponsors</h4>
                       <div className="flex flex-wrap gap-2">
@@ -212,13 +212,13 @@ export default function TournamentDetailPage() {
                         ))}
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="participants">
-              <Card>
+              <Card className="bg-slate-50 dark:bg-slate-800 text-blue-500 dark:text-blue-400">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5" />
@@ -252,7 +252,7 @@ export default function TournamentDetailPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-center py-8 text-red-600">
                       No participants yet
                     </div>
                   )}
@@ -261,7 +261,7 @@ export default function TournamentDetailPage() {
             </TabsContent>
 
             <TabsContent value="matches">
-              <Card>
+              <Card className="bg-slate-50 dark:bg-slate-800 text-blue-500 dark:text-blue-400">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Trophy className="h-5 w-5" />
@@ -269,7 +269,7 @@ export default function TournamentDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-muted-foreground text-red-600">
                     Matches management coming soon
                   </div>
                 </CardContent>
@@ -277,7 +277,7 @@ export default function TournamentDetailPage() {
             </TabsContent>
 
             <TabsContent value="placements">
-              <Card>
+              <Card className="bg-slate-50 dark:bg-slate-800 text-blue-500 dark:text-blue-400">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Medal className="h-5 w-5" />
@@ -285,7 +285,7 @@ export default function TournamentDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-muted-foreground text-red-600">
                     Placements will appear here when the tournament is completed
                   </div>
                 </CardContent>
@@ -303,7 +303,20 @@ export default function TournamentDetailPage() {
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
+            
             <CardContent className="space-y-2">
+              <Can I="manage" a="Games">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() =>
+                    router.push(`/dashboard/tournaments/sponsors`)
+                  }
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Sponsors
+                </Button>
+              </Can>
               <Can I="manage" a="Games">
                 <Button
                   variant="outline"

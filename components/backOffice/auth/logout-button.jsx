@@ -8,7 +8,7 @@ export const LogoutButton = ({ children }) => {
   };
 
   return (
-    <span onClick={onClick} className="cursor-pointer">
+    <span onClick={onClick} className="cursor-pointer text-red-500 hover:text-red-800 focus:bg-red-50">
       {children}
     </span>
   );

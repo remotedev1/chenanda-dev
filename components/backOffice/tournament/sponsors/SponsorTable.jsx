@@ -1,7 +1,7 @@
+// components/sponsors/SponsorTable.jsx
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   flexRender,
   getCoreRowModel,
@@ -32,36 +32,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
   Search,
-  Eye,
   Edit,
   Trash2,
-  Copy,
-  Calendar,
+  ExternalLink,
+  Mail,
+  Phone,
 } from "lucide-react";
-import { TournamentStatusBadge } from "./TournamentStatusBadge";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { formatDate, formatNumber } from "@/utils/tournament.utils";
 import { Can } from "@/hooks/useAbility";
+import Image from "next/image";
 
-export function TournamentTable({
-  tournaments,
+const statusColors = {
+  ACTIVE: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  INACTIVE: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+};
+
+export function SponsorTable({
+  sponsors,
   pagination,
   filters,
   onFilterChange,
   onPageChange,
+  onEdit,
   onDelete,
-  loading = false,
 }) {
-  const router = useRouter();
   const [searchValue, setSearchValue] = useState(filters.search || "");
+
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
-    tournament: null,
+    sponsor: null,
   });
   const [deleting, setDeleting] = useState(false);
 
@@ -69,17 +74,17 @@ export function TournamentTable({
     setSearchValue(value);
     const timer = setTimeout(() => {
       onFilterChange({ search: value });
-    }, 300);
+    }, 2000);
     return () => clearTimeout(timer);
   };
 
   const handleDelete = async () => {
-    if (!deleteDialog.tournament) return;
+    if (!deleteDialog.sponsor) return;
 
     setDeleting(true);
     try {
-      await onDelete(deleteDialog.tournament.id, deleteDialog.tournament.name);
-      setDeleteDialog({ open: false, tournament: null });
+      await onDelete(deleteDialog.sponsor.id, deleteDialog.sponsor.name);
+      setDeleteDialog({ open: false, sponsor: null });
     } catch (error) {
       console.error("Delete failed:", error);
     } finally {
@@ -89,57 +94,98 @@ export function TournamentTable({
 
   const columns = [
     {
-      accessorKey: "name",
-      header: "Tournament",
+      accessorKey: "logo",
+      header: "Logo",
       cell: ({ row }) => {
-        const tournament = row.original;
-        return (
-          <div className="space-y-1">
-            <div className="font-medium">{tournament.name}</div>
-            <div className="text-sm text-muted-foreground">
-              {tournament.year}
-            </div>
+        const sponsor = row.original;
+        return sponsor.logo ? (
+          <div className="h-10 w-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
+            <Image
+              src={sponsor.logo[0].url}
+              alt={sponsor.name}
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+          </div>
+        ) : (
+          <div className="h-10 w-10 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+            {sponsor.name.charAt(0)}
           </div>
         );
       },
     },
     {
+      accessorKey: "name",
+      header: "Sponsor",
+      cell: ({ row }) => {
+        const sponsor = row.original;
+        return (
+          <div className="space-y-1">
+            <div className="font-medium">{sponsor.name}</div>
+            {sponsor.description && (
+              <div className="text-sm text-muted-foreground line-clamp-1">
+                {sponsor.description}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+
+    {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => <TournamentStatusBadge status={row.original.status} />,
-    },
-    {
-      accessorKey: "startDate",
-      header: "Start Date",
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-          {formatDate(row.original.startDate)}
-        </div>
+        <Badge variant="outline" className={statusColors[row.original.status]}>
+          {row.original.status}
+        </Badge>
       ),
     },
     {
-      accessorKey: "participation",
-      header: "Teams",
-      cell: ({ row }) => (
-        <div className="text-center">
-          {formatNumber(row.original._count?.participation || 0)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "matches",
-      header: "Matches",
-      cell: ({ row }) => (
-        <div className="text-center">
-          {formatNumber(row.original._count?.matches || 0)}
-        </div>
-      ),
+      accessorKey: "contact",
+      header: "Contact",
+      cell: ({ row }) => {
+        const sponsor = row.original;
+        return (
+          <div className="flex gap-2">
+            {sponsor.contactEmail && (
+              <a
+                href={`mailto:${sponsor.contactEmail}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-muted-foreground hover:text-blue-600 transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+              </a>
+            )}
+            {sponsor.contactPhone && (
+              <a
+                href={`tel:${sponsor.contactPhone}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-muted-foreground hover:text-blue-600 transition-colors"
+              >
+                <Phone className="h-4 w-4" />
+              </a>
+            )}
+            {sponsor.website && (
+              <a
+                href={sponsor.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-muted-foreground hover:text-blue-600 transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            )}
+          </div>
+        );
+      },
     },
     {
       id: "actions",
       cell: ({ row }) => {
-        const tournament = row.original;
+        const sponsor = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -150,27 +196,26 @@ export function TournamentTable({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="bg-slate-50 dark:text-white dark:bg-slate-800"
+              className="bg-slate-50  dark:bg-slate-800"
             >
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() =>
-                  router.push(`/dashboard/tournaments/${tournament.id}`)
-                }
-                className="cursor-pointer  text-blue-600"
-              >
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
-              <Can I="update" a="Tournament">
+              <DropdownMenuLabel className="text-black dark:text-white">Actions</DropdownMenuLabel>
+              <Can I="update" a="Sponsor">
                 <DropdownMenuItem
-                  onClick={() =>
-                    router.push(`/dashboard/tournaments/${tournament.id}/edit`)
-                  }
-                  className="cursor-pointer bg-blue-500 text-white hover:bg-blue-600"
+                  onClick={() => onEdit(sponsor)}
+                  className="cursor-pointer  text-black dark:text-white "
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
+                </DropdownMenuItem>
+              </Can>
+              <Can I="delete" a="Sponsor">
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white cursor-pointer"
+                  onClick={() => setDeleteDialog({ open: true, sponsor })}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
                 </DropdownMenuItem>
               </Can>
             </DropdownMenuContent>
@@ -181,7 +226,7 @@ export function TournamentTable({
   ];
 
   const table = useReactTable({
-    data: tournaments,
+    data: sponsors,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
@@ -193,12 +238,12 @@ export function TournamentTable({
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
           <Input
-            placeholder="Search tournaments..."
+            placeholder="Search sponsors..."
             value={searchValue}
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 relative z-0"
           />
         </div>
         <div className="flex gap-2">
@@ -208,32 +253,29 @@ export function TournamentTable({
               onFilterChange({ status: value === "all" ? undefined : value })
             }
           >
-            <SelectTrigger className="w-[180px] text-white  bg-gray-700 [&>span]:text-white cursor-pointer">
+            <SelectTrigger className="w-[180px] text-white bg-gray-700 [&>span]:text-white">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
-            <SelectContent className="min-w-[180px] bg-slate-50 dark:text-white dark:bg-slate-800">
+            <SelectContent className="min-w-[180px] bg-slate-50 dark:bg-slate-800">
               <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="DRAFT">Draft</SelectItem>
-              <SelectItem value="REGISTRATION">Registration</SelectItem>
-              <SelectItem value="UPCOMING">Upcoming</SelectItem>
-              <SelectItem value="ONGOING">Ongoing</SelectItem>
-              <SelectItem value="COMPLETED">Completed</SelectItem>
-              <SelectItem value="CANCELLED">Cancelled</SelectItem>
+              <SelectItem value="ACTIVE">Active</SelectItem>
+              <SelectItem value="INACTIVE">Inactive</SelectItem>
             </SelectContent>
           </Select>
 
           <Select
-            value={filters.sortBy || "createdAt"}
-            onValueChange={(value) => onFilterChange({ sortBy: value })}
+            value={filters.sortBy || "all"}
+            onValueChange={(value) =>
+              onFilterChange({ sortBy: value === "all" ? undefined : value })
+            }
           >
-            <SelectTrigger className="w-[180px] text-white bg-gray-700 [&>span]:text-white cursor-pointer">
+            <SelectTrigger className="w-[180px] text-white bg-gray-700 [&>span]:text-white  cursor-pointer">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
-            <SelectContent className="min-w-[180px] bg-slate-50 dark:text-white dark:bg-slate-800">
-              <SelectItem value="createdAt">Created Date</SelectItem>
+            <SelectContent className="min-w-[180px] bg-slate-50 dark:bg-slate-800">
+              <SelectItem value="all">Sort by</SelectItem>
+
               <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="year">Year</SelectItem>
-              <SelectItem value="startDate">Start Date</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -264,9 +306,6 @@ export function TournamentTable({
                 <TableRow
                   key={row.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() =>
-                    router.push(`/dashboard/tournaments/${row.original.id}`)
-                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
@@ -291,7 +330,7 @@ export function TournamentTable({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No tournaments found.
+                  No sponsors found.
                 </TableCell>
               </TableRow>
             )}
@@ -335,11 +374,11 @@ export function TournamentTable({
       {/* Delete Dialog */}
       <DeleteConfirmationDialog
         open={deleteDialog.open}
-        onOpenChange={(open) => setDeleteDialog({ open, tournament: null })}
+        onOpenChange={(open) => setDeleteDialog({ open, sponsor: null })}
         onConfirm={handleDelete}
-        title="Delete Tournament"
-        description="This will permanently delete the tournament. If the tournament has participants or matches, it will be marked as cancelled instead."
-        itemName={deleteDialog.tournament?.name}
+        title="Delete Sponsor"
+        description="Are you sure you want to delete this sponsor? This action cannot be undone."
+        itemName={deleteDialog.sponsor?.name}
         loading={deleting}
       />
     </div>

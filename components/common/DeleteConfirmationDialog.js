@@ -22,20 +22,20 @@ export function DeleteConfirmationDialog({
 }) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-white ">
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-lg font-semibold text-black">{title}</AlertDialogTitle>
+          <AlertDialogDescription className="text-slate-500 ">
             {description}
             {itemName && (
-              <span className="mt-2 block font-medium text-foreground">
+              <span className="mt-2 block font-medium text-lg text-slate-600 capitalize">
                 {itemName}
               </span>
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading} className="bg-slate-600  text-white">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -44,7 +44,7 @@ export function DeleteConfirmationDialog({
             disabled={loading}
             className={
               destructive
-                ? "bg-red-600 hover:bg-red-700 dark:bg-red-900 dark:hover:bg-red-800"
+                ? "bg-blue-600 hover:bg-blue-700   text-white "
                 : ""
             }
           >

@@ -40,9 +40,9 @@ export function TournamentTimeline({ tournament }) {
   ].filter((m) => m.show);
 
   return (
-    <Card>
+    <Card className="bg-slate-50 dark:bg-slate-800 text-blue-400 ">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 ">
           <Calendar className="h-5 w-5" />
           Tournament Timeline
         </CardTitle>
@@ -51,8 +51,8 @@ export function TournamentTimeline({ tournament }) {
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium">{progress}%</span>
+            <span className="text-black dark:text-blue-600">Progress</span>
+            {/* <span className="font-medium text-black dark:text-blue-600">{progress}%</span> */}
           </div>
           <Progress value={progress} className="h-2" />
         </div>
@@ -86,7 +86,7 @@ export function TournamentTimeline({ tournament }) {
               </div>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium">{milestone.label}</p>
+                  <p className="font-medium text-black dark:text-blue-600">{milestone.label}</p>
                   <Badge
                     variant={
                       milestone.status === "completed" ? "default" : "secondary"
@@ -109,8 +109,8 @@ export function TournamentTimeline({ tournament }) {
 
         {/* Duration Info */}
         <div className="flex items-center justify-between rounded-lg bg-muted p-3 text-sm">
-          <span className="text-muted-foreground">Duration</span>
-          <span className="font-medium">
+          <span className="text-black dark:text-blue-600">Duration</span>
+          <span className="font-medium text-black dark:text-blue-600">
             {Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))} days
           </span>
         </div>

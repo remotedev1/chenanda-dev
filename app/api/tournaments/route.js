@@ -97,36 +97,19 @@ async function handlePost(request) {
   const setup = await setupApiHandler(request, "tournaments:create");
   if (setup.error) return setup.error;
 
-  const user = await auth();
+  const { user } = await auth();
 
   // Ability
   const ability = defineAbilityFor(user);
-
-  if (!ability.can(ACTIONS.MANAGE, "all")) {
+  if (!ability.can(ACTIONS.MANAGE, RESOURCES.ALL)) {
     return errorResponse(
       "You don't have permission to create tournaments",
-      403
+      403,
     );
   }
-
   // Validate body
   const body = await request.json();
   const validated = createTournamentSchema.parse(body);
-
-  // Duplicate check (same name + year)
-  const isDuplicate = await db.tournament.findFirst({
-    where: {
-      name: validated.name,
-      year: validated.year,
-    },
-  });
-
-  if (isDuplicate) {
-    return errorResponse(
-      "Tournament with this name and year already exists",
-      409
-    );
-  }
 
   // Create tournament (without games - those will be added separately)
   const tournament = await db.tournament.create({
@@ -135,12 +118,13 @@ async function handlePost(request) {
       year: validated.year,
       startDate: new Date(validated.startDate),
       endDate: new Date(validated.endDate),
-      registrationDeadline: new Date(validated.registrationDeadline),
       status: validated.status || "DRAFT",
       description: validated.description,
-      sponsors: validated.sponsors || [],
       info: validated.info || [],
       images: validated.images || [],
+      createdBy: {
+        connect: { id: setup.user.userId },
+      },
     },
     include: {
       games: true,

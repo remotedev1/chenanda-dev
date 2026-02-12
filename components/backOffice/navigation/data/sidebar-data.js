@@ -1,41 +1,7 @@
-import {
-  AudioWaveform,
-  Bell,
-  Command,
-  GalleryVerticalEnd,
-  HelpCircle,
-  LayoutDashboard,
-  ListTodo,
-  Megaphone,
-  MessageCircle,
-  MonitorCheck,
-  Package,
-  Palette,
-  PhoneIncoming,
-  Settings,
-  UserCog,
-  Users,
-  Wrench,
-} from "lucide-react";
+// hooks/useSidebarData.js
+import { HelpCircle, LayoutDashboard, Settings, UserCog } from "lucide-react";
 
-export const sidebarData = {
-  // teams: [
-  //   {
-  //     name: "Shadcn Admin",
-  //     logo: Command,
-  //     plan: "Vite + ShadcnUI",
-  //   },
-  //   {
-  //     name: "Acme Inc",
-  //     logo: GalleryVerticalEnd,
-  //     plan: "Enterprise",
-  //   },
-  //   {
-  //     name: "Acme Corp.",
-  //     logo: AudioWaveform,
-  //     plan: "Startup",
-  //   },
-  // ],
+export const baseSidebarData = {
   navGroups: [
     {
       title: "General",
@@ -59,11 +25,15 @@ export const sidebarData = {
               url: "/dashboard/tournaments",
               icon: UserCog,
             },
+            {
+              title: "Sponsor List",
+              url: "/dashboard/tournaments/sponsors",
+              icon: UserCog,
+            },
           ],
         },
       ],
     },
-
     {
       title: "Other",
       items: [
@@ -87,3 +57,4 @@ export const sidebarData = {
     },
   ],
 };
+

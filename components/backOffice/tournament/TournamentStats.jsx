@@ -41,11 +41,11 @@ export function TournamentStats({ tournament }) {
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 text-blue-400 ">
       {stats.map((stat, index) => (
-        <Card key={index}>
+        <Card key={index} className="border-2 border-muted bg-slate-50 dark:bg-slate-800 " >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-md font-medium text-black dark:text-blue-400">
               {stat.title}
             </CardTitle>
             <div className={`rounded-full p-2 ${stat.bgColor}`}>
@@ -53,10 +53,10 @@ export function TournamentStats({ tournament }) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold dark:text-white text-black">
               {formatNumber(stat.value)}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1 text-black dark:text-blue-600">
               {stat.description}
             </p>
           </CardContent>

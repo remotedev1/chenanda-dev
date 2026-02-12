@@ -32,10 +32,14 @@ export function ProfileDropdown() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent
+        className="w-56 bg-slate-50 dark:bg-slate-800 text-black dark:text-white"
+        align="end"
+        forceMount
+      >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm leading-none font-medium">{user?.name}</p>
+            <p className="text-sm leading-none font-medium capitalize">{user?.firstName}</p>
             <p className="text-muted-foreground text-xs leading-none">
               {user.email}
             </p>
@@ -46,14 +50,12 @@ export function ProfileDropdown() {
           <DropdownMenuItem asChild>
             <Link href="/settings">
               Profile
-              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
 
           <DropdownMenuItem asChild>
             <Link href="/auth/change-password">
               Change Password
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

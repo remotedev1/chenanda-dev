@@ -36,6 +36,7 @@ model User {
   createdAt                     DateTime      @default(now())
   updatedAt                     DateTime      @updatedAt
   Tournament                    Tournament[]
+  sponsor                       Sponsor[]
 }
 
 type Address {
@@ -79,7 +80,6 @@ model Account {
 
 model ActivityLog {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String // Who did it
   action      String // What they did (created, updated, deleted, etc.)
   entity      String // What they acted on (tournament, match, family, etc.)
   entityId    String? // ID of the item
@@ -88,7 +88,9 @@ model ActivityLog {
   timestamp   DateTime // When it happened
   ipAddress   String? // Where from (optional)
   userAgent   String? // Device info (optional)
-  User        User     @relation(fields: [userId], references: [id])
+  userId      String   @db.ObjectId
+
+  User User @relation(fields: [userId], references: [id])
 }
 
 // Core Tournament Model - Can host multiple sports with individual games/events
@@ -100,7 +102,7 @@ model Tournament {
   endDate     DateTime
   status      TournamentStatus @default(DRAFT)
   description String?
-  sponsors    Json[] // Sponsor details
+  sponsor     Sponsor[]
   info        Json[] // Additional info
   images      String[] // Array of image URL strings
 
@@ -121,6 +123,28 @@ model Tournament {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+//sponsor
+model Sponsor {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  name         String      @unique
+  email        String?
+  phone        String?
+  description  String?
+  website      String?
+  status       Boolean     @default(false)
+  logo         ImageStore[]
+  createdById  String      @db.ObjectId
+  createdBy    User        @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  Tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  tournamentId String?     @db.ObjectId
+    createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+type ImageStore{
+  id String
+  url String
 }
 
 // Games/Sports Configuration within a Tournament

@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useMemo } from "react";
-import { useSession } from "next-auth/react";
 import { defineAbilityFor } from "@/lib/ability";
 import { useCurrentUser } from "./useCurrentUser";
 
@@ -9,13 +8,11 @@ const AbilityContext = createContext(null);
 
 // Provider
 export function AbilityProvider({ children }) {
-  const data = useCurrentUser();
+  const {user} = useCurrentUser();
 
   const ability = useMemo(() => {
-    return defineAbilityFor(data?.user);
-  }, [data?.user]);
-  console.log("ability:", ability);
-  console.log(data?.user);
+    return defineAbilityFor(user);
+  }, [user]);
 
   return (
     <AbilityContext.Provider value={ability}>

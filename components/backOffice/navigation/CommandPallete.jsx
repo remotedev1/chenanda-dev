@@ -95,9 +95,9 @@ export function CommandPalette({ tournaments = [] }) {
       </button>
 
       {/* Command Dialog */}
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
+      <CommandDialog open={open} onOpenChange={setOpen} >
+        <CommandInput placeholder="Type a command or search..."  />
+        <CommandList className="bg-slate-50 dark:bg-slate-800 text-black dark:text-white">
           <CommandEmpty>No results found.</CommandEmpty>
 
           {/* Navigation */}

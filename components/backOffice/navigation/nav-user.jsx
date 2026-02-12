@@ -47,7 +47,7 @@ export function NavUser() {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg bg-slate-50 dark:bg-slate-900 text-black dark:text-white shadow-lg border border-slate-200 dark:border-slate-700"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -79,7 +79,7 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem className="text-red-500 hover:text-red-800 focus:bg-red-50 cursor-pointer">
               <LogOut />
               Log out
             </DropdownMenuItem>

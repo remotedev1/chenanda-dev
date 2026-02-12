@@ -59,7 +59,7 @@ function matchesRoute(pathname, routes) {
 export default auth(async (req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
-  const userRole = req.auth?.role || null;
+  const userRole = req.auth?.user.role || null;
   const ip = getClientIp(req);
 
   // Determine route types

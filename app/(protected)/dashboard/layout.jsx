@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }) {
   const defaultOpen = Cookies.get("sidebar_state") !== "false";
 
   return (
-    <div className="flex overflow-hidden">
+    <div className="flex overflow-hidden ">
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
 
@@ -42,14 +42,14 @@ export default function DashboardLayout({ children }) {
           <Header>
             <TopNav links={topNav} />
             <div className="ml-auto flex items-center space-x-4">
-              <CommandPalette />  
+              <CommandPalette />
               <ThemeSwitch />
               <ProfileDropdown />
             </div>
           </Header>
           {/* Main content */}
           <main>
-            <div className="w-full min-h-screen mx-auto bg-blue-500 p-6">
+            <div className="w-full min-h-screen mx-auto p-6 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
               {children}
             </div>
           </main>

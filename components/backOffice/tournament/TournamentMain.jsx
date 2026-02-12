@@ -74,17 +74,17 @@ const TournamentsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tournaments</h1>
+          <h1 className=" text-3xl font-bold tracking-tight text-orange-500">Tournaments</h1>
           <p className="text-muted-foreground">
             Manage and organize your tournaments
           </p>
         </div>
         <Can I="create" a="Tournament">
-          <Button onClick={() => setCreateDialogOpen(true)}>
+          <Button onClick={() => setCreateDialogOpen(true)} className="bg-orange-500 hover:bg-orange-600 text-white">
             <Plus className="mr-2 h-4 w-4" />
             Create Tournament
           </Button>
@@ -115,7 +115,7 @@ const TournamentsPage = () => {
 
       {/* Create Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto ">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-800 dark:text-white">
           <DialogHeader>
             <DialogTitle>Create New Tournament</DialogTitle>
             <DialogDescription>
