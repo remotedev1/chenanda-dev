@@ -53,7 +53,6 @@ export function SponsorForm({
       if (formData.logo && formData.logoFileId) {
         setImagesToDelete((prev) => [...prev, formData.logoFileId]);
       }
-
       handleChange("logo", [{ url: image.url, id: image.fileId }]);
     }
   };

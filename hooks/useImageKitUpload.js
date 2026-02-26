@@ -17,7 +17,7 @@ export function useImageKitUpload() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("fileName", options.fileName || file.name);
-      formData.append("publicKey", process.env.IMAGEKIT_PUBLIC_KEY);
+      formData.append("publicKey", process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY);
       formData.append("signature", authData.signature);
       formData.append("expire", authData.expire);
       formData.append("token", authData.token);

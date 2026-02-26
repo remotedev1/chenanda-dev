@@ -41,7 +41,6 @@ async function handlePost(request) {
   }
 
 
-
   // Security: Normalize email
   const normalizedEmail = email.toLowerCase().trim();
 

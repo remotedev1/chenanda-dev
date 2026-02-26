@@ -76,6 +76,7 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+<<<<<<< HEAD
 model OtpVerification {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
@@ -87,6 +88,8 @@ model OtpVerification {
   @@index([phoneNumber])
 }
 
+=======
+>>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
 model ActivityLog {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   action      String // What they did (created, updated, deleted, etc.)
@@ -136,12 +139,18 @@ model Tournament {
 
 //sponsor
 model Sponsor {
+<<<<<<< HEAD
   id           String       @id @default(auto()) @map("_id") @db.ObjectId
   name         String       @unique
+=======
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  name         String      @unique
+>>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
   email        String?
   phone        String?
   description  String?
   website      String?
+<<<<<<< HEAD
   status       Boolean      @default(false)
   logo         ImageStore[]
   createdById  String       @db.ObjectId
@@ -154,6 +163,19 @@ model Sponsor {
 
 type ImageStore {
   id  String
+=======
+  status       Boolean     @default(false)
+  logo         ImageStore[]
+  createdById  String      @db.ObjectId
+  createdBy    User        @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  Tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  tournamentId String?     @db.ObjectId
+    createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+type ImageStore{
+  id String
+>>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
   url String
 }
 
@@ -174,8 +196,13 @@ model TournamentGame {
   date DateTime
 
   // Registration & Payment
+<<<<<<< HEAD
   //  registrationDeadline DateTime?
   //registrationFee      Float? 
+=======
+  registrationDeadline DateTime
+  registrationFee      Float // Price in rupees
+>>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
 
   // Status
   isActive Boolean @default(true)
@@ -378,7 +405,10 @@ model Player {
 
   jerseyNumber Int?
   biography    String?
+<<<<<<< HEAD
   info         Json[]
+=======
+>>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
 
   // Player's achievements across all tournaments and sports
   achievements Achievements[]
