@@ -43,14 +43,8 @@ const updateTournamentSchema = z.object({
 async function handleGet(request, { params }) {
   const setup = await setupApiHandler(request, "tournaments:get");
   if (setup.error) return setup.error;
-<<<<<<< HEAD
-  console.log(params)
 
   const { tournamentId } = params;
-=======
-
-  const { id } = params;
->>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
   const { searchParams } = new URL(request.url);
 
   const includeParticipation =
@@ -59,11 +53,7 @@ async function handleGet(request, { params }) {
   const includePlacements = searchParams.get("includePlacements") === "true";
 
   const tournament = await db.tournament.findUnique({
-<<<<<<< HEAD
     where: { id:tournamentId },
-=======
-    where: { id },
->>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
     include: {
       participation: includeParticipation
         ? {
