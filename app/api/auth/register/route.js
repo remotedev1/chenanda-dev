@@ -39,11 +39,7 @@ async function handlePost(request) {
     return errorResponse(
       "Invalid fields!",
       400,
-<<<<<<< HEAD
       validatedFields.error.flatten().fieldErrors,
-=======
-      validatedFields.error.flatten().fieldErrors
->>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
     );
   }
 
@@ -65,20 +61,12 @@ async function handlePost(request) {
   // Security: Generic error to prevent enumeration
   if (existingUser || existingPhoneUser) {
     console.warn(
-<<<<<<< HEAD
       `Duplicate registration attempt - Email: ${normalizedEmail}, Phone: ${normalizedPhone}`,
-=======
-      `Duplicate registration attempt - Email: ${normalizedEmail}, Phone: ${normalizedPhone}`
->>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
     );
 
     return errorResponse(
       "An account with this email or phone number already exists. Please try logging in or use different credentials.",
-<<<<<<< HEAD
       409,
-=======
-      409
->>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
     );
   }
 
@@ -90,11 +78,7 @@ async function handlePost(request) {
     if (normalizedAlternate === normalizedPhone) {
       return errorResponse(
         "Alternate number cannot be the same as primary phone number.",
-<<<<<<< HEAD
         400,
-=======
-        400
->>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
       );
     }
 
@@ -148,11 +132,7 @@ async function handlePost(request) {
   }).catch((emailError) => {
     console.error(
       `Failed to send verification email to ${normalizedEmail}:`,
-<<<<<<< HEAD
       emailError,
-=======
-      emailError
->>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
     );
   });
 
@@ -162,11 +142,7 @@ async function handlePost(request) {
       email: normalizedEmail,
     },
     "Account created successfully! Please check your email to verify your account.",
-<<<<<<< HEAD
     201,
-=======
-    201
->>>>>>> ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4
   );
 }
 
