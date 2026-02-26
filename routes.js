@@ -1,0 +1,37 @@
+/**
+ * Public routes - no authentication required
+ */
+export const publicRoutes = [
+  "/",
+  "/about-us",
+  "/about-tournament",
+  "/gallery",
+  "/contact-us",
+  "/sw.js",
+];
+
+/**
+ * Auth routes - accessible when NOT logged in
+ * Logged-in users redirected to dashboard
+ */
+export const authRoutes = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/verify-email",
+  "/auth/verify-success",
+  "/auth/verify-error",
+  "/api/send-otp",
+
+];
+
+/**
+ * API prefix
+ */
+export const apiAuthPrefix = "/api";
+
+/**
+ * Default redirect after login
+ */
+export const DEFAULT_LOGIN_REDIRECT = "/dashboard";

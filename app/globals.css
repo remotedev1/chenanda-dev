@@ -1,0 +1,539 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: var(--font-mundial);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  /* Kodava Color Palette */
+  --color-yellow: #F4C430;
+  --color-yellow-light: #F9D866;
+  --color-yellow-dark: #D4A620;
+  
+  --color-blue: #1A3B5D;
+  --color-blue-light: #2C5F8D;
+  --color-blue-dark: #0F2538;
+  
+  --color-maroon: #800020;
+  --color-maroon-light: #A6314A;
+  --color-maroon-dark: #5A0016;
+  
+  /* Neutral Palette */
+  --color-cream: #FAF8F3;
+  --color-sand: #E8E3D8;
+  --color-charcoal: #2D2D2D;
+  --color-slate: #4A5568;
+  
+  /* Spacing System */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 6rem;
+  --space-2xl: 8rem;
+  
+  /* Typography Scale */
+  --font-display: 'Crimson Text', 'Georgia', serif;
+  --font-body: 'Inter', 'Helvetica Neue', sans-serif;
+  
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.5rem;
+  --text-xl: 2rem;
+  --text-2xl: 3rem;
+  --text-3xl: 4rem;
+  
+  /* Animation Tokens */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 0.2s;
+  --duration-base: 0.4s;
+  --duration-slow: 0.6s;
+  
+  /* Layout */
+  --max-width: 1200px;
+  --content-width: 720px;
+  --section-padding: var(--space-xl);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --section-padding: var(--space-md);
+    --text-2xl: 2.25rem;
+    --text-3xl: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--color-charcoal);
+  background-color: var(--color-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-blue);
+}
+
+h1 {
+  font-size: var(--text-3xl);
+}
+
+h2 {
+  font-size: var(--text-2xl);
+}
+
+h3 {
+  font-size: var(--text-xl);
+}
+
+p {
+  max-width: var(--content-width);
+  margin: 0 auto var(--space-md);
+}
+
+.section {
+  padding: var(--section-padding) var(--space-md);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.section-loader {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-sand);
+}
+
+/* Accent Border Pattern */
+.accent-border {
+  position: relative;
+}
+
+.accent-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-maroon), var(--color-yellow));
+}
+
+/* Button Styles */
+.btn {
+  font-family: var(--font-body);
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-md);
+  border: 2px solid var(--color-blue);
+  background: transparent;
+  color: var(--color-blue);
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease-smooth);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn:hover {
+  background: var(--color-blue);
+  color: var(--color-cream);
+  transform: translateY(-2px);
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.text-maroon {
+  color: var(--color-maroon);
+}
+
+.text-yellow {
+  color: var(--color-yellow-dark);
+}
+
+.text-blue {
+  color: var(--color-blue);
+}
+
+/* Image Optimization */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Accessibility */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus Styles */
+*:focus-visible {
+  outline: 3px solid var(--color-yellow);
+  outline-offset: 2px;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.hide-scroll-bar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.team-logo-shadow {
+  box-shadow: 0 4px 4px 0 rgba(48, 48, 48, 0.15), 0 0 0 10px #f3f5f9;
+}
+
+/* ///swiper navigation start */
+
+@media (max-width: 768px) {
+  .swiper-button-next:after,
+  .swiper-button-prev:after {
+    font-size: 30px !important;
+  }
+}
+
+/* ///swiper navigation end */
+@media (max-width: 500px) {
+  .scorecard-custom {
+    width: 280px !important;
+    margin: auto;
+  }
+}
+
+/* //spinner-start */
+
+.spinner {
+  animation: rotate 2s linear infinite;
+  z-index: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -25px 0 0 -25px;
+  width: 50px;
+  height: 50px;
+}
+
+.spinner .path {
+  fill: none;
+  stroke: hsl(210, 70%, 75%);
+  stroke-width: 6;
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+/* //spinner-end */
+
+/* //nprogress customizations   */
+#nprogress .bar {
+  background: #16a34a !important;
+  height: 3px !important;
+  z-index: 9999 !important;
+}
+
+/* //marquee effect */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* primary : #aa770f
+secondary: #c78b0f
+background : #f2ece2
+border: #0e0d33 */
+
+/* football field background */
+/* Football Field Background - Add this to your globals.css or component styles */
+
+.football-field {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    /* Center circle */ radial-gradient(
+      circle at center,
+      transparent 48px,
+      white 48px,
+      white 50px,
+      transparent 50px
+    ),
+    /* Vertical center line */
+      linear-gradient(
+        90deg,
+        transparent calc(50% - 2px),
+        white calc(50% - 2px),
+        white calc(50% + 2px),
+        transparent calc(50% + 2px)
+      ),
+    /* Horizontal grid lines */
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 45px,
+        rgba(255, 255, 255, 0.15) 45px,
+        rgba(255, 255, 255, 0.15) 47px
+      ),
+    /* Vertical grid lines */
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 45px,
+        rgba(255, 255, 255, 0.15) 45px,
+        rgba(255, 255, 255, 0.15) 47px
+      ),
+    /* Base gradient for depth */
+      linear-gradient(135deg, #1a5f3f 0%, #2d8659 50%, #1a5f3f 100%);
+  background-size: 100% 100%;
+  opacity: 0.15;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Alternative version with more pronounced lines */
+.football-field-bold {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    /* Center circle */ radial-gradient(
+      circle at center,
+      transparent 50px,
+      white 50px,
+      white 52px,
+      transparent 52px
+    ),
+    /* Vertical center line - bolder */
+      linear-gradient(
+        90deg,
+        transparent calc(50% - 3px),
+        white calc(50% - 3px),
+        white calc(50% + 3px),
+        transparent calc(50% + 3px)
+      ),
+    /* Horizontal grid lines - more visible */
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 40px,
+        rgba(255, 255, 255, 0.25) 40px,
+        rgba(255, 255, 255, 0.25) 42px
+      ),
+    /* Vertical grid lines - more visible */
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 40px,
+        rgba(255, 255, 255, 0.25) 40px,
+        rgba(255, 255, 255, 0.25) 42px
+      ),
+    /* Green turf texture with depth */
+      linear-gradient(
+        135deg,
+        #1a5f3f 0%,
+        #34a169 25%,
+        #2d8659 50%,
+        #34a169 75%,
+        #1a5f3f 100%
+      );
+  background-size: 100% 100%;
+  opacity: 0.2;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Subtle animated version */
+.football-field-animated {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+      circle at center,
+      transparent 48px,
+      rgba(255, 255, 255, 0.8) 48px,
+      rgba(255, 255, 255, 0.8) 50px,
+      transparent 50px
+    ),
+    linear-gradient(
+      90deg,
+      transparent calc(50% - 2px),
+      rgba(255, 255, 255, 0.8) calc(50% - 2px),
+      rgba(255, 255, 255, 0.8) calc(50% + 2px),
+      transparent calc(50% + 2px)
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 45px,
+      rgba(255, 255, 255, 0.15) 45px,
+      rgba(255, 255, 255, 0.15) 47px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 45px,
+      rgba(255, 255, 255, 0.15) 45px,
+      rgba(255, 255, 255, 0.15) 47px
+    ),
+    linear-gradient(135deg, #1a5f3f 0%, #2d8659 50%, #1a5f3f 100%);
+  background-size: 100% 100%;
+  opacity: 0.15;
+  pointer-events: none;
+  border-radius: inherit;
+  animation: fieldPulse 3s ease-in-out infinite;
+}
+
+@keyframes fieldPulse {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Realistic Football Field with all markings */
+.football-field-contrast {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+  background: 
+  
+    /* Center circle */ radial-gradient(
+      circle at 50% 50%,
+      transparent 68px,
+      rgba(255, 255, 255, 0.85) 68px,
+      rgba(255, 255, 255, 0.85) 70px,
+      transparent 70px
+    ),
+    /* Center spot */
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(255, 255, 255, 0.9) 5px,
+        transparent 5px
+      ),
+    /* Your existing lines */
+      linear-gradient(
+        to bottom,
+        /* Line at 20% */ transparent calc(20% - 1px),
+        rgba(255, 255, 255, 0.8) calc(20% - 1px),
+        rgba(255, 255, 255, 0.8) calc(20% + 1px),
+        transparent calc(20% + 1px),
+        /* Line at 50% */ transparent calc(50% - 1px),
+        rgba(255, 255, 255, 0.8) calc(50% - 1px),
+        rgba(255, 255, 255, 0.8) calc(50% + 1px),
+        transparent calc(50% + 1px),
+        /* Line at 80% */ transparent calc(80% - 1px),
+        rgba(255, 255, 255, 0.8) calc(80% - 1px),
+        rgba(255, 255, 255, 0.8) calc(80% + 1px),
+        transparent calc(80% + 1px)
+      ),
+    /* Realistic grass texture with stripes */
+      repeating-linear-gradient(
+        90deg,
+        #237a4a 0px,
+        #237a4a 40px,
+        #2d8f5a 40px,
+        #2d8f5a 80px
+      ),
+    /* Grass depth gradient */
+      radial-gradient(ellipse at center, #2d8f5a 0%, #1e6b3f 100%);
+
+  background-size: 100% 100%;
+  opacity: 0.25;
+}
+
+/* SWAL */
+
+/* .family-dashboard-model {
+  pointer-events: none !important;
+} */

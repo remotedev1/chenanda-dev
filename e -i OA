@@ -1,0 +1,161 @@
+[33mcommit fad3ca741172184e8339b0d319df92d278e42dfb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Fri Feb 27 00:36:14 2026 +0530
+
+    updates
+
+[33mcommit 4d04b3ddd789aeda8efd42ffbe74669674d934f1[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Fri Feb 27 00:33:56 2026 +0530
+
+    updates
+
+[33mcommit e23504f7db214d7cd385fe1bc86ab4bdbf09dd72[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Fri Feb 27 00:32:34 2026 +0530
+
+    updates
+
+[33mcommit aa69262e7e9b52a0190c2bb533cb3dcb6814da49[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Fri Feb 27 00:29:37 2026 +0530
+
+    updates
+
+[33mcommit ea209cd5a00b0946fdc360bb3e547b29cd4cf8d4[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Thu Feb 12 14:46:35 2026 +0530
+
+    updates
+
+[33mcommit be47ca97d1e88ecb22477bcdd42c9dd9e28fbfe7[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Wed Feb 4 21:02:29 2026 +0530
+
+    updates
+
+[33mcommit 5b4fbd063aa02500d00ff610145b29d03d43bcfc[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Sat Jan 31 09:58:22 2026 +0530
+
+    about tourn added
+
+[33mcommit 4cf21ba8d77bf8c0933651078db522f89811beac[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Fri Jan 30 22:42:06 2026 +0530
+
+    about tourn added
+
+[33mcommit 5c4923660a39f5d6cecd5ada04918cf7d5ddb932[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Fri Jan 30 22:39:33 2026 +0530
+
+    about page added
+
+[33mcommit dc58d56628d1e90a139c8035e0b534adb4d82c55[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Wed Jan 28 08:52:01 2026 +0530
+
+    about page added
+
+[33mcommit 8636b70d4fc028414faab42f689a8464d7d53060[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Wed Jan 28 08:33:05 2026 +0530
+
+    about page added
+
+[33mcommit 071b94f1fab80b24d8816523679ec3a8e822f430[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Mon Jan 19 20:56:01 2026 +0530
+
+    remove unwated components from homepage
+
+[33mcommit 53671c13db90562b45e5a0d24ffa016793fb6b38[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Mon Jan 19 20:54:57 2026 +0530
+
+    remove unwated components from homepage
+
+[33mcommit 190108757e8e6d2823f3a75b7efa674ea5c8b66b[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Mon Jan 19 20:51:19 2026 +0530
+
+    remove unwated components from homepage
+
+[33mcommit 2c02fd3b76b90530a10f87f747b07dddb7bf8279[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Mon Jan 19 20:43:35 2026 +0530
+
+    remove unwated components from homepage
+
+[33mcommit 895b814344a586940f58181c22a8eb94111fb49a[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Mon Jan 19 20:27:34 2026 +0530
+
+    remove unwated components from homepage
+
+[33mcommit 39982c3cd160896b2370e67039763fd4e173b8f8[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Sat Jan 17 07:31:11 2026 +0530
+
+    dashboard
+
+[33mcommit cf9572da85aae3e2dc3d5e578a8a2c818f517797[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Sat Jan 17 07:25:19 2026 +0530
+
+    dashboard
+
+[33mcommit 24c862c2fc166c83ca90a311c0ca87140bb4942c[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Sat Jan 17 07:13:07 2026 +0530
+
+    dashboard
+
+[33mcommit 5c35c8f54343617d3f0a0a9ac849e65e20e92f1e[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Thu Dec 18 11:58:50 2025 +0530
+
+    tournament dashboard
+
+[33mcommit 1bd7ae80556828f3ee4e55075a61292f05df4058[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Fri Dec 12 21:26:25 2025 +0530
+
+    new prisma schema
+
+[33mcommit ef141dca99d8eca019f11e510a5fbf4747c44195[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Mon Dec 8 20:06:43 2025 +0530
+
+    mobile responsive
+
+[33mcommit 313a1e25420fdb83b7f311dff3bb7992def5f90c[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Mon Dec 8 13:13:26 2025 +0530
+
+    resposive homepage
+
+[33mcommit 67e54026319c8fd80b2c2358be504fbb94112c0b[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Sat Dec 6 14:42:01 2025 +0530
+
+    npm install raxorpay
+
+[33mcommit c66080f08f7e90c71383c6b0c5c1e83184f4a656[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Sat Dec 6 14:27:14 2025 +0530
+
+    web first
+
+[33mcommit 3f4516a18b4377d3f383047866a6e7c7203d5e77[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Wed Nov 26 21:22:25 2025 +0530
+
+    first push
+
+[33mcommit 1c79c04e37550fbede0e16e6ed1af72e5a81a7cb[m
+Author: CodifiedChinnappa <remotedev@myyahoo.com>
+Date:   Wed Nov 26 21:21:21 2025 +0530
+
+    first commit
