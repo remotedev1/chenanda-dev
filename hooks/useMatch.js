@@ -4,8 +4,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-const API_BASE = "/api/matches";
-
 export function useMatches({ tournamentId, gameId } = {}) {
   const [matches, setMatches] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -40,11 +38,13 @@ export function useMatches({ tournamentId, gameId } = {}) {
       params.append("page", filters.page.toString());
       params.append("limit", filters.limit.toString());
 
-      const response = await fetch(`${API_BASE}?${params}`);
+      const response = await fetch(
+        `/api/tournaments/${tournamentId}/matches?${params}`,
+      );
       if (!response.ok) throw new Error("Failed to fetch matches");
 
       const data = await response.json();
-      setMatches(data.data || []);
+      setMatches(data.data.data || []);
       setPagination(data.pagination);
     } catch (error) {
       console.error("Error fetching matches:", error);
@@ -81,17 +81,19 @@ export function useMatches({ tournamentId, gameId } = {}) {
   };
 }
 
-export function useCreateMatch() {
+export function useCreateMatch(tournamentId) {
   const [creating, setCreating] = useState(false);
 
   const createMatch = async (data) => {
     setCreating(true);
+
     try {
-      const response = await fetch(API_BASE, {
+      const response = await fetch(`/api/tournaments/${tournamentId}/matches`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to create match");
@@ -100,6 +102,7 @@ export function useCreateMatch() {
       toast.success("Match created successfully");
       return result;
     } catch (error) {
+
       toast.error(error.message || "Failed to create match");
       throw error;
     } finally {
@@ -146,11 +149,14 @@ export function useLiveMatchControl(matchId) {
     async (action, payload = {}) => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE}/${matchId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action, ...payload }),
-        });
+        const response = await fetch(
+          `/api/tournaments/${tournamentId}/matches/${matchId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action, ...payload }),
+          },
+        );
         if (!response.ok) {
           const error = await response.json();
           throw new Error(error.message || "Action failed");
@@ -197,7 +203,10 @@ export function useDeleteMatch() {
   const deleteMatch = async (id, name) => {
     setDeleting(true);
     try {
-      const response = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      const response = await fetch(
+        `/api/tournaments/${tournamentId}/matches/${id}`,
+        { method: "DELETE" },
+      );
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to delete match");
@@ -214,7 +223,7 @@ export function useDeleteMatch() {
   return { deleteMatch, deleting };
 }
 
-export function useMatch(id) {
+export function useMatch({ tournamentId, id }) {
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -227,10 +236,12 @@ export function useMatch(id) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE}/${id}`);
+      const response = await fetch(
+        `/api/tournaments/${tournamentId}/matches/${id}`,
+      );
       if (!response.ok) throw new Error("Failed to fetch match");
       const data = await response.json();
-      setMatch(data.data || data);
+      setMatch(data.data.data || data);
     } catch (err) {
       setError(err.message);
       toast.error("Failed to load match details");

@@ -82,10 +82,7 @@ export const createMatchSchema = z.object({
     .or(z.date())
     .optional()
     .nullable(),
-  pool: z
-    .enum(["A", "B", "C", "D", "E", "F", "G", "H"])
-    .optional()
-    .nullable(),
+  pool: z.enum(["A", "B", "C", "D", "E", "F", "G", "H"]).optional().nullable(),
   round: z.enum([
     "POOL_STAGE",
     "ROUND_1",
@@ -123,6 +120,14 @@ export const createMatchSchema = z.object({
   nextMatchId: z.string().optional().nullable(),
   sponsor: z.string().max(200).optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
+  participants: z
+    .array(
+      z.object({
+        teamId: z.string().optional(),
+        teamName: z.string().optional(),
+      }),
+    )
+    .length(2),
 });
 
 /* ---------------- HANDLERS ---------------- */
@@ -164,11 +169,16 @@ async function handleGet(request) {
   const orderBy = (() => {
     const dir = validated.sortOrder;
     switch (validated.sortBy) {
-      case "matchNo":   return { matchNo: dir };
-      case "createdAt": return { createdAt: dir };
-      case "updatedAt": return { updatedAt: dir };
-      case "status":    return { status: dir };
-      default:          return { scheduledOn: dir };
+      case "matchNo":
+        return { matchNo: dir };
+      case "createdAt":
+        return { createdAt: dir };
+      case "updatedAt":
+        return { updatedAt: dir };
+      case "status":
+        return { status: dir };
+      default:
+        return { scheduledOn: dir };
     }
   })();
 
@@ -181,17 +191,6 @@ async function handleGet(request) {
       include: {
         tournament: { select: { id: true, name: true } },
         game: { select: { id: true, name: true, icon: true } },
-        participants: {
-          include: {
-            team: { select: { id: true, familyName: true, colors: true } },
-          },
-        },
-        manOfTheMatch: {
-          select: { id: true, playerName: true },
-        },
-        _count: {
-          select: { participants: true },
-        },
       },
     }),
     db.matches.count({ where }),
@@ -208,11 +207,6 @@ async function handlePost(request) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.CREATE, RESOURCES.MATCH)) {
-    return errorResponse("You don't have permission to create matches", 403);
-  }
 
   const body = await request.json();
   const validated = createMatchSchema.parse(body);
@@ -234,7 +228,7 @@ async function handlePost(request) {
     if (!game) {
       return errorResponse(
         "Selected game does not exist or does not belong to this tournament",
-        400
+        400,
       );
     }
   }
@@ -250,7 +244,7 @@ async function handlePost(request) {
   if (existing) {
     return errorResponse(
       `Match #${validated.matchNo} already exists for ${validated.sport} in this tournament`,
-      409
+      409,
     );
   }
 
@@ -276,17 +270,21 @@ async function handlePost(request) {
       sponsor: validated.sponsor || null,
       notes: validated.notes || null,
       images: [],
-    },
-    include: {
-      tournament: { select: { id: true, name: true } },
-      game: { select: { id: true, name: true, icon: true } },
-      participants: true,
-      manOfTheMatch: { select: { id: true, playerName: true } },
+      participants: [
+        {
+          familyId: validated.participants?.[0]?.teamId,
+          family: validated.participants?.[0]?.teamName,
+        },
+        {
+          familyId: validated.participants?.[1]?.teamId,
+          family: validated.participants?.[1]?.teamName,
+        },
+      ],
     },
   });
 
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "created",
     entity: "match",
     entityId: match.id,

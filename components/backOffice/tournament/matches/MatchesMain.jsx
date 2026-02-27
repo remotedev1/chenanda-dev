@@ -30,18 +30,25 @@ import { useParams } from "next/navigation";
 import { MatchTable } from "./MatchesTable";
 import { MatchForm } from "./MatchesForm";
 
-const MatchesMain = ({  games = [] }) => {
+const MatchesMain = ({ games = [] }) => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [liveSheetOpen, setLiveSheetOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [liveMatchId, setLiveMatchId] = useState(null);
-  const {tournamentId} = useParams();
+  const { tournamentId } = useParams();
 
-  const { matches, setPage, pagination, loading, filters, updateFilters, refresh } =
-    useMatches({ tournamentId });
-  const { createMatch, creating } = useCreateMatch();
-  const { updateMatch, updating } = useUpdateMatch();
+  const {
+    matches,
+    setPage,
+    pagination,
+    loading,
+    filters,
+    updateFilters,
+    refresh,
+  } = useMatches({ tournamentId });
+  const { createMatch, creating } = useCreateMatch({ tournamentId });
+  const { updateMatch, updating } = useUpdateMatch({ tournamentId });
   const { deleteMatch } = useDeleteMatch();
 
   const handleCreate = async (data) => {
@@ -109,6 +116,7 @@ const MatchesMain = ({  games = [] }) => {
     );
   }
 
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -121,15 +129,13 @@ const MatchesMain = ({  games = [] }) => {
             Schedule, manage, and control live matches for this tournament
           </p>
         </div>
-        <Can I="create" a="Match">
-          <Button
-            onClick={() => setCreateDialogOpen(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Schedule Match
-          </Button>
-        </Can>
+        <Button
+          onClick={() => setCreateDialogOpen(true)}
+          className="bg-orange-500 hover:bg-orange-600 text-white"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Schedule Match
+        </Button>
       </div>
 
       {/* Content */}
@@ -162,7 +168,9 @@ const MatchesMain = ({  games = [] }) => {
       >
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
           <DialogHeader>
-            <DialogTitle className="text-slate-800">Schedule New Match</DialogTitle>
+            <DialogTitle className="text-slate-800">
+              Schedule New Match
+            </DialogTitle>
             <DialogDescription className="text-slate-600">
               Fill in the match details below
             </DialogDescription>
@@ -207,7 +215,7 @@ const MatchesMain = ({  games = [] }) => {
       <Sheet open={liveSheetOpen} onOpenChange={setLiveSheetOpen}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-xl p-0 overflow-hidden bg-white"
+          className="w-full sm:max-w-xl p-0 overflow-scroll bg-white"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Live Match Control</SheetTitle>
@@ -215,6 +223,7 @@ const MatchesMain = ({  games = [] }) => {
           {liveMatchId && (
             <LiveMatchControl
               matchId={liveMatchId}
+              tournamentId={tournamentId}
               onClose={() => setLiveSheetOpen(false)}
               onMatchUpdate={handleMatchUpdate}
             />

@@ -51,10 +51,7 @@ const updateMatchSchema = z.object({
     .or(z.date())
     .optional()
     .nullable(),
-  pool: z
-    .enum(["A", "B", "C", "D", "E", "F", "G", "H"])
-    .optional()
-    .nullable(),
+  pool: z.enum(["A", "B", "C", "D", "E", "F", "G", "H"]).optional().nullable(),
   round: z
     .enum([
       "POOL_STAGE",
@@ -195,36 +192,14 @@ async function handleGet(request, { params }) {
   const setup = await setupApiHandler(request, "matches:read");
   if (setup.error) return setup.error;
 
-  const { id } = params;
+  const { matchesId } = params;
 
   const match = await db.matches.findUnique({
-    where: { id },
+    where: { id: matchesId },
     include: {
       tournament: { select: { id: true, name: true, year: true } },
       game: { select: { id: true, name: true, icon: true, category: true } },
-      participants: {
-        include: {
-          team: {
-            select: {
-              id: true,
-              familyName: true,
-              colors: true,
-              images: true,
-            },
-          },
-        },
-      },
-      manOfTheMatch: {
-        select: {
-          id: true,
-          playerName: true,
-          jerseyNumber: true,
-          family: { select: { id: true, familyName: true } },
-        },
-      },
-      _count: {
-        select: { participants: true },
-      },
+     
     },
   });
 
@@ -319,7 +294,7 @@ async function handlePatch(request, { params }) {
         if (!validated.winnerId && !validated.isDraw) {
           return errorResponse(
             "winnerId or isDraw is required for SET_WINNER action",
-            400
+            400,
           );
         }
         updateData = {
@@ -375,7 +350,7 @@ async function handlePatch(request, { params }) {
       if (duplicate) {
         return errorResponse(
           `Match #${validated.matchNo || existing.matchNo} already exists for ${validated.sport || existing.sport} in this tournament`,
-          409
+          409,
         );
       }
     }
@@ -386,18 +361,32 @@ async function handlePatch(request, { params }) {
       ...(validated.matchNo !== undefined && { matchNo: validated.matchNo }),
       ...(validated.name !== undefined && { name: validated.name }),
       ...(validated.venue !== undefined && { venue: validated.venue }),
-      ...(validated.scheduledOn !== undefined && { scheduledOn: validated.scheduledOn }),
-      ...(validated.actualStartTime !== undefined && { actualStartTime: validated.actualStartTime }),
-      ...(validated.actualEndTime !== undefined && { actualEndTime: validated.actualEndTime }),
+      ...(validated.scheduledOn !== undefined && {
+        scheduledOn: validated.scheduledOn,
+      }),
+      ...(validated.actualStartTime !== undefined && {
+        actualStartTime: validated.actualStartTime,
+      }),
+      ...(validated.actualEndTime !== undefined && {
+        actualEndTime: validated.actualEndTime,
+      }),
       ...(validated.pool !== undefined && { pool: validated.pool }),
       ...(validated.round !== undefined && { round: validated.round }),
-      ...(validated.currentPeriod !== undefined && { currentPeriod: validated.currentPeriod }),
+      ...(validated.currentPeriod !== undefined && {
+        currentPeriod: validated.currentPeriod,
+      }),
       ...(validated.status !== undefined && { status: validated.status }),
       ...(validated.winnerId !== undefined && { winnerId: validated.winnerId }),
-      ...(validated.winnerName !== undefined && { winnerName: validated.winnerName }),
+      ...(validated.winnerName !== undefined && {
+        winnerName: validated.winnerName,
+      }),
       ...(validated.isDraw !== undefined && { isDraw: validated.isDraw }),
-      ...(validated.manOfTheMatchId !== undefined && { manOfTheMatchId: validated.manOfTheMatchId }),
-      ...(validated.nextMatchId !== undefined && { nextMatchId: validated.nextMatchId }),
+      ...(validated.manOfTheMatchId !== undefined && {
+        manOfTheMatchId: validated.manOfTheMatchId,
+      }),
+      ...(validated.nextMatchId !== undefined && {
+        nextMatchId: validated.nextMatchId,
+      }),
       ...(validated.sponsor !== undefined && { sponsor: validated.sponsor }),
       ...(validated.notes !== undefined && { notes: validated.notes }),
       ...(validated.images !== undefined && { images: validated.images }),
@@ -462,7 +451,7 @@ async function handleDelete(request, { params }) {
   if (["LIVE", "COMPLETED"].includes(match.status)) {
     return errorResponse(
       `Cannot delete a match that is ${match.status.toLowerCase()}. Please cancel or abandon it first.`,
-      400
+      400,
     );
   }
 

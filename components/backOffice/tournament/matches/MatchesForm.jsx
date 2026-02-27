@@ -25,7 +25,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Loader2,
   Calendar as CalendarIcon,
@@ -115,7 +114,9 @@ const matchFormSchema = z
     sponsor: z.string().max(200).optional().nullable(),
     notes: z.string().max(2000).optional().nullable(),
     team1Id: z.string().min(1, "Team 1 is required"),
+    team1Name: z.string().min(1, "Team 1 name is required"),
     team2Id: z.string().min(1, "Team 2 is required"),
+    team2Name: z.string().min(1, "Team 2 name is required"),
   })
   .refine((d) => d.team1Id !== d.team2Id, {
     message: "Team 1 and Team 2 must be different",
@@ -237,7 +238,9 @@ function TeamCombobox({
       </Label>
       <ReactSelect
         value={selectedOption}
-        onChange={(option) => onChange(option ? option.value : null)}
+        onChange={(option) => {
+          onChange(option ? option.value : null);
+        }}
         options={options}
         isLoading={loading}
         isDisabled={loading}
@@ -326,10 +329,11 @@ export function MatchForm({
     notes: initialData?.notes || "",
     team1Id: initialData?.participants?.[0]?.teamId || "",
     team2Id: initialData?.participants?.[1]?.teamId || "",
+    team1Name: initialData?.participants?.[0]?.teamName || "",
+    team2Name: initialData?.participants?.[1]?.teamName || "",
   });
 
   const [errors, setErrors] = useState({});
-  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [gamePopoverOpen, setGamePopoverOpen] = useState(false);
 
   const { families, loading: loadingFamilies } = useFamilies({ limit: 1000 });
@@ -343,6 +347,7 @@ export function MatchForm({
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -371,14 +376,14 @@ export function MatchForm({
       };
 
       const validated = matchFormSchema.parse(dataToValidate);
-      const { team1Id, team2Id, ...matchFields } = validated;
+      const { team1Id, team2Id, team1Name, team2Name, ...matchFields } = validated;
 
       await onSubmit({
         ...matchFields,
         scheduledOn: validated.scheduledOn.toISOString(),
         participants: [
-          { teamId: team1Id, order: 1 },
-          { teamId: team2Id, order: 2 },
+          { teamId: team1Id, teamName: team1Name, order: 1 },
+          { teamId: team2Id, teamName: team2Name, order: 2 },
         ],
       });
     } catch (error) {
@@ -407,7 +412,11 @@ export function MatchForm({
             <TeamCombobox
               label="Team 1"
               value={formData.team1Id}
-              onChange={(v) => handleChange("team1Id", v)}
+              onChange={(v) => {
+                handleChange("team1Id", v);
+                const family = families.find((f) => f.id === v);
+                handleChange("team1Name", family?.familyName || "");
+              }}
               families={families}
               loading={loadingFamilies}
               excludeId={formData.team2Id}
@@ -416,7 +425,11 @@ export function MatchForm({
             <TeamCombobox
               label="Team 2"
               value={formData.team2Id}
-              onChange={(v) => handleChange("team2Id", v)}
+              onChange={(v) => {
+                handleChange("team2Id", v);
+                const family = families.find((f) => f.id === v);
+                handleChange("team2Name", family?.familyName || "");
+              }}
               families={families}
               loading={loadingFamilies}
               excludeId={formData.team1Id}
@@ -568,37 +581,24 @@ export function MatchForm({
           <Label>
             Scheduled Date <span className="text-red-500">*</span>
           </Label>
-          <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full h-12 justify-start text-left font-normal",
-                  !formData.scheduledOn && "text-muted-foreground",
-                  errors.scheduledOn && "border-red-500",
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {formData.scheduledOn
-                  ? format(formData.scheduledOn, "PPP")
-                  : "Pick a date"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white" align="start">
-              <Calendar
-                mode="single"
-                selected={formData.scheduledOn}
-                onSelect={(date) => {
-                  handleChange("scheduledOn", date);
-                  setDatePopoverOpen(false);
-                }}
-                initialFocus
-                captionLayout="dropdown-buttons"
-                fromYear={new Date().getFullYear() - 1}
-                toYear={new Date().getFullYear() + 5}
-              />
-            </PopoverContent>
-          </Popover>
+
+          <Input
+            type="date"
+            value={
+              formData.scheduledOn
+                ? new Date(formData.scheduledOn).toISOString().split("T")[0]
+                : ""
+            }
+            onChange={(e) => {
+              const date = e.target.value
+                ? new Date(e.target.value).toISOString()
+                : "";
+              handleChange("scheduledOn", date);
+            }}
+            className={`h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 block w-full bg-black/5 [color-scheme:light] ${
+              errors.scheduledOn ? "border-red-500" : ""
+            }`}
+          />
           {errors.scheduledOn && (
             <p className="text-sm text-red-500">{errors.scheduledOn}</p>
           )}
