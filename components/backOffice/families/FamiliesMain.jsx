@@ -98,7 +98,6 @@ console.log(families)
             Manage tournament families and their members
           </p>
         </div>
-        <Can I="create" a="Family">
           <Button
             onClick={() => setCreateDialogOpen(true)}
             className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -106,7 +105,6 @@ console.log(families)
             <Plus className="mr-2 h-4 w-4" />
             Add Family
           </Button>
-        </Can>
       </div>
 
       {/* Content */}

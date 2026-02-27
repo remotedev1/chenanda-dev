@@ -12,26 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Loader2, Plus, X, Calendar as CalendarIcon, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, Plus, X, Calendar as CalendarIcon, Users } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFamilies } from "@/hooks/useFamily";
+import ReactSelect from "react-select";
 
 // Validation schema
 const createPlayerSchema = z.object({
@@ -59,6 +48,124 @@ const createPlayerSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
+/* ---- FamilyCombobox ---- */
+function FamilyCombobox({ value, onChange, families, loading, error }) {
+  const options = families.map((family) => ({
+    value: family.id,
+    label: family.familyName,
+  }));
+
+  const selectedOption = options.find((opt) => opt.value === value) || null;
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "48px",
+      height: "48px",
+      borderColor: error ? "#ef4444" : state.isFocused ? "#f97316" : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #f97316" : "none",
+      "&:hover": {
+        borderColor: state.isFocused ? "#f97316" : "#d1d5db",
+      },
+      cursor: "pointer",
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      height: "48px",
+      padding: "0 8px",
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: "0px",
+    }),
+    indicatorSeparator: () => ({
+      display: "none",
+    }),
+    indicatorsContainer: (provided) => ({
+      ...provided,
+      height: "48px",
+    }),
+    clearIndicator: (provided) => ({
+      ...provided,
+      cursor: "pointer",
+      padding: "4px",
+      "&:hover": {
+        color: "#6b7280",
+      },
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      cursor: "pointer",
+      padding: "8px",
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: "white",
+      zIndex: 50,
+      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: "220px",
+      padding: 0,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#fed7aa"
+        : state.isFocused
+          ? "#ffedd5"
+          : "white",
+      color: "#1f2937",
+      cursor: "pointer",
+      padding: "8px 12px",
+      "&:active": {
+        backgroundColor: "#fed7aa",
+      },
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: "#9ca3af",
+    }),
+  };
+
+  const formatOptionLabel = ({ label }) => (
+    <div className="flex items-center gap-2">
+      <span className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+        {label.charAt(0)}
+      </span>
+      <span className="truncate">{label}</span>
+    </div>
+  );
+
+  const CustomPlaceholder = ({ children }) => (
+    <div className="flex items-center gap-2 text-muted-foreground">
+      <Users className="h-4 w-4 shrink-0" />
+      <span>{children}</span>
+    </div>
+  );
+
+  return (
+    <ReactSelect
+      value={selectedOption}
+      onChange={(option) => onChange(option ? option.value : null)}
+      options={options}
+      isLoading={loading}
+      isDisabled={loading}
+      isClearable={false}
+      isSearchable
+      placeholder={
+        <CustomPlaceholder>
+          {loading ? "Loading families..." : "Search and select a family"}
+        </CustomPlaceholder>
+      }
+      noOptionsMessage={() => "No family found"}
+      styles={customStyles}
+      formatOptionLabel={formatOptionLabel}
+    />
+  );
+}
+
 export function PlayerForm({
   onSubmit,
   onCancel,
@@ -67,7 +174,9 @@ export function PlayerForm({
 }) {
   const [formData, setFormData] = useState({
     playerName: initialData?.playerName || "",
-    dateOfBirth: initialData?.dateOfBirth ? new Date(initialData.dateOfBirth) : null,
+    dateOfBirth: initialData?.dateOfBirth
+      ? new Date(initialData.dateOfBirth)
+      : null,
     primarySport: initialData?.primarySport || null,
     jerseyNumber: initialData?.jerseyNumber || null,
     biography: initialData?.biography || "",
@@ -78,11 +187,8 @@ export function PlayerForm({
 
   const [errors, setErrors] = useState({});
   const [infoInput, setInfoInput] = useState({ key: "", value: "" });
-  const [familyPopoverOpen, setFamilyPopoverOpen] = useState(false);
 
   const { families, loading: loadingFamilies } = useFamilies({ limit: 1000 });
-
-  const selectedFamily = families.find((f) => f.id === formData.familyId);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -113,7 +219,9 @@ export function PlayerForm({
     try {
       const dataToValidate = {
         ...formData,
-        jerseyNumber: formData.jerseyNumber ? Number(formData.jerseyNumber) : null,
+        jerseyNumber: formData.jerseyNumber
+          ? Number(formData.jerseyNumber)
+          : null,
       };
 
       const validated = createPlayerSchema.parse(dataToValidate);
@@ -155,63 +263,18 @@ export function PlayerForm({
           )}
         </div>
 
-        {/* Family Selection — searchable combobox */}
+        {/* Family Selection — with ReactSelect */}
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="familyId">
             Family <span className="text-red-500">*</span>
           </Label>
-          <Popover open={familyPopoverOpen} onOpenChange={setFamilyPopoverOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={familyPopoverOpen}
-                disabled={loadingFamilies}
-                className={cn(
-                  "w-full h-12 justify-between font-normal",
-                  !selectedFamily && "text-muted-foreground",
-                  errors.familyId && "border-red-500"
-                )}
-              >
-                {loadingFamilies
-                  ? "Loading families..."
-                  : selectedFamily
-                  ? selectedFamily.familyName
-                  : "Search and select a family"}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0 bg-white" align="start">
-              <Command>
-                <CommandInput placeholder="Search families..." />
-                <CommandList>
-                  <CommandEmpty>No family found.</CommandEmpty>
-                  <CommandGroup>
-                    {families.map((family) => (
-                      <CommandItem
-                        key={family.id}
-                        value={family.familyName}
-                        onSelect={() => {
-                          handleChange("familyId", family.id);
-                          setFamilyPopoverOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            formData.familyId === family.id
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {family.familyName}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+          <FamilyCombobox
+            value={formData.familyId}
+            onChange={(id) => handleChange("familyId", id)}
+            families={families}
+            loading={loadingFamilies}
+            error={errors.familyId}
+          />
           {errors.familyId && (
             <p className="text-sm text-red-500">{errors.familyId}</p>
           )}
@@ -315,7 +378,9 @@ export function PlayerForm({
           <Label htmlFor="isActive">Status</Label>
           <Select
             value={formData.isActive.toString()}
-            onValueChange={(value) => handleChange("isActive", value === "true")}
+            onValueChange={(value) =>
+              handleChange("isActive", value === "true")
+            }
           >
             <SelectTrigger className="h-12">
               <SelectValue placeholder="Select status" />

@@ -100,7 +100,6 @@ const PlayersMain = () => {
             Manage tournament players and their information
           </p>
         </div>
-        <Can I="create" a="Player">
           <Button
             onClick={() => setCreateDialogOpen(true)}
             className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -108,7 +107,6 @@ const PlayersMain = () => {
             <Plus className="mr-2 h-4 w-4" />
             Add Player
           </Button>
-        </Can>
       </div>
 
       {/* Content */}

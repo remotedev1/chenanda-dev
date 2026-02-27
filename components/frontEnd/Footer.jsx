@@ -236,26 +236,7 @@ const SportsFooter = () => {
                 </ul>
               </FooterSection>
 
-              {/* Newsletter */}
-              <FooterSection title="NEWSLETTER" delay={0.5}>
-                <p className="text-gray-400 mb-4">
-                  Get the latest sports updates delivered to your inbox.
-                </p>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    className="flex-1 px-4 py-2 bg-white bg-opacity-10 border border-gray-700 rounded-full focus:outline-none focus:border-red-500 transition-colors"
-                  />
-                  <m.button
-                    className="px-6 py-2 bg-gradient-to-r from-red-500 to-yellow-500 rounded-full font-semibold text-slate-900"
-                    whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
-                    whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
-                  >
-                    →
-                  </m.button>
-                </div>
-              </FooterSection>
+             
             </m.div>
 
             {/* Bottom Bar */}

@@ -34,13 +34,13 @@ import {
   Check,
   Swords,
   Users,
-  X,
 } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFamilies } from "@/hooks/useFamily";
+import ReactSelect from "react-select"; // Renamed to avoid conflict
 
 /* ---- Constants ---- */
 
@@ -58,8 +58,15 @@ const SPORT_TYPES = [
 ];
 
 const VENUES = [
-  "GROUND_1", "GROUND_2", "GROUND_3", "GROUND_4",
-  "GROUND_5", "GROUND_6", "GROUND_7", "GROUND_8", "MAIN_STADIUM",
+  "GROUND_1",
+  "GROUND_2",
+  "GROUND_3",
+  "GROUND_4",
+  "GROUND_5",
+  "GROUND_6",
+  "GROUND_7",
+  "GROUND_8",
+  "MAIN_STADIUM",
 ];
 
 const ROUNDS = [
@@ -117,103 +124,141 @@ const matchFormSchema = z
 
 /* ---- TeamCombobox ---- */
 
-function TeamCombobox({ label, value, onChange, families, loading, excludeId, error }) {
-  const [open, setOpen] = useState(false);
-  const selected = families.find((f) => f.id === value);
-  const options = families.filter((f) => f.id !== excludeId);
+function TeamCombobox({
+  label,
+  value,
+  onChange,
+  families,
+  loading,
+  excludeId,
+  error,
+}) {
+  const options = families
+    .filter((f) => f.id !== excludeId)
+    .map((family) => ({
+      value: family.id,
+      label: family.familyName,
+    }));
+
+  const selectedOption = options.find((opt) => opt.value === value) || null;
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "48px",
+      height: "48px",
+      borderColor: error ? "#ef4444" : state.isFocused ? "#f97316" : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #f97316" : "none",
+      "&:hover": {
+        borderColor: state.isFocused ? "#f97316" : "#d1d5db",
+      },
+      cursor: "pointer",
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      height: "48px",
+      padding: "0 8px",
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: "0px",
+    }),
+    indicatorSeparator: () => ({
+      display: "none",
+    }),
+    indicatorsContainer: (provided) => ({
+      ...provided,
+      height: "48px",
+    }),
+    clearIndicator: (provided) => ({
+      ...provided,
+      cursor: "pointer",
+      padding: "4px",
+      "&:hover": {
+        color: "#6b7280",
+      },
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      cursor: "pointer",
+      padding: "8px",
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: "white",
+      zIndex: 50,
+      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: "220px",
+      padding: 0,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#fed7aa"
+        : state.isFocused
+          ? "#ffedd5"
+          : "white",
+      color: "#1f2937",
+      cursor: "pointer",
+      padding: "8px 12px",
+      "&:active": {
+        backgroundColor: "#fed7aa",
+      },
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: "#9ca3af",
+    }),
+  };
+
+  const formatOptionLabel = ({ label }) => (
+    <div className="flex items-center gap-2">
+      <span className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+        {label.charAt(0)}
+      </span>
+      <span className="truncate">{label}</span>
+    </div>
+  );
+
+  const CustomPlaceholder = ({ children }) => (
+    <div className="flex items-center gap-2 text-muted-foreground">
+      <Users className="h-4 w-4 shrink-0" />
+      <span>{children}</span>
+    </div>
+  );
 
   return (
     <div className="space-y-2">
       <Label>
         {label} <span className="text-red-500">*</span>
       </Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            disabled={loading}
-            className={cn(
-              "w-full h-12 justify-between font-normal",
-              !selected && "text-muted-foreground",
-              error && "border-red-500"
-            )}
-          >
-            <span className="flex items-center gap-2 truncate min-w-0">
-              {selected ? (
-                <>
-                  <span className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                    {selected.familyName.charAt(0)}
-                  </span>
-                  <span className="truncate">{selected.familyName}</span>
-                </>
-              ) : (
-                <>
-                  <Users className="h-4 w-4 shrink-0" />
-                  <span className="truncate">
-                    {loading ? "Loading teams..." : `Search ${label}...`}
-                  </span>
-                </>
-              )}
-            </span>
-            <div className="flex items-center gap-1 shrink-0 ml-2">
-              {selected && (
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChange(null);
-                  }}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && (e.stopPropagation(), onChange(null))
-                  }
-                  className="rounded-full p-0.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </span>
-              )}
+      <ReactSelect
+        value={selectedOption}
+        onChange={(option) => onChange(option ? option.value : null)}
+        options={options}
+        isLoading={loading}
+        isDisabled={loading}
+        isClearable
+        isSearchable
+        placeholder={
+          <CustomPlaceholder>
+            {loading ? "Loading teams..." : `Search ${label}...`}
+          </CustomPlaceholder>
+        }
+        noOptionsMessage={() => "No team found"}
+        styles={customStyles}
+        formatOptionLabel={formatOptionLabel}
+        components={{
+          DropdownIndicator: (props) => (
+            <div {...props.innerProps} className="px-2">
               <ChevronsUpDown className="h-4 w-4 opacity-50" />
             </div>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full min-w-[280px] p-0 bg-white" align="start">
-          <Command>
-            <CommandInput placeholder="Search teams..." />
-            <CommandList className="max-h-[220px]">
-              <CommandEmpty>No team found.</CommandEmpty>
-              <CommandGroup>
-                {options.map((family) => (
-                  <CommandItem
-                    key={family.id}
-                    value={family.familyName}
-                    onSelect={() => {
-                      onChange(family.id);
-                      setOpen(false);
-                    }}
-                    className="flex items-center gap-2 py-2 cursor-pointer"
-                  >
-                    <Check
-                      className={cn(
-                        "h-4 w-4 shrink-0",
-                        value === family.id
-                          ? "opacity-100 text-orange-500"
-                          : "opacity-0"
-                      )}
-                    />
-                    <span className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                      {family.familyName.charAt(0)}
-                    </span>
-                    <span className="truncate">{family.familyName}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+          ),
+        }}
+      />
       {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
@@ -228,7 +273,7 @@ function VsDivider({ team1Name, team2Name }) {
         <span
           className={cn(
             "font-semibold text-sm truncate block",
-            team1Name ? "text-slate-800" : "text-slate-400 italic"
+            team1Name ? "text-slate-800" : "text-slate-400 italic",
           )}
         >
           {team1Name || "Team 1"}
@@ -241,7 +286,7 @@ function VsDivider({ team1Name, team2Name }) {
         <span
           className={cn(
             "font-semibold text-sm truncate block",
-            team2Name ? "text-slate-800" : "text-slate-400 italic"
+            team2Name ? "text-slate-800" : "text-slate-400 italic",
           )}
         >
           {team2Name || "Team 2"}
@@ -279,7 +324,6 @@ export function MatchForm({
     status: initialData?.status || "SCHEDULED",
     sponsor: initialData?.sponsor || "",
     notes: initialData?.notes || "",
-    // Pre-fill teams from existing participants when editing
     team1Id: initialData?.participants?.[0]?.teamId || "",
     team2Id: initialData?.participants?.[1]?.teamId || "",
   });
@@ -307,7 +351,9 @@ export function MatchForm({
     try {
       let scheduledOn = null;
       if (formData.scheduledOn) {
-        const [h, m] = (formData.scheduledTime || "00:00").split(":").map(Number);
+        const [h, m] = (formData.scheduledTime || "00:00")
+          .split(":")
+          .map(Number);
         const dt = new Date(formData.scheduledOn);
         dt.setHours(h, m, 0, 0);
         scheduledOn = dt;
@@ -330,7 +376,6 @@ export function MatchForm({
       await onSubmit({
         ...matchFields,
         scheduledOn: validated.scheduledOn.toISOString(),
-        // Pass as participants array so the route can create TeamMatchData records
         participants: [
           { teamId: team1Id, order: 1 },
           { teamId: team2Id, order: 2 },
@@ -353,7 +398,6 @@ export function MatchForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-5 md:grid-cols-2">
-
         {/* ── TEAMS ── */}
         <div className="md:col-span-2 space-y-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -394,12 +438,16 @@ export function MatchForm({
 
         {/* Sport */}
         <div className="space-y-2">
-          <Label>Sport <span className="text-red-500">*</span></Label>
+          <Label>
+            Sport <span className="text-red-500">*</span>
+          </Label>
           <Select
             value={formData.sport}
             onValueChange={(v) => handleChange("sport", v)}
           >
-            <SelectTrigger className={`h-12 ${errors.sport ? "border-red-500" : ""}`}>
+            <SelectTrigger
+              className={`h-12 ${errors.sport ? "border-red-500" : ""}`}
+            >
               <SelectValue placeholder="Select sport" />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -413,12 +461,16 @@ export function MatchForm({
               ))}
             </SelectContent>
           </Select>
-          {errors.sport && <p className="text-sm text-red-500">{errors.sport}</p>}
+          {errors.sport && (
+            <p className="text-sm text-red-500">{errors.sport}</p>
+          )}
         </div>
 
         {/* Match No */}
         <div className="space-y-2">
-          <Label>Match Number <span className="text-red-500">*</span></Label>
+          <Label>
+            Match Number <span className="text-red-500">*</span>
+          </Label>
           <Input
             type="number"
             min="1"
@@ -434,12 +486,16 @@ export function MatchForm({
 
         {/* Round */}
         <div className="space-y-2">
-          <Label>Round <span className="text-red-500">*</span></Label>
+          <Label>
+            Round <span className="text-red-500">*</span>
+          </Label>
           <Select
             value={formData.round}
             onValueChange={(v) => handleChange("round", v)}
           >
-            <SelectTrigger className={`h-12 ${errors.round ? "border-red-500" : ""}`}>
+            <SelectTrigger
+              className={`h-12 ${errors.round ? "border-red-500" : ""}`}
+            >
               <SelectValue placeholder="Select round" />
             </SelectTrigger>
             <SelectContent className="bg-white max-h-72">
@@ -450,7 +506,9 @@ export function MatchForm({
               ))}
             </SelectContent>
           </Select>
-          {errors.round && <p className="text-sm text-red-500">{errors.round}</p>}
+          {errors.round && (
+            <p className="text-sm text-red-500">{errors.round}</p>
+          )}
         </div>
 
         {/* Pool — only for POOL_STAGE */}
@@ -459,7 +517,9 @@ export function MatchForm({
             <Label>Pool</Label>
             <Select
               value={formData.pool || "none"}
-              onValueChange={(v) => handleChange("pool", v === "none" ? null : v)}
+              onValueChange={(v) =>
+                handleChange("pool", v === "none" ? null : v)
+              }
             >
               <SelectTrigger className="h-12">
                 <SelectValue placeholder="Select pool" />
@@ -478,12 +538,16 @@ export function MatchForm({
 
         {/* Venue */}
         <div className="space-y-2">
-          <Label>Venue <span className="text-red-500">*</span></Label>
+          <Label>
+            Venue <span className="text-red-500">*</span>
+          </Label>
           <Select
             value={formData.venue}
             onValueChange={(v) => handleChange("venue", v)}
           >
-            <SelectTrigger className={`h-12 ${errors.venue ? "border-red-500" : ""}`}>
+            <SelectTrigger
+              className={`h-12 ${errors.venue ? "border-red-500" : ""}`}
+            >
               <SelectValue placeholder="Select venue" />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -494,12 +558,16 @@ export function MatchForm({
               ))}
             </SelectContent>
           </Select>
-          {errors.venue && <p className="text-sm text-red-500">{errors.venue}</p>}
+          {errors.venue && (
+            <p className="text-sm text-red-500">{errors.venue}</p>
+          )}
         </div>
 
         {/* Scheduled Date */}
         <div className="space-y-2">
-          <Label>Scheduled Date <span className="text-red-500">*</span></Label>
+          <Label>
+            Scheduled Date <span className="text-red-500">*</span>
+          </Label>
           <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -507,7 +575,7 @@ export function MatchForm({
                 className={cn(
                   "w-full h-12 justify-start text-left font-normal",
                   !formData.scheduledOn && "text-muted-foreground",
-                  errors.scheduledOn && "border-red-500"
+                  errors.scheduledOn && "border-red-500",
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
@@ -538,7 +606,9 @@ export function MatchForm({
 
         {/* Scheduled Time */}
         <div className="space-y-2">
-          <Label>Scheduled Time <span className="text-red-500">*</span></Label>
+          <Label>
+            Scheduled Time <span className="text-red-500">*</span>
+          </Label>
           <div className="relative">
             <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -607,7 +677,7 @@ export function MatchForm({
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            !formData.gameId ? "opacity-100" : "opacity-0"
+                            !formData.gameId ? "opacity-100" : "opacity-0",
                           )}
                         />
                         None
@@ -626,7 +696,7 @@ export function MatchForm({
                               "mr-2 h-4 w-4",
                               formData.gameId === game.id
                                 ? "opacity-100"
-                                : "opacity-0"
+                                : "opacity-0",
                             )}
                           />
                           <span className="mr-2">{game.icon || "🏆"}</span>

@@ -107,7 +107,7 @@ const config = {
   },
 
   pages: {
-    signIn: "/login",
+    signIn: "auth/login",
     error: "/login",
   },
 
