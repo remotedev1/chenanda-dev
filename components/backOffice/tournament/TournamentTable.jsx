@@ -273,17 +273,7 @@ export function TournamentTable({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-1 bg-gradient-to-b from-orange-500 to-red-500 rounded-full" />
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Tournaments</h2>
-          <p className="text-sm text-gray-500">
-            {pagination?.total || 0} total tournaments
-          </p>
-        </div>
-      </div>
-
+     
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
         <div className="relative flex-1 max-w-md">

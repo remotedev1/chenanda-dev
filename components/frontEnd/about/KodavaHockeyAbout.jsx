@@ -93,8 +93,6 @@ function HeroSection() {
         initial="hidden"
         animate="visible"
       >
-   
-
         <motion.h1 variants={itemVariants} className="hero-title">
           The Kodava Hockey Festival
         </motion.h1>
@@ -362,7 +360,7 @@ function ScaleSection() {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </div>
-            <AnimatedCounter end={220} suffix="+" />
+            <AnimatedCounter end={400} suffix="+" />
             <p className="stat-label">Teams Competing</p>
             <p className="stat-description">
               Representing families from across the globe, each carrying their
@@ -384,7 +382,7 @@ function ScaleSection() {
                 <circle cx="12" cy="7" r="4" />
               </svg>
             </div>
-            <AnimatedCounter end={3500} suffix="+" />
+            <AnimatedCounter end={6000} suffix="+" />
             <p className="stat-label">Players</p>
             <p className="stat-description">
               Athletes ranging from young hopefuls to seasoned veterans, united
@@ -409,7 +407,7 @@ function ScaleSection() {
                 <line x1="2" y1="2" x2="22" y2="22" />
               </svg>
             </div>
-            <AnimatedCounter end={50000} suffix="+" />
+            <AnimatedCounter end={600000} suffix="+" />
             <p className="stat-label">Annual Footfall</p>
             <p className="stat-description">
               Spectators, families, and supporters creating an electrifying
@@ -550,27 +548,6 @@ function TraditionsSection() {
               steeped in honor and meticulous preparation. The host family
               oversees logistics, welcomes guests with traditional Kodava
               hospitality, and ensures the festival runs seamlessly.
-            </p>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="tradition-card">
-            <div className="tradition-icon" aria-hidden="true">
-              <svg
-                width="56"
-                height="56"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-            </div>
-            <h3>The Torch Relay</h3>
-            <p>
-              Before the games commence, a ceremonial torch is lit and carried
-              through Kodava villages, symbolizing the unity of the community
-              and the passing of tradition from one generation to the next.
             </p>
           </motion.div>
 

@@ -1,8 +1,15 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback, memo, useRef } from "react";
-import { LazyMotion, domAnimation, m, useReducedMotion, useInView } from "framer-motion";
+import {
+  LazyMotion,
+  domAnimation,
+  m,
+  useReducedMotion,
+  useInView,
+} from "framer-motion";
 import { Trophy, Users, MapPin, Zap, Calendar, Flame } from "lucide-react";
+import Link from "next/link";
 
 // Optimized: Memoized animated number component with LazyMotion
 const AnimatedNumber = memo(({ value }) => {
@@ -16,9 +23,9 @@ const AnimatedNumber = memo(({ value }) => {
         initial={{ y: shouldReduceMotion ? 0 : 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: shouldReduceMotion ? 0 : -20, opacity: 0 }}
-        transition={{ 
-          duration: shouldReduceMotion ? 0.01 : 0.3, 
-          ease: [0.4, 0, 0.2, 1] 
+        transition={{
+          duration: shouldReduceMotion ? 0.01 : 0.3,
+          ease: [0.4, 0, 0.2, 1],
         }}
         className="absolute text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-mono text-yellow-400 drop-shadow-lg"
       >
@@ -32,19 +39,25 @@ AnimatedNumber.displayName = "AnimatedNumber";
 
 const EventCountdown = () => {
   const shouldReduceMotion = useReducedMotion();
-  
+
   // Refs for viewport detection
   const headerRef = useRef(null);
   const eventInfoRef = useRef(null);
   const ctaRef = useRef(null);
   const countdownRef = useRef(null);
   const statsRef = useRef(null);
-  
-  const headerInView = useInView(headerRef, { once: true, margin: '-30px' });
-  const eventInfoInView = useInView(eventInfoRef, { once: true, margin: '-30px' });
-  const ctaInView = useInView(ctaRef, { once: true, margin: '-30px' });
-  const countdownInView = useInView(countdownRef, { once: true, margin: '-30px' });
-  const statsInView = useInView(statsRef, { once: true, margin: '-30px' });
+
+  const headerInView = useInView(headerRef, { once: true, margin: "-30px" });
+  const eventInfoInView = useInView(eventInfoRef, {
+    once: true,
+    margin: "-30px",
+  });
+  const ctaInView = useInView(ctaRef, { once: true, margin: "-30px" });
+  const countdownInView = useInView(countdownRef, {
+    once: true,
+    margin: "-30px",
+  });
+  const statsInView = useInView(statsRef, { once: true, margin: "-30px" });
 
   // Memoized target date
   const targetDate = useMemo(() => new Date("2026-04-05T00:00:00"), []);
@@ -85,12 +98,12 @@ const EventCountdown = () => {
   // Memoized stats
   const stats = useMemo(
     () => [
-      { num: "450+", label: "Teams" },
-      { num: "5000+", label: "Players" },
-      { num: "200+", label: "Matches" },
-      { num: "30", label: "Days" },
+      { num: "400+", label: "Teams" },
+      { num: "6000+", label: "Players" },
+      { num: "395+", label: "Matches" },
+      { num: "27", label: "Days" },
     ],
-    []
+    [],
   );
 
   // Memoized countdown units
@@ -101,32 +114,32 @@ const EventCountdown = () => {
       { key: "minutes", label: "Mins" },
       { key: "seconds", label: "Secs" },
     ],
-    []
+    [],
   );
 
   // Optimized animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
-        duration: shouldReduceMotion ? 0.01 : 0.5, 
-        ease: [0.4, 0, 0.2, 1] 
-      }
-    }
+      transition: {
+        duration: shouldReduceMotion ? 0.01 : 0.5,
+        ease: [0.4, 0, 0.2, 1],
+      },
+    },
   };
 
   const scaleIn = {
     hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.9 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       scale: 1,
-      transition: { 
-        duration: shouldReduceMotion ? 0.01 : 0.6, 
-        ease: [0.4, 0, 0.2, 1] 
-      }
-    }
+      transition: {
+        duration: shouldReduceMotion ? 0.01 : 0.6,
+        ease: [0.4, 0, 0.2, 1],
+      },
+    },
   };
 
   return (
@@ -151,9 +164,6 @@ const EventCountdown = () => {
           </div>
 
           {/* Stadium lights - Pure CSS */}
-          <div className="absolute top-0 left-1/4 w-[200px] h-[200px] xs:w-[250px] xs:h-[250px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] bg-yellow-400 rounded-full blur-[80px] sm:blur-[100px] md:blur-[120px] lg:blur-[150px] opacity-20" />
-          <div className="absolute top-0 right-1/4 w-[200px] h-[200px] xs:w-[250px] xs:h-[250px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px] bg-cyan-400 rounded-full blur-[80px] sm:blur-[100px] md:blur-[120px] lg:blur-[150px] opacity-20" />
-          <div className="absolute bottom-0 left-1/3 w-[180px] h-[180px] xs:w-[220px] xs:h-[220px] sm:w-[300px] sm:h-[300px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px] bg-blue-500 rounded-full blur-[60px] sm:blur-[80px] md:blur-[100px] lg:blur-[120px] opacity-15" />
         </div>
 
         {/* Main Content */}
@@ -163,13 +173,13 @@ const EventCountdown = () => {
             ref={headerRef}
             variants={scaleIn}
             initial="hidden"
-            animate={headerInView ? 'visible' : 'hidden'}
+            animate={headerInView ? "visible" : "hidden"}
           >
             {/* Championship Badge - No rotation animation for performance */}
             <div className="inline-block mb-3 xs:mb-4 sm:mb-5 md:mb-6">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur-lg sm:blur-xl opacity-60" />
-                <div className="relative bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 px-2 py-1.5 xs:px-3 xs:py-2 sm:px-5 sm:py-2.5 md:px-7 md:py-3 lg:px-8 lg:py-3 rounded-full border-2 sm:border-3 md:border-4 border-yellow-300 shadow-2xl transform -rotate-2">
+                <div className="relative bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 px-2 py-1.5 xs:px-3 xs:py-2 sm:px-5 sm:py-2.5 md:px-7 md:py-3 lg:px-8 lg:py-3 rounded-full border-2 sm:border-3 md:border-4 border-yellow-300 shadow-2xl transform ">
                   <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2">
                     <Trophy className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-yellow-900 flex-shrink-0" />
                     <span className="text-yellow-900 font-black text-[10px] xs:text-xs sm:text-sm md:text-base lg:text-lg tracking-tight xs:tracking-wide sm:tracking-wider whitespace-nowrap">
@@ -199,7 +209,7 @@ const EventCountdown = () => {
             ref={eventInfoRef}
             variants={fadeInUp}
             initial="hidden"
-            animate={eventInfoInView ? 'visible' : 'hidden'}
+            animate={eventInfoInView ? "visible" : "hidden"}
             className="flex flex-col sm:flex-row gap-2 xs:gap-3 sm:gap-4 md:gap-5 lg:gap-6 justify-center items-stretch sm:items-center mb-4 xs:mb-5 sm:mb-6 md:mb-8 lg:mb-10 max-w-4xl mx-auto"
           >
             <div className="flex items-center gap-2 xs:gap-2.5 sm:gap-3 bg-black/60 backdrop-blur-sm px-2.5 py-2 xs:px-3 xs:py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 lg:px-6 lg:py-4 rounded-full border-2 border-cyan-500/50 w-full sm:w-auto">
@@ -220,7 +230,7 @@ const EventCountdown = () => {
                   Venue
                 </div>
                 <div className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl font-black text-white truncate">
-                  Gen. Thimmaiah Stadium, Napokulu
+                  Gen. Thimmaiah Stadium, Napoklu
                 </div>
               </div>
             </div>
@@ -264,7 +274,7 @@ const EventCountdown = () => {
             ref={countdownRef}
             variants={fadeInUp}
             initial="hidden"
-            animate={countdownInView ? 'visible' : 'hidden'}
+            animate={countdownInView ? "visible" : "hidden"}
             className="mb-6 xs:mb-7 sm:mb-8 md:mb-10 lg:mb-12"
           >
             <div className="bg-black/60 backdrop-blur-sm rounded-xl xs:rounded-2xl sm:rounded-3xl p-3 xs:p-4 sm:p-5 md:p-6 lg:p-8 border-2 border-yellow-500/50 shadow-2xl max-w-4xl mx-auto">
@@ -313,7 +323,7 @@ const EventCountdown = () => {
             ref={statsRef}
             variants={fadeInUp}
             initial="hidden"
-            animate={statsInView ? 'visible' : 'hidden'}
+            animate={statsInView ? "visible" : "hidden"}
             className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-3 xs:gap-4 sm:gap-5 md:gap-6 lg:gap-8"
           >
             {stats.map((stat) => (
@@ -327,6 +337,27 @@ const EventCountdown = () => {
               </div>
             ))}
           </m.div>
+          <div className="text-center mt-8">
+            <Link
+              href="/about-tournament"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+            >
+              <span>Know more</span>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+          </div>
         </div>
 
         {/* Corner Decorations - Pure CSS */}

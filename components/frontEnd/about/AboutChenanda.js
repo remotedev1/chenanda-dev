@@ -93,9 +93,9 @@ export default function AboutChenanda() {
 
   const stats = [
     { number: "300+", label: "Family Members" },
-    { number: "5", label: "Locations" },
+    { number: "4", label: "Locations" },
     { number: "2", label: "Olympians" },
-    { number: "100+", label: "Years of Legacy" },
+    { number: "350+", label: "Years of Legacy" },
   ];
 
   const features = [
@@ -106,9 +106,9 @@ export default function AboutChenanda() {
   ];
 
   const achievements = [
-    { icon: "🎖️", text: "Indian Army officers" },
-    { icon: "🥇", text: "Olympians and sportspersons" },
-    { icon: "📚", text: "Teachers and educators" },
+    { icon: "🎖️", text: "Indian defence personnel" },
+    { icon: "🥇", text: "Olympians " },
+    { icon: "📚", text: "Teachers and honorary" },
     { icon: "🎭", text: "Cultural enthusiasts" },
   ];
 
@@ -160,8 +160,8 @@ export default function AboutChenanda() {
                   </span>
                   , deeply rooted in{" "}
                   <span className="font-semibold text-amber-800">Kokeri</span>,
-                  with family branches spread across Murnad, Banavara, Kettoli,
-                  and Virajpet in the heart of Coorg.
+                  with family branches spread across Kodambur, Banavara and Alur
+                  Siddapura in the heart of Coorg.
                 </p>
               </Card>
 
@@ -242,17 +242,17 @@ export default function AboutChenanda() {
                   <span>National Recognition</span>
                 </h3>
                 <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                  The family is especially honored to have produced{" "}
+                  The family is especially honoured to have produced{" "}
                   <span className="font-bold text-orange-800">
                     two eminent Olympians
                   </span>
                   , including recipients of the prestigious{" "}
                   <span className="font-bold text-orange-800">
-                    Dronacharya Award
+                    Arjuna Award
                   </span>{" "}
                   and{" "}
                   <span className="font-bold text-orange-800">
-                    Arjuna Award
+                    Dronacharya Award
                   </span>
                   , reflecting a legacy of discipline, dedication, and sporting
                   excellence.
@@ -315,11 +315,9 @@ export default function AboutChenanda() {
                 </h3>
               </div>
               <p className="text-base sm:text-lg md:text-xl leading-relaxed">
-                Sports—particularly{" "}
-                <span className="font-bold underline decoration-white/50">
-                  hockey
-                </span>
-                —run deep in the Chenanda lineage. Across generations, the
+                Sports particularly{" "}
+                <span className="font-bold  decoration-white/50">hockey </span>
+                runs deep in the Chenanda lineage. Across generations, the
                 family has actively contributed to the rich Kodava hockey
                 culture by nurturing talent, mentoring young players, and
                 upholding the spirit of sportsmanship that Coorg is known for.
@@ -363,10 +361,11 @@ export default function AboutChenanda() {
                 </div>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-8 px-2">
                   Carrying this legacy forward, the Chenanda family is proud to
-                  organize a Hockey Tournament with the purpose of:
+                  organize the Kodava Hockey Tournament 2026 with the purpose
+                  of:
                 </p>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto">
+                <div className="grid  grid-cols-1 md:grid-cols-2  gap-3 sm:gap-4 max-w-5xl mx-auto">
                   {features.map((item, index) => (
                     <m.div
                       key={index}

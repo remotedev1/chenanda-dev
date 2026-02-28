@@ -12,24 +12,24 @@ html {
 
 :root {
   /* Kodava Color Palette */
-  --color-yellow: #F4C430;
-  --color-yellow-light: #F9D866;
-  --color-yellow-dark: #D4A620;
-  
-  --color-blue: #1A3B5D;
-  --color-blue-light: #2C5F8D;
-  --color-blue-dark: #0F2538;
-  
+  --color-yellow: #f4c430;
+  --color-yellow-light: #f9d866;
+  --color-yellow-dark: #d4a620;
+
+  --color-blue: #1a3b5d;
+  --color-blue-light: #2c5f8d;
+  --color-blue-dark: #0f2538;
+
   --color-maroon: #800020;
-  --color-maroon-light: #A6314A;
-  --color-maroon-dark: #5A0016;
-  
+  --color-maroon-light: #a6314a;
+  --color-maroon-dark: #5a0016;
+
   /* Neutral Palette */
-  --color-cream: #FAF8F3;
-  --color-sand: #E8E3D8;
-  --color-charcoal: #2D2D2D;
-  --color-slate: #4A5568;
-  
+  --color-cream: #faf8f3;
+  --color-sand: #e8e3d8;
+  --color-charcoal: #2d2d2d;
+  --color-slate: #4a5568;
+
   /* Spacing System */
   --space-xs: 0.5rem;
   --space-sm: 1rem;
@@ -37,11 +37,11 @@ html {
   --space-lg: 4rem;
   --space-xl: 6rem;
   --space-2xl: 8rem;
-  
+
   /* Typography Scale */
-  --font-display: 'Crimson Text', 'Georgia', serif;
-  --font-body: 'Inter', 'Helvetica Neue', sans-serif;
-  
+  --font-display: "Crimson Text", "Georgia", serif;
+  --font-body: "Inter", "Helvetica Neue", sans-serif;
+
   --text-xs: 0.875rem;
   --text-sm: 1rem;
   --text-base: 1.125rem;
@@ -49,14 +49,14 @@ html {
   --text-xl: 2rem;
   --text-2xl: 3rem;
   --text-3xl: 4rem;
-  
+
   /* Animation Tokens */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --duration-fast: 0.2s;
   --duration-base: 0.4s;
   --duration-slow: 0.6s;
-  
+
   /* Layout */
   --max-width: 1200px;
   --content-width: 720px;
@@ -99,7 +99,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: 600;
   line-height: 1.2;
@@ -143,7 +148,7 @@ p {
 }
 
 .accent-border::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -234,7 +239,9 @@ img {
 }
 
 .team-logo-shadow {
-  box-shadow: 0 4px 4px 0 rgba(48, 48, 48, 0.15), 0 0 0 10px #f3f5f9;
+  box-shadow:
+    0 4px 4px 0 rgba(48, 48, 48, 0.15),
+    0 0 0 10px #f3f5f9;
 }
 
 /* ///swiper navigation start */
@@ -300,8 +307,8 @@ img {
 
 /* //nprogress customizations   */
 #nprogress .bar {
-  background: #16a34a !important;
-  height: 3px !important;
+  background: rgb(244, 91, 3) !important;
+  height: 5px !important;
   z-index: 9999 !important;
 }
 
@@ -330,7 +337,8 @@ border: #0e0d33 */
   width: 100%;
   height: 100%;
   background: 
-    /* Center circle */ radial-gradient(
+    /* Center circle */
+    radial-gradient(
       circle at center,
       transparent 48px,
       white 48px,
@@ -338,7 +346,7 @@ border: #0e0d33 */
       transparent 50px
     ),
     /* Vertical center line */
-      linear-gradient(
+    linear-gradient(
         90deg,
         transparent calc(50% - 2px),
         white calc(50% - 2px),
@@ -346,7 +354,7 @@ border: #0e0d33 */
         transparent calc(50% + 2px)
       ),
     /* Horizontal grid lines */
-      repeating-linear-gradient(
+    repeating-linear-gradient(
         0deg,
         transparent,
         transparent 45px,
@@ -354,7 +362,7 @@ border: #0e0d33 */
         rgba(255, 255, 255, 0.15) 47px
       ),
     /* Vertical grid lines */
-      repeating-linear-gradient(
+    repeating-linear-gradient(
         90deg,
         transparent,
         transparent 45px,
@@ -362,7 +370,7 @@ border: #0e0d33 */
         rgba(255, 255, 255, 0.15) 47px
       ),
     /* Base gradient for depth */
-      linear-gradient(135deg, #1a5f3f 0%, #2d8659 50%, #1a5f3f 100%);
+    linear-gradient(135deg, #1a5f3f 0%, #2d8659 50%, #1a5f3f 100%);
   background-size: 100% 100%;
   opacity: 0.15;
   pointer-events: none;
@@ -377,7 +385,8 @@ border: #0e0d33 */
   width: 100%;
   height: 100%;
   background: 
-    /* Center circle */ radial-gradient(
+    /* Center circle */
+    radial-gradient(
       circle at center,
       transparent 50px,
       white 50px,
@@ -385,7 +394,7 @@ border: #0e0d33 */
       transparent 52px
     ),
     /* Vertical center line - bolder */
-      linear-gradient(
+    linear-gradient(
         90deg,
         transparent calc(50% - 3px),
         white calc(50% - 3px),
@@ -393,7 +402,7 @@ border: #0e0d33 */
         transparent calc(50% + 3px)
       ),
     /* Horizontal grid lines - more visible */
-      repeating-linear-gradient(
+    repeating-linear-gradient(
         0deg,
         transparent,
         transparent 40px,
@@ -401,7 +410,7 @@ border: #0e0d33 */
         rgba(255, 255, 255, 0.25) 42px
       ),
     /* Vertical grid lines - more visible */
-      repeating-linear-gradient(
+    repeating-linear-gradient(
         90deg,
         transparent,
         transparent 40px,
@@ -409,7 +418,7 @@ border: #0e0d33 */
         rgba(255, 255, 255, 0.25) 42px
       ),
     /* Green turf texture with depth */
-      linear-gradient(
+    linear-gradient(
         135deg,
         #1a5f3f 0%,
         #34a169 25%,
@@ -430,7 +439,8 @@ border: #0e0d33 */
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at center,
       transparent 48px,
       rgba(255, 255, 255, 0.8) 48px,
@@ -488,7 +498,8 @@ border: #0e0d33 */
   border-radius: inherit;
   background: 
   
-    /* Center circle */ radial-gradient(
+    /* Center circle */
+    radial-gradient(
       circle at 50% 50%,
       transparent 68px,
       rgba(255, 255, 255, 0.85) 68px,
@@ -496,13 +507,13 @@ border: #0e0d33 */
       transparent 70px
     ),
     /* Center spot */
-      radial-gradient(
+    radial-gradient(
         circle at 50% 50%,
         rgba(255, 255, 255, 0.9) 5px,
         transparent 5px
       ),
     /* Your existing lines */
-      linear-gradient(
+    linear-gradient(
         to bottom,
         /* Line at 20% */ transparent calc(20% - 1px),
         rgba(255, 255, 255, 0.8) calc(20% - 1px),
@@ -518,7 +529,7 @@ border: #0e0d33 */
         transparent calc(80% + 1px)
       ),
     /* Realistic grass texture with stripes */
-      repeating-linear-gradient(
+    repeating-linear-gradient(
         90deg,
         #237a4a 0px,
         #237a4a 40px,
@@ -526,7 +537,7 @@ border: #0e0d33 */
         #2d8f5a 80px
       ),
     /* Grass depth gradient */
-      radial-gradient(ellipse at center, #2d8f5a 0%, #1e6b3f 100%);
+    radial-gradient(ellipse at center, #2d8f5a 0%, #1e6b3f 100%);
 
   background-size: 100% 100%;
   opacity: 0.25;
