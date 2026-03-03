@@ -1,7 +1,7 @@
-import GamesMain from "@/components/backOffice/tournament/games/GamesMain";
+import  { TournamentGameMain } from "@/components/backOffice/tournament/games/GamesMain";
 
 const GamesPage = () => {
-  return <GamesMain />;
+  return <TournamentGameMain />;
 };
 
 export default GamesPage;

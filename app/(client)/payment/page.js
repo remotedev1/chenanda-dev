@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useMemo, useCallback, useReducer, useRef } from "react";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useReducer,
+  useRef,
+  useEffect,
+} from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +48,6 @@ const initialState = {
     email: "",
     phone: "",
     address: "",
-    pattedharaName: "",
   },
   players: [],
   selectedGames: [],
@@ -57,7 +63,10 @@ function formReducer(state, action) {
     case "UPDATE_REGISTRATION":
       return {
         ...state,
-        registrationDetails: { ...state.registrationDetails, ...action.payload },
+        registrationDetails: {
+          ...state.registrationDetails,
+          ...action.payload,
+        },
       };
     case "SET_PLAYERS":
       return { ...state, players: action.payload };
@@ -73,7 +82,7 @@ function formReducer(state, action) {
       return {
         ...state,
         players: state.players.map((p) =>
-          p.id === action.payload.id ? { ...p, ...action.payload.data } : p
+          p.id === action.payload.id ? { ...p, ...action.payload.data } : p,
         ),
       };
     case "REMOVE_PLAYER":
@@ -108,7 +117,11 @@ export default function TournamentPayment() {
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [state.step]);
+
   const handleSearchChange = useCallback((value) => {
     setFamilySearch(value);
     if (searchTimeoutRef.current) {
@@ -122,17 +135,18 @@ export default function TournamentPayment() {
   // Optimized hooks with minimal re-renders
   const { tournaments, loading: tournamentLoading } = useTournaments();
   const { families, loading: familiesLoading } = useFamilies(debouncedSearch);
-  
+
   const selectedTournamentId = useMemo(
     () => tournaments?.[0]?.id || tournamentId,
-    [tournaments, tournamentId]
+    [tournaments, tournamentId],
   );
 
   const { games, loading: gamesLoading } = useGames({
     tournamentId: selectedTournamentId,
   });
 
-  const { batchCreatePlayers, creating: creatingPlayers } = useBatchCreatePlayers();
+  const { batchCreatePlayers, creating: creatingPlayers } =
+    useBatchCreatePlayers();
 
   // Memoized computed values
   const gamesById = useMemo(() => {
@@ -143,7 +157,7 @@ export default function TournamentPayment() {
 
   const selectedGamesSet = useMemo(
     () => new Set(state.selectedGames),
-    [state.selectedGames]
+    [state.selectedGames],
   );
 
   const totalAmount = useMemo(() => {
@@ -155,7 +169,7 @@ export default function TournamentPayment() {
 
   const selectedFamily = useMemo(
     () => families.find((f) => f.id === state.selectedFamilyId),
-    [families, state.selectedFamilyId]
+    [families, state.selectedFamilyId],
   );
 
   // Optimized handlers with useCallback
@@ -168,7 +182,7 @@ export default function TournamentPayment() {
       }
       dispatch({ type: "SET_STEP", payload: "registration" });
     },
-    [state.selectedFamilyId]
+    [state.selectedFamilyId],
   );
 
   const handleRegistrationSubmit = useCallback(
@@ -196,10 +210,10 @@ export default function TournamentPayment() {
           payload: [{ id: Date.now(), name: "", jersey: "", position: "" }],
         });
       }
-      
+
       dispatch({ type: "SET_STEP", payload: "players" });
     },
-    [state.registrationDetails, state.players.length]
+    [state.registrationDetails, state.players.length],
   );
 
   const handleAddPlayer = useCallback(() => {
@@ -213,13 +227,16 @@ export default function TournamentPayment() {
     });
   }, []);
 
-  const handleRemovePlayer = useCallback((id) => {
-    if (state.players.length === 1) {
-      toast.error("At least one player is required");
-      return;
-    }
-    dispatch({ type: "REMOVE_PLAYER", payload: id });
-  }, [state.players.length]);
+  const handleRemovePlayer = useCallback(
+    (id) => {
+      if (state.players.length === 1) {
+        toast.error("At least one player is required");
+        return;
+      }
+      dispatch({ type: "REMOVE_PLAYER", payload: id });
+    },
+    [state.players.length],
+  );
 
   const handlePlayersSubmit = useCallback(
     async (e) => {
@@ -227,16 +244,20 @@ export default function TournamentPayment() {
 
       // Validate all players have required fields
       const validPlayers = state.players.filter(
-        (p) => p.name.trim() && p.jersey.trim() && p.position.trim()
+        (p) => p.name.trim() && p.jersey.trim() && p.position.trim(),
       );
 
       if (validPlayers.length === 0) {
-        toast.error("Please add at least one complete player (name, jersey, position)");
+        toast.error(
+          "Please add at least one complete player (name, jersey, position)",
+        );
         return;
       }
 
       if (validPlayers.length !== state.players.length) {
-        toast.error("Please complete all player details or remove incomplete entries");
+        toast.error(
+          "Please complete all player details or remove incomplete entries",
+        );
         return;
       }
 
@@ -256,7 +277,7 @@ export default function TournamentPayment() {
         // Error already shown by hook
       }
     },
-    [state.players, state.selectedFamilyId, batchCreatePlayers]
+    [state.players, state.selectedFamilyId, batchCreatePlayers],
   );
 
   const handleToggleGame = useCallback((gameId) => {
@@ -272,7 +293,7 @@ export default function TournamentPayment() {
       }
       dispatch({ type: "SET_STEP", payload: "payment" });
     },
-    [state.selectedGames.length]
+    [state.selectedGames.length],
   );
 
   const handleProcessPayment = useCallback(
@@ -291,11 +312,14 @@ export default function TournamentPayment() {
         };
 
         // UPIGATEWAY.com integration
-        const response = await fetch("/api/tournaments/payment/upigateway/initiate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(paymentData),
-        });
+        const response = await fetch(
+          "/api/tournaments/payment/upigateway/initiate",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(paymentData),
+          },
+        );
 
         const data = await response.json();
 
@@ -306,7 +330,7 @@ export default function TournamentPayment() {
           } else {
             toast.success("Payment initiated successfully!");
             router.push(
-              `/tournaments/${selectedTournamentId}/payment-confirmation?paymentId=${data.paymentId}`
+              `/tournaments/${selectedTournamentId}/payment-confirmation?paymentId=${data.paymentId}`,
             );
           }
         } else {
@@ -327,7 +351,7 @@ export default function TournamentPayment() {
       totalAmount,
       state.paymentMethod,
       router,
-    ]
+    ],
   );
 
   const handleBack = useCallback(() => {
@@ -357,10 +381,19 @@ export default function TournamentPayment() {
         @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 
         * {
-          font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family:
+            "Inter",
+            -apple-system,
+            BlinkMacSystemFont,
+            sans-serif;
         }
 
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
           font-family: "Space Grotesk", sans-serif;
         }
 
@@ -402,13 +435,17 @@ export default function TournamentPayment() {
                 <StepIndicator
                   icon={Users}
                   active={state.step === "registration"}
-                  completed={["players", "games", "payment"].includes(state.step)}
+                  completed={["players", "games", "payment"].includes(
+                    state.step,
+                  )}
                   stepNumber={1}
                 >
                   Register
                 </StepIndicator>
                 <StepLine
-                  completed={["players", "games", "payment"].includes(state.step)}
+                  completed={["players", "games", "payment"].includes(
+                    state.step,
+                  )}
                 />
                 <StepIndicator
                   icon={UserPlus}
@@ -418,7 +455,9 @@ export default function TournamentPayment() {
                 >
                   Players
                 </StepIndicator>
-                <StepLine completed={["games", "payment"].includes(state.step)} />
+                <StepLine
+                  completed={["games", "payment"].includes(state.step)}
+                />
                 <StepIndicator
                   icon={Trophy}
                   active={state.step === "games"}
@@ -554,9 +593,15 @@ function RegistrationStep({
                     ? "bg-gradient-to-r from-indigo-50 to-purple-50 border-l-4 border-l-indigo-600"
                     : ""
                 }`}
-                onClick={() => dispatch({ type: "SELECT_FAMILY", payload: family.id })}
+                onClick={() =>
+                  dispatch({ type: "SELECT_FAMILY", payload: family.id })
+                }
               >
-                <RadioGroupItem value={family.id} id={family.id} className="border-2" />
+                <RadioGroupItem
+                  value={family.id}
+                  id={family.id}
+                  className="border-2"
+                />
                 <Label htmlFor={family.id} className="flex-1 cursor-pointer">
                   <div className="font-semibold text-slate-900 text-lg">
                     {family.familyName}
@@ -589,7 +634,9 @@ function RegistrationStep({
                 <Users className="h-5 w-5 text-white" />
               </div>
               <div>
-                <div className="text-sm font-medium text-slate-600">Selected Family</div>
+                <div className="text-sm font-medium text-slate-600">
+                  Selected Family
+                </div>
                 <div className="text-xl font-bold text-slate-900">
                   {selectedFamily?.familyName}
                 </div>
@@ -599,7 +646,10 @@ function RegistrationStep({
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-base font-semibold text-slate-900">
+              <Label
+                htmlFor="name"
+                className="text-base font-semibold text-slate-900"
+              >
                 Contact Person Name *
               </Label>
               <Input
@@ -619,7 +669,10 @@ function RegistrationStep({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-base font-semibold text-slate-900">
+              <Label
+                htmlFor="phone"
+                className="text-base font-semibold text-slate-900"
+              >
                 Phone Number *
               </Label>
               <Input
@@ -639,7 +692,10 @@ function RegistrationStep({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-base font-medium text-slate-700">
+              <Label
+                htmlFor="email"
+                className="text-base font-medium text-slate-700"
+              >
                 Email Address
               </Label>
               <Input
@@ -657,7 +713,7 @@ function RegistrationStep({
               />
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label
                 htmlFor="pattedharaName"
                 className="text-base font-medium text-slate-700"
@@ -677,10 +733,13 @@ function RegistrationStep({
                 }
                 className="h-12 text-base border-2 focus:border-indigo-500"
               />
-            </div>
+            </div> */}
 
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="address" className="text-base font-semibold text-slate-900">
+              <Label
+                htmlFor="address"
+                className="text-base font-semibold text-slate-900"
+              >
                 Complete Address *
               </Label>
               <Textarea
@@ -894,7 +953,9 @@ function GamesStep({
             </div>
             <div>
               <div className="text-xs font-medium text-slate-600">Players</div>
-              <div className="font-bold text-slate-900">{state.players.length} Added</div>
+              <div className="font-bold text-slate-900">
+                {state.players.length} Added
+              </div>
             </div>
           </div>
         </div>
@@ -989,8 +1050,8 @@ function GamesStep({
             <div>
               <div className="text-sm opacity-90 font-medium">Total Amount</div>
               <div className="text-base opacity-75">
-                {state.selectedGames.length} game{state.selectedGames.length !== 1 ? "s" : ""}{" "}
-                selected
+                {state.selectedGames.length} game
+                {state.selectedGames.length !== 1 ? "s" : ""} selected
               </div>
             </div>
             <div className="text-right">
@@ -1044,13 +1105,17 @@ function PaymentStep({
 
         <div className="grid sm:grid-cols-2 gap-4 pb-4 border-b border-slate-300">
           <div>
-            <div className="text-xs font-medium text-slate-600 mb-1">Family</div>
+            <div className="text-xs font-medium text-slate-600 mb-1">
+              Family
+            </div>
             <div className="font-semibold text-slate-900">
               {selectedFamily?.familyName}
             </div>
           </div>
           <div>
-            <div className="text-xs font-medium text-slate-600 mb-1">Contact</div>
+            <div className="text-xs font-medium text-slate-600 mb-1">
+              Contact
+            </div>
             <div className="font-semibold text-slate-900">
               {state.registrationDetails.name}
             </div>
@@ -1061,7 +1126,9 @@ function PaymentStep({
         </div>
 
         <div>
-          <div className="text-xs font-medium text-slate-600 mb-2">Selected Games</div>
+          <div className="text-xs font-medium text-slate-600 mb-2">
+            Selected Games
+          </div>
           <div className="space-y-2">
             {state.selectedGames.map((gameId) => {
               const game = gamesById.get(gameId);
@@ -1070,7 +1137,9 @@ function PaymentStep({
                   key={gameId}
                   className="flex justify-between items-center bg-white p-3 rounded-lg"
                 >
-                  <span className="font-medium text-slate-900">{game?.name}</span>
+                  <span className="font-medium text-slate-900">
+                    {game?.name}
+                  </span>
                   <span className="font-bold text-indigo-600 flex items-center gap-1">
                     <IndianRupee className="h-4 w-4" />
                     {game?.registrationFee.toLocaleString()}
@@ -1084,10 +1153,10 @@ function PaymentStep({
 
       {/* Payment Method - UPI Gateway */}
       <div className="space-y-3">
-        <Label className="text-lg font-bold text-slate-900">Payment Method</Label>
-        <div
-          className="relative p-6 border-2 border-indigo-600 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-lg"
-        >
+        <Label className="text-lg font-bold text-slate-900">
+          Payment Method
+        </Label>
+        <div className="relative p-6 border-2 border-indigo-600 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-lg">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
               <Smartphone className="h-8 w-8 text-white" />
@@ -1113,9 +1182,9 @@ function PaymentStep({
             <div className="text-sm text-indigo-900">
               <p className="font-semibold mb-1">Secure UPI Payment</p>
               <p className="text-indigo-700">
-                You&apos;ll be redirected to UPIGATEWAY.com&apos;s secure payment page. Pay
-                using any UPI app (Google Pay, PhonePe, Paytm, etc.). All transactions are
-                encrypted and safe.
+                You&apos;ll be redirected to UPIGATEWAY.com&apos;s secure
+                payment page. Pay using any UPI app (Google Pay, PhonePe, Paytm,
+                etc.). All transactions are encrypted and safe.
               </p>
             </div>
           </div>
@@ -1126,9 +1195,12 @@ function PaymentStep({
       <div className="p-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl text-white shadow-2xl">
         <div className="flex justify-between items-center">
           <div>
-            <div className="text-sm opacity-90 font-medium mb-1">Total Amount</div>
+            <div className="text-sm opacity-90 font-medium mb-1">
+              Total Amount
+            </div>
             <div className="text-xs opacity-75">
-              {state.selectedGames.length} game{state.selectedGames.length !== 1 ? "s" : ""}
+              {state.selectedGames.length} game
+              {state.selectedGames.length !== 1 ? "s" : ""}
             </div>
           </div>
           <div className="text-right">
@@ -1190,7 +1262,13 @@ function PaymentStep({
 }
 
 // Helper Components
-function StepIndicator({ icon: Icon, active, completed, stepNumber, children }) {
+function StepIndicator({
+  icon: Icon,
+  active,
+  completed,
+  stepNumber,
+  children,
+}) {
   return (
     <div className="flex flex-col items-center">
       <div
@@ -1201,7 +1279,11 @@ function StepIndicator({ icon: Icon, active, completed, stepNumber, children }) 
           ${!active && !completed ? "bg-white/20 text-white/60" : ""}
         `}
       >
-        {completed ? <Check className="h-6 w-6" /> : <Icon className="h-6 w-6" />}
+        {completed ? (
+          <Check className="h-6 w-6" />
+        ) : (
+          <Icon className="h-6 w-6" />
+        )}
         {active && !completed && (
           <div className="absolute inset-0 rounded-xl bg-white/20 animate-ping"></div>
         )}

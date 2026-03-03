@@ -4,8 +4,8 @@ import MatchSchedule from "@/components/frontEnd/homepage/MatchSchedule";
 import SponsorsList from "@/components/frontEnd/homepage/sponsorsList";
 import VenueDetails from "@/components/frontEnd/homepage/venueDetails";
 import LiveScoreCarousel from "@/components/frontEnd/homepage/LiveScoreCarousel";
-import PaymentBanner from "@/components/frontEnd/payment";
 import HomeAboutPreview from "@/components/frontEnd/homepage/HomeAboutPreview";
+import PaymentBanner from "@/components/frontEnd/homepage/payment";
 
 export default function Page() {
   return (

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { X, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function Banner() {
+export default function PaymentBanner() {
   return (
     <div
       id="payment"
@@ -47,7 +47,7 @@ export default function Banner() {
 
           {/* CTA Button */}
           <div className="flex-shrink-0  sm:w-auto">
-            <Link href="/secure/payment">
+            <Link href="/payment">
               <Button
                 size="lg"
                 className="group bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"

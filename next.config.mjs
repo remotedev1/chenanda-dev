@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  //todo 
+  //todo
   allowedDevOrigins: ["http://localhost:3000"],
   reactStrictMode: false,
   images: {
@@ -10,7 +10,10 @@ const nextConfig = {
       { protocol: "https", hostname: "images.unsplash.com", port: "" },
     ],
   },
-   async headers() {
+  api: {
+    bodyParser: false,
+  },
+  async headers() {
     return [
       {
         source: "/videos/(.*)", // all files inside /public/videos/

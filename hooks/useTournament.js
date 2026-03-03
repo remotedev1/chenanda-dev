@@ -14,7 +14,6 @@ export function useTournaments(initialFilters = {}) {
     sortOrder: "desc",
     ...initialFilters,
   });
-  console.log(tournaments);
 
   const fetchTournaments = useCallback(async () => {
     setLoading(true);

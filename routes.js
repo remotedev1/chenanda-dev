@@ -8,6 +8,7 @@ export const publicRoutes = [
   "/gallery",
   "/contact-us",
   "/sw.js",
+  "/payment",
 ];
 
 /**
@@ -23,7 +24,6 @@ export const authRoutes = [
   "/auth/verify-success",
   "/auth/verify-error",
   "/api/send-otp",
-
 ];
 
 /**

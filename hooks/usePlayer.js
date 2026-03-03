@@ -1,7 +1,7 @@
 // hooks/usePlayer.js
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 
 const API_BASE = "/api/families/players";
@@ -9,55 +9,69 @@ const API_BASE = "/api/families/players";
 /**
  * Hook to fetch players with pagination, search, and filters
  */
-export function usePlayers() {
+export function usePlayers(options = {}) {
   const [players, setPlayers] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    search: "",
-    sport: undefined,
-    status: undefined,
-    sortBy: "playerName",
-    page: 1,
-    limit: 10,
-  });
+  const abortControllerRef = useRef(null);
+  
+  const {
+    search = "",
+    sport = undefined,
+    status = undefined,
+    sortBy = "playerName",
+    page = 1,
+    limit = 100,
+    familyId = undefined,
+  } = options;
 
   const fetchPlayers = useCallback(async () => {
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    abortControllerRef.current = new AbortController();
     setLoading(true);
+    
     try {
       const params = new URLSearchParams();
-      if (filters.search) params.append("search", filters.search);
-      if (filters.sport) params.append("sport", filters.sport);
-      if (filters.status) params.append("status", filters.status);
-      if (filters.sortBy) params.append("sortBy", filters.sortBy);
-      params.append("page", filters.page.toString());
-      params.append("limit", filters.limit.toString());
+      if (search) params.append("search", search);
+      if (sport) params.append("sport", sport);
+      if (status) params.append("status", status);
+      if (familyId) params.append("familyId", familyId);
+      if (sortBy) params.append("sortBy", sortBy);
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
 
-      const response = await fetch(`${API_BASE}?${params}`);
+      const response = await fetch(`${API_BASE}?${params}`, {
+        signal: abortControllerRef.current.signal
+      });
+      
       if (!response.ok) throw new Error("Failed to fetch players");
 
       const data = await response.json();
       setPlayers(data.data || []);
       setPagination(data.pagination);
     } catch (error) {
+      if (error.name === 'AbortError') return; // Ignore abort errors
       console.error("Error fetching players:", error);
       toast.error("Failed to load players");
+      setPlayers([]);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [search, sport, status, familyId, sortBy, page, limit]);
 
   useEffect(() => {
     fetchPlayers();
+    
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchPlayers]);
-
-  const updateFilters = useCallback((newFilters) => {
-    setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
-  }, []);
-
-  const setPage = useCallback((page) => {
-    setFilters((prev) => ({ ...prev, page }));
-  }, []);
 
   const refresh = useCallback(() => {
     fetchPlayers();
@@ -67,9 +81,6 @@ export function usePlayers() {
     players,
     pagination,
     loading,
-    filters,
-    updateFilters,
-    setPage,
     refresh,
   };
 }
@@ -80,7 +91,7 @@ export function usePlayers() {
 export function useCreatePlayer() {
   const [creating, setCreating] = useState(false);
 
-  const createPlayer = async (data) => {
+  const createPlayer = useCallback(async (data) => {
     setCreating(true);
     try {
       const response = await fetch(API_BASE, {
@@ -104,9 +115,44 @@ export function useCreatePlayer() {
     } finally {
       setCreating(false);
     }
-  };
+  }, []);
 
   return { createPlayer, creating };
+}
+
+/**
+ * Hook to batch create multiple players
+ */
+export function useBatchCreatePlayers() {
+  const [creating, setCreating] = useState(false);
+
+  const batchCreatePlayers = useCallback(async (playersData) => {
+    setCreating(true);
+    try {
+      const response = await fetch(`${API_BASE}/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ players: playersData }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create players");
+      }
+
+      const result = await response.json();
+      toast.success(`${playersData.length} player(s) created successfully`);
+      return result;
+    } catch (error) {
+      console.error("Error batch creating players:", error);
+      toast.error(error.message || "Failed to create players");
+      throw error;
+    } finally {
+      setCreating(false);
+    }
+  }, []);
+
+  return { batchCreatePlayers, creating };
 }
 
 /**
@@ -115,7 +161,7 @@ export function useCreatePlayer() {
 export function useUpdatePlayer() {
   const [updating, setUpdating] = useState(false);
 
-  const updatePlayer = async (id, data) => {
+  const updatePlayer = useCallback(async (id, data) => {
     setUpdating(true);
     try {
       const response = await fetch(`${API_BASE}/${id}`, {
@@ -139,7 +185,7 @@ export function useUpdatePlayer() {
     } finally {
       setUpdating(false);
     }
-  };
+  }, []);
 
   return { updatePlayer, updating };
 }
@@ -150,7 +196,7 @@ export function useUpdatePlayer() {
 export function useDeletePlayer() {
   const [deleting, setDeleting] = useState(false);
 
-  const deletePlayer = async (id, name) => {
+  const deletePlayer = useCallback(async (id, name) => {
     setDeleting(true);
     try {
       const response = await fetch(`${API_BASE}/${id}`, {
@@ -170,7 +216,7 @@ export function useDeletePlayer() {
     } finally {
       setDeleting(false);
     }
-  };
+  }, []);
 
   return { deletePlayer, deleting };
 }

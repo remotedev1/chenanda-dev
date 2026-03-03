@@ -174,8 +174,8 @@ model TournamentGame {
   date DateTime
 
   // Registration & Payment
-  //  registrationDeadline DateTime?
-  //registrationFee      Float? 
+  registrationDeadline DateTime
+  registrationFee      Float
 
   // Status
   isActive Boolean @default(true)
@@ -402,7 +402,7 @@ type Achievements {
   year        String?
   title       String
   description String
-}
+} 
 
 // Matches - Now sport-specific within tournaments and can link to specific games
 model Matches {
