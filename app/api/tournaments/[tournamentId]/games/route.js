@@ -49,7 +49,9 @@ const createGameSchema = z.object({
 /* ---------------- HANDLERS ---------------- */
 
 async function handleGet(request, { params }) {
-  const setup = await setupApiHandler(request, "games:list");
+  const setup = await setupApiHandler(request, "games:list", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   const { tournamentId } = params;
@@ -130,7 +132,9 @@ async function handleGet(request, { params }) {
 }
 
 async function handlePost(request, { params }) {
-  const setup = await setupApiHandler(request, "games:create");
+  const setup = await setupApiHandler(request, "games:create", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   const { user } = await auth();

@@ -71,16 +71,10 @@ const batchCreateSchema = z.object({
 
 async function handlePost(request) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "players:batch-create");
+  const setup = await setupApiHandler(request, "players:batch-create", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
-
-  const { user } = await auth();
-
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.CREATE, RESOURCES.PLAYER)) {
-    return errorResponse("You don't have permission to create players", 403);
-  }
 
   // Validate body
   const body = await request.json();
@@ -197,17 +191,6 @@ async function handlePost(request) {
       timeout: 30000, // 30 seconds
     },
   );
-
-  // Log activity for batch creation
-  await logActivity({
-    userId: setup.user.userId,
-    action: "batch_created",
-    entity: "players",
-    entityId: createdPlayers.map((p) => p.id).join(","),
-    entityName: `${createdPlayers.length} players`,
-    description: `Batch created ${createdPlayers.length} player(s) across ${familyIds.length} family/families`,
-    request,
-  });
 
   return successResponse(
     {

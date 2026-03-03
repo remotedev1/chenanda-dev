@@ -17,7 +17,6 @@ import {
   useUpdatePlayer,
   useDeletePlayer,
 } from "@/hooks/usePlayer";
-import { Can } from "@/hooks/useAbility";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayerForm } from "./PlayersForm";
 import { PlayerTable } from "./PlayersTable";
@@ -27,10 +26,19 @@ const PlayersMain = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
-  const { players, setPage, pagination, loading, filters, updateFilters, refresh } = usePlayers();
+  const {
+    players,
+    setPage,
+    pagination,
+    loading,
+    filters,
+    updateFilters,
+    refresh,
+  } = usePlayers();
   const { createPlayer, creating } = useCreatePlayer();
   const { updatePlayer, updating } = useUpdatePlayer();
   const { deletePlayer } = useDeletePlayer();
+
 
   const handleCreate = async (data) => {
     await createPlayer(data);
@@ -100,13 +108,13 @@ const PlayersMain = () => {
             Manage tournament players and their information
           </p>
         </div>
-          <Button
-            onClick={() => setCreateDialogOpen(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Player
-          </Button>
+        <Button
+          onClick={() => setCreateDialogOpen(true)}
+          className="bg-orange-500 hover:bg-orange-600 text-white"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add Player
+        </Button>
       </div>
 
       {/* Content */}

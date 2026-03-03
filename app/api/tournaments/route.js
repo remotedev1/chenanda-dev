@@ -51,7 +51,7 @@ const createTournamentSchema = z.object({
 
 async function handleGet(request) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "tournaments:list");
+  const setup = await setupApiHandler(request, "tournaments:list", {requireAuthentication: false});
   if (setup.error) return setup.error;
 
   // Query params

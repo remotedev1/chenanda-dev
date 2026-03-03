@@ -32,6 +32,7 @@ import {
   Plus,
   Trash2,
   UserPlus,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTournaments } from "@/hooks/useTournament";
@@ -51,6 +52,7 @@ const initialState = {
   },
   players: [],
   selectedGames: [],
+  existingPlayers: [],
   paymentMethod: "upi",
 };
 
@@ -78,6 +80,8 @@ function formReducer(state, action) {
           { id: Date.now(), name: "", jersey: "", position: "" },
         ],
       };
+    case "SET_EXISTING_PLAYERS":
+      return { ...state, existingPlayers: action.payload };
     case "UPDATE_PLAYER":
       return {
         ...state,
@@ -111,7 +115,8 @@ export default function TournamentPayment() {
   const [processingPayment, setProcessingPayment] = useState(false);
   const [familySearch, setFamilySearch] = useState("");
   const searchTimeoutRef = useRef(null);
-
+  const [editingPlayerId, setEditingPlayerId] = useState(null);
+  const [editingPlayerData, setEditingPlayerData] = useState({});
   const { tournamentId } = useParams();
   const router = useRouter();
 
@@ -147,6 +152,50 @@ export default function TournamentPayment() {
 
   const { batchCreatePlayers, creating: creatingPlayers } =
     useBatchCreatePlayers();
+
+  useEffect(() => {
+    const fetchExistingPlayers = async () => {
+      if (state.selectedFamilyId) {
+        dispatch({
+          type: "SET_EXISTING_PLAYERS",
+          payload:
+            families.find((f) => f.id === state.selectedFamilyId)?.players ||
+            [],
+        });
+      } else {
+        dispatch({ type: "SET_EXISTING_PLAYERS", payload: [] });
+      }
+    };
+    fetchExistingPlayers();
+  }, [state.selectedFamilyId]);
+
+  const handleUpdateExistingPlayer = useCallback(
+    async (playerId) => {
+      try {
+        const response = await fetch(`/api/players/${playerId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editingPlayerData),
+        });
+        const data = await response.json();
+        if (data.success) {
+          dispatch({
+            type: "SET_EXISTING_PLAYERS",
+            payload: state.existingPlayers.map((p) =>
+              p.id === playerId ? { ...p, ...editingPlayerData } : p,
+            ),
+          });
+          setEditingPlayerId(null);
+          toast.success("Player updated!");
+        } else {
+          toast.error("Failed to update player");
+        }
+      } catch (err) {
+        toast.error("Error updating player");
+      }
+    },
+    [editingPlayerData, state.existingPlayers, dispatch],
+  );
 
   // Memoized computed values
   const gamesById = useMemo(() => {
@@ -503,6 +552,11 @@ export default function TournamentPayment() {
                   onSubmit={handlePlayersSubmit}
                   onBack={handleBack}
                   creatingPlayers={creatingPlayers}
+                  editingPlayerId={editingPlayerId}
+                  editingPlayerData={editingPlayerData}
+                  setEditingPlayerId={setEditingPlayerId}
+                  setEditingPlayerData={setEditingPlayerData}
+                  onUpdateExistingPlayer={handleUpdateExistingPlayer}
                 />
               )}
 
@@ -561,6 +615,11 @@ function RegistrationStep({
         <Label className="text-lg font-semibold text-slate-900">
           Select Your Family *
         </Label>
+        {!familiesLoading && families.length > 6 && (
+          <div className="text-sm text-slate-600 text-center mt-2">
+            Showing 6 of {families.length} families. Use search to find more.
+          </div>
+        )}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
           <Input
@@ -585,7 +644,7 @@ function RegistrationStep({
               dispatch({ type: "SELECT_FAMILY", payload: value })
             }
           >
-            {families.map((family) => (
+            {families.slice(0, 6).map((family) => (
               <div
                 key={family.id}
                 className={`flex items-center space-x-4 p-5 border-b last:border-b-0 cursor-pointer hover:bg-indigo-50 transition-all ${
@@ -781,6 +840,7 @@ function PlayersStep({
   onRemovePlayer,
   onSubmit,
   onBack,
+  editingPlayerId,
   creatingPlayers,
 }) {
   return (
@@ -798,7 +858,147 @@ function PlayersStep({
           </div>
         </div>
       </div>
-
+      {state.existingPlayers && state.existingPlayers.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-green-600" />
+            <Label className="text-lg font-bold text-slate-900">
+              Registered Players ({state.existingPlayers.length})
+            </Label>
+          </div>
+          <div className="space-y-3">
+            {state.existingPlayers.map((player, index) => {
+              const isEditing = editingPlayerId === player.id;
+              return (
+                <div
+                  key={player.id || index}
+                  className={`p-4 border-2 rounded-xl transition-all ${isEditing ? "border-indigo-400 bg-indigo-50" : "border-green-200 bg-green-50"}`}
+                >
+                  {isEditing ? (
+                    <div className="space-y-3">
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium">Name</Label>
+                          <Input
+                            value={
+                              editingPlayerData.playerName ?? player.playerName
+                            }
+                            onChange={(e) =>
+                              setEditingPlayerData((d) => ({
+                                ...d,
+                                playerName: e.target.value,
+                              }))
+                            }
+                            className="h-9 border-2 focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium">
+                            Jersey Number
+                          </Label>
+                          <Input
+                            value={
+                              editingPlayerData.jerseyNumber ??
+                              player.jerseyNumber
+                            }
+                            onChange={(e) =>
+                              setEditingPlayerData((d) => ({
+                                ...d,
+                                jerseyNumber: e.target.value,
+                              }))
+                            }
+                            className="h-9 border-2 focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs font-medium">
+                            Position
+                          </Label>
+                          <Input
+                            value={
+                              editingPlayerData.position ?? player.position
+                            }
+                            onChange={(e) =>
+                              setEditingPlayerData((d) => ({
+                                ...d,
+                                position: e.target.value,
+                              }))
+                            }
+                            className="h-9 border-2 focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingPlayerId(null);
+                            setEditingPlayerData({});
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                          onClick={() => onUpdateExistingPlayer(player.id)}
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <div className="grid gap-3 md:grid-cols-3 flex-1">
+                        <div>
+                          <div className="text-xs font-medium text-slate-600 mb-1">
+                            Name
+                          </div>
+                          <div className="font-semibold text-slate-900">
+                            {player.playerName}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs font-medium text-slate-600 mb-1">
+                            Jersey Number
+                          </div>
+                          <div className="font-semibold text-slate-900">
+                            {player.jerseyNumber}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs font-medium text-slate-600 mb-1">
+                            Position
+                          </div>
+                          <div className="font-semibold text-slate-900">
+                            {player.position}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 flex-shrink-0"
+                        onClick={() => {
+                          setEditingPlayerId(player.id);
+                          setEditingPlayerData({});
+                        }}
+                      >
+                        {/* Pencil icon — add to your lucide imports: Pencil */}
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Label className="text-xl font-bold text-slate-900 flex items-center gap-2">

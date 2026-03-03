@@ -49,7 +49,9 @@ export const createFamilySchema = z.object({
 
 async function handleGet(request) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "families:list");
+  const setup = await setupApiHandler(request, "families:list", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   // Query params
@@ -90,6 +92,15 @@ async function handleGet(request) {
       take: limit,
       orderBy,
       include: {
+        players: {
+          select: {
+            id: true,
+            playerName: true,
+            jerseyNumber: true,
+            primarySport: true,
+            isActive: true,
+          },
+        },
         _count: {
           select: {
             players: true,
@@ -102,6 +113,7 @@ async function handleGet(request) {
     }),
     db.families.count({ where }),
   ]);
+
 
   return successResponse({
     data: families,

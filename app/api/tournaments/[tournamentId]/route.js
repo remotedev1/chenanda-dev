@@ -41,7 +41,7 @@ const updateTournamentSchema = z.object({
 /* ========== GET SINGLE TOURNAMENT ========== */
 
 async function handleGet(request, { params }) {
-  const setup = await setupApiHandler(request, "tournaments:get");
+  const setup = await setupApiHandler(request, "tournaments:get", {requireAuthentication: false});
   if (setup.error) return setup.error;
 
   const { tournamentId } = params;

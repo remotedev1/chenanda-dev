@@ -68,7 +68,9 @@ async function handleGet(request, { params }) {
 }
 
 async function handlePatch(request, { params }) {
-  const setup = await setupApiHandler(request, "games:update");
+  const setup = await setupApiHandler(request, "games:update", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   const { user } = await auth();

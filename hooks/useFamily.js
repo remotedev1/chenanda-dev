@@ -1,68 +1,59 @@
 // hooks/useFamily.js
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 const API_BASE = "/api/families";
 
 /**
- * Optimized hook to fetch families with search support
- * @param {string} searchQuery - Optional search query
- * @param {object} options - Additional options (sortBy, page, limit)
+ * Hook to fetch families with pagination, search, and filters
  */
-export function useFamilies(searchQuery = "", options = {}) {
+export function useFamilies() {
   const [families, setFamilies] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
-  const abortControllerRef = useRef(null);
-
-  const { sortBy = "familyName", page = 1, limit = 100 } = options;
+  const [filters, setFilters] = useState({
+    search: "",
+    sortBy: "familyName",
+    page: 1,
+    limit: 10,
+  });
 
   const fetchFamilies = useCallback(async () => {
-    // Cancel previous request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
     setLoading(true);
-
     try {
       const params = new URLSearchParams();
-      if (searchQuery) params.append("search", searchQuery);
-      params.append("sortBy", sortBy);
-      params.append("page", page.toString());
-      params.append("limit", limit.toString());
+      if (filters.search) params.append("search", filters.search);
+      if (filters.sortBy) params.append("sortBy", filters.sortBy);
+      params.append("page", filters.page.toString());
+      params.append("limit", filters.limit.toString());
 
-      const response = await fetch(`${API_BASE}?${params}`, {
-        signal: abortControllerRef.current.signal,
-      });
-
+      const response = await fetch(`${API_BASE}?${params}`);
       if (!response.ok) throw new Error("Failed to fetch families");
 
       const data = await response.json();
-      setFamilies(data.data?.data || data.data || []);
+      setFamilies(data.data.data || []);
       setPagination(data.pagination);
     } catch (error) {
-      if (error.name === "AbortError") return; // Ignore abort errors
       console.error("Error fetching families:", error);
       toast.error("Failed to load families");
-      setFamilies([]);
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, sortBy, page, limit]);
+  }, [filters]);
 
   useEffect(() => {
     fetchFamilies();
-
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
   }, [fetchFamilies]);
+
+  const updateFilters = useCallback((newFilters) => {
+    setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
+  }, []);
+
+  const setPage = useCallback((page) => {
+    setFilters((prev) => ({ ...prev, page }));
+  }, []);
 
   const refresh = useCallback(() => {
     fetchFamilies();
@@ -72,6 +63,9 @@ export function useFamilies(searchQuery = "", options = {}) {
     families,
     pagination,
     loading,
+    filters,
+    updateFilters,
+    setPage,
     refresh,
   };
 }
@@ -82,7 +76,7 @@ export function useFamilies(searchQuery = "", options = {}) {
 export function useCreateFamily() {
   const [creating, setCreating] = useState(false);
 
-  const createFamily = useCallback(async (data) => {
+  const createFamily = async (data) => {
     setCreating(true);
     try {
       const response = await fetch(API_BASE, {
@@ -106,7 +100,7 @@ export function useCreateFamily() {
     } finally {
       setCreating(false);
     }
-  }, []);
+  };
 
   return { createFamily, creating };
 }
@@ -117,7 +111,7 @@ export function useCreateFamily() {
 export function useUpdateFamily() {
   const [updating, setUpdating] = useState(false);
 
-  const updateFamily = useCallback(async (id, data) => {
+  const updateFamily = async (id, data) => {
     setUpdating(true);
     try {
       const response = await fetch(`${API_BASE}/${id}`, {
@@ -141,7 +135,7 @@ export function useUpdateFamily() {
     } finally {
       setUpdating(false);
     }
-  }, []);
+  };
 
   return { updateFamily, updating };
 }
@@ -152,7 +146,7 @@ export function useUpdateFamily() {
 export function useDeleteFamily() {
   const [deleting, setDeleting] = useState(false);
 
-  const deleteFamily = useCallback(async (id, name) => {
+  const deleteFamily = async (id, name) => {
     setDeleting(true);
     try {
       const response = await fetch(`${API_BASE}/${id}`, {
@@ -172,7 +166,7 @@ export function useDeleteFamily() {
     } finally {
       setDeleting(false);
     }
-  }, []);
+  };
 
   return { deleteFamily, deleting };
 }

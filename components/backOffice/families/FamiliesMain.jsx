@@ -31,7 +31,6 @@ const FamiliesMain = () => {
   const { createFamily, creating } = useCreateFamily();
   const { updateFamily, updating } = useUpdateFamily();
   const { deleteFamily } = useDeleteFamily();
-console.log(families)
 
   const handleCreate = async (data) => {
     await createFamily(data);

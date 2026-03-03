@@ -58,7 +58,7 @@ const updatePlayerSchema = z.object({
 
 async function handleGet(request, { params }) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "players:read");
+  const setup = await setupApiHandler(request, "players:read",{requireAuthentication: false});
   if (setup.error) return setup.error;
 
   const { id } = params;

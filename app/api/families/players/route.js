@@ -63,13 +63,7 @@ export const createPlayerSchema = z.object({
     ])
     .optional()
     .nullable(),
-  jerseyNumber: z
-    .number()
-    .int()
-    .min(0)
-    .max(999)
-    .optional()
-    .nullable(),
+  jerseyNumber: z.number().int().min(0).max(999).optional().nullable(),
   biography: z
     .string()
     .max(2000, "Biography must be less than 2000 characters")
@@ -83,7 +77,9 @@ export const createPlayerSchema = z.object({
 
 async function handleGet(request) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "players:list");
+  const setup = await setupApiHandler(request, "players:list", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   // Query params
@@ -166,10 +162,7 @@ async function handlePost(request) {
   // Ability check
   const ability = defineAbilityFor(user);
   if (!ability.can(ACTIONS.CREATE, RESOURCES.PLAYER)) {
-    return errorResponse(
-      "You don't have permission to create players",
-      403
-    );
+    return errorResponse("You don't have permission to create players", 403);
   }
 
   // Validate body
@@ -196,7 +189,7 @@ async function handlePost(request) {
   if (existing) {
     return errorResponse(
       "A player with this name already exists in this family",
-      409
+      409,
     );
   }
 
@@ -219,18 +212,12 @@ async function handlePost(request) {
           familyName: true,
         },
       },
-      _count: {
-        select: {
-          achievements: true,
-          manOfTheMatchIn: true,
-        },
-      },
     },
   });
 
   // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId:user.id,
     action: "created",
     entity: "player",
     entityId: player.id,
