@@ -815,7 +815,7 @@ function RegistrationStep({
 
       <Button
         type="submit"
-        className="w-full h-14 text-base font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg"
+        className="w-full h-14 text-base font-semibold bg-indigo-600  hover:bg-purple-700 shadow-lg text-white"
         disabled={!state.selectedFamilyId}
       >
         Continue to Add Players
@@ -1109,7 +1109,7 @@ function PlayersStep({
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-12 text-base font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg"
+          className="flex-1 h-12 text-base font-semibold bg-indigo-600  hover:bg-purple-700 shadow-lg text-white"
           disabled={creatingPlayers}
         >
           {creatingPlayers ? (
@@ -1285,7 +1285,7 @@ function GamesStep({
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-12 text-base font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg"
+          className="flex-1 h-12   text-base font-semibold bg-indigo-600  hover:bg-purple-700 shadow-lg text-white"
           disabled={state.selectedGames.length === 0}
         >
           Continue to Payment
@@ -1544,7 +1544,7 @@ function PaymentStep({
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-14 text-base font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 shadow-2xl"
+          className="flex-1 h-14 text-base font-bold bg-indigo-600  hover:bg-indigo-700 text-white shadow-2xl"
           disabled={processingPayment}
         >
           {processingPayment ? (
