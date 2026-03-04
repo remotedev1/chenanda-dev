@@ -101,7 +101,7 @@ export default function GalleryComponent() {
               onClick={() => setSelectedPost(post)}
             >
               <Image
-                src={`/about/img${index + 1}.jpg`}
+                src={`/about/img${post.id}.jpg`}
                 alt={post.caption}
                 fill
                 sizes="(max-width: 640px) 50vw, 33vw"
