@@ -89,26 +89,46 @@ export default function HomeAboutPreview() {
             &quot;Rooted in tradition and driven by excellence, the Chenanda
             Okka continues to shape the future while honoring its past.&quot;
           </p>
-
-          <Link
-            href="/about-us"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-          >
-            <span>Discover Our Story</span>
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="grid grid-cols-1 w-fit place-self-center gap-4 sm:grid-cols-2">
+            <Link
+              href="/about-us"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7l5 5m0 0l-5 5m5-5H6"
-              />
-            </svg>
-          </Link>
+              <span>Discover Our Story</span>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+            <Link
+              href="/gallery"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+            >
+              <span> Our Gallery</span>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

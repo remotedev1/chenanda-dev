@@ -100,6 +100,7 @@ const SportsFooter = () => {
       tournament: [{ name: "About Tournament", link: "/about-tournament" }],
       other: [
         { name: "About Us", link: "/about-us" },
+        { name: "Gallery", link: "/gallery" },
         { name: "Contact", link: "#contact" },
       ],
     }),

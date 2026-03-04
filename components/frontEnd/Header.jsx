@@ -64,6 +64,7 @@ const MobileNav = memo(({ open, setOpen }) => {
       { href: "#", label: "Home" },
       { href: "/about-us", label: "About Chenanda" },
       { href: "/about-tournament", label: "About Tournament" },
+      { href: "/gallery", label: "Gallery" },
       { href: "#contact", label: "Contact" },
     ],
     [],

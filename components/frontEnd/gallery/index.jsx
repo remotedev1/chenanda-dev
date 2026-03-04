@@ -1,276 +1,126 @@
 "use client";
 import React, { useState } from "react";
-import {
-  Heart,
-  MessageCircle,
-  Send,
-  Bookmark,
-  MoreHorizontal,
-  X,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Heart, MessageCircle, Send, Bookmark, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 
-const GalleryComponent = () => {
+const posts = [
+  {
+    id: 1,
+    caption: "Chenanda moments: where every click tells a story 📸",
+  },
+  {
+    id: 2,
+    caption: "Capturing the essence of life, one frame at a time 🌟",
+  },
+  {
+    id: 3,
+    caption: "Behind the lens: a glimpse into the world of chenanda 📷✨",
+  },
+  {
+    id: 4,
+    caption: "Exploring the beauty of everyday moments through my lens 🌍",
+  },
+  {
+    id: 5,
+    caption: "Finding magic in the mundane: chenanda's visual storytelling ✨",
+  },
+];
+
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.2, ease: "easeOut" },
+  },
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
+};
+
+const overlayVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+};
+
+export default function GalleryComponent() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [likedPosts, setLikedPosts] = useState(new Set());
 
-  // Sample portfolio data
-  const posts = [
-    {
-      id: 1,
-      image:
-        "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&h=800&fit=crop",
-      caption: "Minimalist architecture meets modern design 🏛️",
-      likes: 1234,
-      comments: 89,
-    },
-    {
-      id: 2,
-      image:
-        "https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=800&h=800&fit=crop",
-      caption: "Golden hour captures never disappoint ✨",
-      likes: 2156,
-      comments: 143,
-    },
-    {
-      id: 3,
-      image:
-        "https://images.unsplash.com/photo-1618556450991-2f1af64e8191?w=800&h=800&fit=crop",
-      caption: "Abstract art in everyday spaces 🎨",
-      likes: 892,
-      comments: 56,
-    },
-    {
-      id: 4,
-      image:
-        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=800&fit=crop",
-      caption: "Urban exploration series pt. 4 🌆",
-      likes: 3421,
-      comments: 201,
-    },
-    {
-      id: 5,
-      image:
-        "https://images.unsplash.com/photo-1618556450913-7fb629735538?w=800&h=800&fit=crop",
-      caption: "Textures and patterns that inspire 🔲",
-      likes: 1567,
-      comments: 94,
-    },
-    {
-      id: 6,
-      image:
-        "https://images.unsplash.com/photo-1618556450783-9b08d76d9c1e?w=800&h=800&fit=crop",
-      caption: "Nature meets geometry in perfect harmony 🌿",
-      likes: 2890,
-      comments: 167,
-    },
-    {
-      id: 7,
-      image:
-        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=800&fit=crop",
-      caption: "Exploring color gradients in the wild 🌈",
-      likes: 1945,
-      comments: 112,
-    },
-    {
-      id: 8,
-      image:
-        "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=800&h=800&fit=crop",
-      caption: "Street photography chronicles 📸",
-      likes: 2234,
-      comments: 145,
-    },
-    {
-      id: 9,
-      image:
-        "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=800&fit=crop",
-      caption: "Details that make the difference ⚡",
-      likes: 1678,
-      comments: 98,
-    },
-  ];
-
   const toggleLike = (postId) => {
     setLikedPosts((prev) => {
-      const newLikes = new Set(prev);
-      if (newLikes.has(postId)) {
-        newLikes.delete(postId);
-      } else {
-        newLikes.add(postId);
-      }
-      return newLikes;
+      const next = new Set(prev);
+      next.has(postId) ? next.delete(postId) : next.add(postId);
+      return next;
     });
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.3,
-        ease: "easeOut",
-      },
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.8,
-      transition: {
-        duration: 0.2,
-      },
-    },
-  };
-
-  const overlayVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { duration: 0.2 },
-    },
-    exit: {
-      opacity: 0,
-      transition: { duration: 0.2 },
-    },
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
-      {/* Profile Section */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex items-center gap-8 mb-8"
-        >
-          <motion.div
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-1"
-          >
+    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20 md:pt-24">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+
+        {/* Profile — stacks vertically on mobile, horizontal on sm+ */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8 animate-fadeIn">
+          {/* Avatar */}
+          <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-1 transition-transform duration-300 hover:scale-105">
             <div className="w-full h-full rounded-full bg-white p-1 relative">
               <Image
                 src="/logo.png"
-                alt="Profile Picture"
-                layout="fill"
-                objectFit="contain"
+                alt="Profile"
+                fill
+                style={{ objectFit: "contain" }}
                 className="p-2"
               />
             </div>
-          </motion.div>
-          <div className="flex-1">
-            <motion.h2
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-2xl font-semibold mb-4"
-            >
+          </div>
+
+          {/* Info */}
+          <div className="text-center sm:text-left">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3 md:mb-4">
               CHENANDA
-            </motion.h2>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex gap-8 mb-4"
-            >
-              <div>
+            </h2>
+            <div className="flex flex-col items-center sm:items-start gap-1 sm:gap-2">
+              <div className="text-sm sm:text-base">
                 <span className="font-semibold">{posts.length}</span> posts
               </div>
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="text-gray-700"
-            >
-              Creative Director & Photographer 📷
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              className="text-gray-700"
-            >
-              Capturing moments, creating memories ✨
-            </motion.p>
+              <p className="text-gray-700 text-sm sm:text-base">
+                Capturing moments, creating memories ✨
+              </p>
+            </div>
           </div>
-        </motion.div>
+        </div>
 
-        <div className="border-t border-gray-200 mb-6"></div>
+        <div className="border-t border-gray-200 mb-4 sm:mb-6" />
 
-        {/* Gallery Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-3 gap-1 md:gap-4"
-        >
+        {/* Gallery Grid — 2 cols on mobile, 3 on sm+ */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 sm:gap-2 md:gap-4">
           {posts.map((post, index) => (
-            <motion.div
+            <div
               key={post.id}
-              variants={itemVariants}
-              whileHover={{ scale: 1.05, zIndex: 10 }}
-              whileTap={{ scale: 0.95 }}
-              className="aspect-square cursor-pointer group relative overflow-hidden bg-gray-200"
+              className="gallery-item aspect-square cursor-pointer relative overflow-hidden bg-gray-200"
               onClick={() => setSelectedPost(post)}
             >
               <Image
                 src={`/about/img${index + 1}.jpg`}
                 alt={post.caption}
-                layout="fill"
-                objectFit="cover"
+                fill
+                sizes="(max-width: 640px) 50vw, 33vw"
+                style={{ objectFit: "cover" }}
               />
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center gap-6"
-              >
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  whileHover={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="flex items-center gap-2 text-white font-semibold"
-                >
-                  <Heart className="w-6 h-6 fill-white" />
-                  <span>{post.likes}</span>
-                </motion.div>
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  whileHover={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.15 }}
-                  className="flex items-center gap-2 text-white font-semibold"
-                >
-                  <MessageCircle className="w-6 h-6 fill-white" />
-                  <span>{post.comments}</span>
-                </motion.div>
-              </motion.div>
-            </motion.div>
+              {/* Overlay — hidden on touch, shown on hover for pointer devices */}
+              <div className="gallery-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-white font-semibold translate-y-2 transition-transform duration-300 gallery-stat">
+                  <Heart className="w-5 h-5 sm:w-6 sm:h-6 fill-white" />
+                  <span className="text-sm sm:text-base">{post.likes}</span>
+                </div>
+                <div className="flex items-center gap-1.5 sm:gap-2 text-white font-semibold translate-y-2 transition-transform duration-300 gallery-stat">
+                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 fill-white" />
+                  <span className="text-sm sm:text-base">{post.comments}</span>
+                </div>
+              </div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Modal */}
@@ -281,7 +131,7 @@ const GalleryComponent = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/90 z-50 flex items-end sm:items-center justify-center sm:p-4"
             onClick={() => setSelectedPost(null)}
           >
             <motion.div
@@ -289,145 +139,151 @@ const GalleryComponent = () => {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="max-w-6xl w-full bg-white rounded-lg overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
+              /* 
+                Mobile: sheet from bottom, full width, capped height
+                sm+: centered card, side-by-side layout
+              */
+              className="
+                w-full sm:max-w-4xl md:max-w-6xl
+                bg-white
+                rounded-t-2xl sm:rounded-lg
+                overflow-hidden
+                flex flex-col sm:flex-row
+                max-h-[92vh] sm:max-h-[90vh]
+              "
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Image Section */}
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1, duration: 0.4 }}
-                className="md:w-2/3 bg-black flex items-center justify-center relative min-h-[400px] md:min-h-[600px]"
-              >
+              {/* Image panel */}
+              <div className="
+                w-full sm:w-3/5 md:w-2/3
+                bg-black
+                flex items-center justify-center
+                relative
+                h-56 xs:h-72 sm:h-auto sm:min-h-[480px] md:min-h-[600px]
+                flex-shrink-0
+              ">
                 <Image
                   src={`/about/img${selectedPost.id}.jpg`}
                   alt={selectedPost.caption}
                   fill
                   style={{ objectFit: "contain" }}
-                  sizes="(max-width: 768px) 100vw, 66vw"
+                  sizes="(max-width: 640px) 100vw, 60vw"
+                  priority
                 />
-              </motion.div>
+              </div>
 
-              {/* Details Section */}
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.4 }}
-                className="md:w-1/3 flex flex-col"
-              >
+              {/* Details panel */}
+              <div className="flex flex-col flex-1 min-h-0">
                 {/* Header */}
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold">
+                <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
                       CN
                     </div>
-                    <span className="font-semibold">chenanda</span>
+                    <span className="font-semibold text-sm sm:text-base">chenanda</span>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.1, rotate: 90 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button
                     onClick={() => setSelectedPost(null)}
-                    className="p-1 hover:bg-gray-100 rounded-full"
+                    className="p-1.5 sm:p-1 hover:bg-gray-100 rounded-full transition-colors duration-200 touch-manipulation"
+                    aria-label="Close"
                   >
-                    <X className="w-6 h-6" />
-                  </motion.button>
+                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
                 </div>
 
-                {/* Caption */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="flex-1 overflow-y-auto p-4"
-                >
-                  <div className="flex gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                {/* Caption — scrollable */}
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 min-h-0">
+                  <div className="flex gap-2 sm:gap-3 mb-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0 text-xs">
                       ABC
                     </div>
-                    <div>
+                    <div className="text-sm sm:text-base">
                       <span className="font-semibold mr-2">abc</span>
-                      <span className="text-gray-700">
-                        {selectedPost.caption}
-                      </span>
+                      <span className="text-gray-700">{selectedPost.caption}</span>
                     </div>
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Actions */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="border-t border-gray-200 p-4"
-                >
+                <div className="border-t border-gray-200 p-3 sm:p-4 flex-shrink-0">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-4">
-                      <motion.button
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.8 }}
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <button
                         onClick={() => toggleLike(selectedPost.id)}
-                        className="hover:opacity-60 transition"
+                        className="hover:opacity-60 transition-opacity duration-200 active:scale-90 touch-manipulation p-1"
+                        aria-label="Like"
                       >
-                        <motion.div
-                          animate={
+                        <Heart
+                          className={`w-6 h-6 sm:w-7 sm:h-7 transition-colors duration-200 ${
                             likedPosts.has(selectedPost.id)
-                              ? {
-                                  scale: [1, 1.3, 1],
-                                  rotate: [0, -15, 15, 0],
-                                }
-                              : {}
-                          }
-                          transition={{ duration: 0.4 }}
-                        >
-                          <Heart
-                            className={`w-7 h-7 ${
-                              likedPosts.has(selectedPost.id)
-                                ? "fill-red-500 text-red-500"
-                                : ""
-                            }`}
-                          />
-                        </motion.div>
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.8 }}
-                        className="hover:opacity-60 transition"
+                              ? "fill-red-500 text-red-500"
+                              : ""
+                          }`}
+                        />
+                      </button>
+                      <button
+                        className="hover:opacity-60 transition-opacity duration-200 touch-manipulation p-1"
+                        aria-label="Comment"
                       >
-                        <MessageCircle className="w-7 h-7" />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.2, rotate: 25 }}
-                        whileTap={{ scale: 0.8 }}
-                        className="hover:opacity-60 transition"
+                        <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" />
+                      </button>
+                      <button
+                        className="hover:opacity-60 transition-opacity duration-200 touch-manipulation p-1"
+                        aria-label="Share"
                       >
-                        <Send className="w-7 h-7" />
-                      </motion.button>
+                        <Send className="w-6 h-6 sm:w-7 sm:h-7" />
+                      </button>
                     </div>
-                    <motion.button
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.8 }}
-                      className="hover:opacity-60 transition"
+                    <button
+                      className="hover:opacity-60 transition-opacity duration-200 touch-manipulation p-1"
+                      aria-label="Save"
                     >
-                      <Bookmark className="w-7 h-7" />
-                    </motion.button>
+                      <Bookmark className="w-6 h-6 sm:w-7 sm:h-7" />
+                    </button>
                   </div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                    className="text-gray-500 text-sm"
-                  >
-                    2 DAYS AGO
-                  </motion.div>
-                </motion.div>
-              </motion.div>
+                  <div className="text-gray-500 text-xs sm:text-sm">2 DAYS AGO</div>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out both;
+        }
+
+        .gallery-item {
+          transform: translateZ(0);
+          transition: transform 0.25s ease;
+          will-change: transform;
+        }
+
+        /* Scale only on pointer devices (not touch) */
+        @media (hover: hover) and (pointer: fine) {
+          .gallery-item:hover {
+            transform: scale(1.04) translateZ(0);
+            z-index: 10;
+          }
+          .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+          }
+          .gallery-item:hover .gallery-stat {
+            transform: translateY(0);
+          }
+        }
+
+        /* Safe tap highlight removal on mobile */
+        .touch-manipulation {
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
+        }
+      `}</style>
     </div>
   );
-};
-
-export default GalleryComponent;
+}
