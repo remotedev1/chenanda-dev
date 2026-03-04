@@ -65,9 +65,9 @@ export default function HomeAboutPreview() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
           {[
             { number: "300+", label: "Family Members" },
-            { number: "5", label: "Locations" },
+            { number: "3", label: "Locations" },
             { number: "2", label: "Olympians" },
-            { number: "100+", label: "Years Legacy" },
+            { number: "350+", label: "Years Legacy" },
           ].map((stat, index) => (
             <div
               key={index}

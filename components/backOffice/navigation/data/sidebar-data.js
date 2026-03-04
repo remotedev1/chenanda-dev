@@ -25,6 +25,7 @@ export const baseSidebarData = {
               url: "/dashboard/tournaments",
               icon: UserCog,
             },
+           
             {
               title: "Families List",
               url: "/dashboard/families",

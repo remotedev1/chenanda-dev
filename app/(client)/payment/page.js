@@ -33,6 +33,7 @@ import {
   Trash2,
   UserPlus,
   Pencil,
+  QrCode,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTournaments } from "@/hooks/useTournament";
@@ -53,7 +54,7 @@ const initialState = {
   players: [],
   selectedGames: [],
   existingPlayers: [],
-  paymentMethod: "upi",
+  paymentMethod: "upi_qr",
 };
 
 function formReducer(state, action) {
@@ -167,7 +168,7 @@ export default function TournamentPayment() {
       }
     };
     fetchExistingPlayers();
-  }, [state.selectedFamilyId]);
+  }, [state.selectedFamilyId, families]);
 
   const handleUpdateExistingPlayer = useCallback(
     async (playerId) => {
@@ -221,19 +222,6 @@ export default function TournamentPayment() {
     [families, state.selectedFamilyId],
   );
 
-  // Optimized handlers with useCallback
-  const handleSelectFamily = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!state.selectedFamilyId) {
-        toast.error("Please select a family");
-        return;
-      }
-      dispatch({ type: "SET_STEP", payload: "registration" });
-    },
-    [state.selectedFamilyId],
-  );
-
   const handleRegistrationSubmit = useCallback(
     (e) => {
       e.preventDefault();
@@ -243,21 +231,21 @@ export default function TournamentPayment() {
         toast.error("Name is required");
         return;
       }
-      if (!phone.trim()) {
-        toast.error("Phone number is required");
-        return;
-      }
+
       if (!address.trim()) {
         toast.error("Address is required");
         return;
       }
-
-      // Initialize with one empty player
-      if (state.players.length === 0) {
-        dispatch({
-          type: "SET_PLAYERS",
-          payload: [{ id: Date.now(), name: "", jersey: "", position: "" }],
-        });
+      if (!phone.trim()) {
+        toast.error("Phone number is required");
+        return;
+      }
+      const digits = phone.replace(/\D/g, "");
+      const validPhone =
+        /^(\+91[\s-]?)?[6-9]\d{9}$/.test(phone) || /^[6-9]\d{9}$/.test(digits);
+      if (!validPhone) {
+        toast.error("Enter a valid Indian phone number");
+        return;
       }
 
       dispatch({ type: "SET_STEP", payload: "players" });
@@ -276,34 +264,37 @@ export default function TournamentPayment() {
     });
   }, []);
 
-  const handleRemovePlayer = useCallback(
-    (id) => {
-      if (state.players.length === 1) {
-        toast.error("At least one player is required");
-        return;
-      }
-      dispatch({ type: "REMOVE_PLAYER", payload: id });
-    },
-    [state.players.length],
-  );
+  const handleRemovePlayer = useCallback((id) => {
+    dispatch({ type: "REMOVE_PLAYER", payload: id });
+  }, []);
 
   const handlePlayersSubmit = useCallback(
     async (e) => {
       e.preventDefault();
 
-      // Validate all players have required fields
-      const validPlayers = state.players.filter(
-        (p) => p.name.trim() && p.jersey.trim() && p.position.trim(),
-      );
-
-      if (validPlayers.length === 0) {
-        toast.error(
-          "Please add at least one complete player (name, jersey, position)",
-        );
+      // No new players added — skip saving and proceed
+      if (state.players.length === 0) {
+        dispatch({ type: "SET_STEP", payload: "games" });
         return;
       }
 
-      if (validPlayers.length !== state.players.length) {
+      // Only validate/save entries that have at least one field filled
+      const touchedPlayers = state.players.filter(
+        (p) => p.name.trim() || p.jersey.trim() || p.position.trim(),
+      );
+
+      // If nothing was touched at all, just proceed
+      if (touchedPlayers.length === 0) {
+        dispatch({ type: "SET_STEP", payload: "games" });
+        return;
+      }
+
+      // Validate only touched entries are complete
+      const incompletePlayers = touchedPlayers.filter(
+        (p) => !p.name.trim() || !p.jersey.trim() || !p.position.trim(),
+      );
+
+      if (incompletePlayers.length > 0) {
         toast.error(
           "Please complete all player details or remove incomplete entries",
         );
@@ -311,24 +302,20 @@ export default function TournamentPayment() {
       }
 
       try {
-        // Batch save players
-        const playersData = validPlayers.map((p) => ({
+        const playersData = touchedPlayers.map((p) => ({
           familyId: state.selectedFamilyId,
           playerName: p.name,
           jerseyNumber: p.jersey,
           position: p.position,
         }));
-
         await batchCreatePlayers(playersData);
         dispatch({ type: "SET_STEP", payload: "games" });
       } catch (error) {
         console.error("Error saving players:", error);
-        // Error already shown by hook
       }
     },
     [state.players, state.selectedFamilyId, batchCreatePlayers],
   );
-
   const handleToggleGame = useCallback((gameId) => {
     dispatch({ type: "TOGGLE_GAME", payload: gameId });
   }, []);
@@ -349,20 +336,18 @@ export default function TournamentPayment() {
     async (e) => {
       e.preventDefault();
       setProcessingPayment(true);
-
       try {
         const paymentData = {
           tournamentId: selectedTournamentId,
           familyId: state.selectedFamilyId,
-          gameIds: state.selectedGames,
+          gameId: state.selectedGames[0], // Send as comma-separated string
           registrationDetails: state.registrationDetails,
           amount: totalAmount,
-          paymentMethod: state.paymentMethod,
+          paymentMethod: state.paymentMethod, // "upi_qr" | "upi_id" | "card"
         };
 
-        // UPIGATEWAY.com integration
         const response = await fetch(
-          "/api/tournaments/payment/upigateway/initiate",
+          "/api/tournaments/payment/phonepe/initiate",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -373,11 +358,11 @@ export default function TournamentPayment() {
         const data = await response.json();
 
         if (data.success) {
-          if (data.paymentUrl) {
-            // Redirect to UPIGATEWAY payment page
-            window.location.href = data.paymentUrl;
+          // PhonePe returns a redirectUrl for all flows
+          if (data.redirectUrl) {
+            window.location.href = data.redirectUrl;
           } else {
-            toast.success("Payment initiated successfully!");
+            toast.success("Payment initiated!");
             router.push(
               `/tournaments/${selectedTournamentId}/payment-confirmation?paymentId=${data.paymentId}`,
             );
@@ -652,9 +637,6 @@ function RegistrationStep({
                     ? "bg-gradient-to-r from-indigo-50 to-purple-50 border-l-4 border-l-indigo-600"
                     : ""
                 }`}
-                onClick={() =>
-                  dispatch({ type: "SELECT_FAMILY", payload: family.id })
-                }
               >
                 <RadioGroupItem
                   value={family.id}
@@ -739,13 +721,24 @@ function RegistrationStep({
                 type="tel"
                 placeholder="+91 XXXXX XXXXX"
                 value={state.registrationDetails.phone}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^\d+]/g, ""); // allow digits and leading +
                   dispatch({
                     type: "UPDATE_REGISTRATION",
-                    payload: { phone: e.target.value },
-                  })
-                }
+                    payload: { phone: val },
+                  });
+                }}
+                onBlur={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "");
+                  const valid =
+                    /^(\+91[\s-]?)?[6-9]\d{9}$/.test(e.target.value) ||
+                    /^[6-9]\d{9}$/.test(digits);
+                  if (e.target.value && !valid) {
+                    toast.error("Enter a valid Indian phone number");
+                  }
+                }}
                 className="h-12 text-base border-2 focus:border-indigo-500"
+                maxLength={13}
                 required
               />
             </div>
@@ -843,6 +836,7 @@ function PlayersStep({
   editingPlayerId,
   creatingPlayers,
 }) {
+  const [showAddForm, setShowAddForm] = useState(false);
   return (
     <form onSubmit={onSubmit} className="space-y-6 animate-slide-in-up">
       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-100">
@@ -1003,89 +997,104 @@ function PlayersStep({
         <div className="flex items-center justify-between">
           <Label className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <UserPlus className="h-6 w-6 text-indigo-600" />
-            Add Players *
+            Players
           </Label>
-          <Button
-            type="button"
-            onClick={onAddPlayer}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Add Player
-          </Button>
+          {!showAddForm && (
+            <Button
+              type="button"
+              onClick={() => {
+                onAddPlayer();
+                setShowAddForm(true);
+              }}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add New Player
+            </Button>
+          )}
         </div>
 
-        <div className="space-y-4">
-          {state.players.map((player, index) => (
-            <div
-              key={player.id}
-              className="p-4 border-2 border-slate-200 rounded-xl bg-white hover:border-indigo-300 transition-all"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-slate-700">
-                  Player {index + 1}
-                </span>
-                {state.players.length > 1 && (
+        {showAddForm && (
+          <div className="space-y-4">
+            {state.players.map((player, index) => (
+              <div
+                key={player.id}
+                className="p-4 border-2 border-slate-200 rounded-xl bg-white hover:border-indigo-300 transition-all"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold text-slate-700">
+                    Player {index + 1}
+                  </span>
                   <Button
                     type="button"
-                    onClick={() => onRemovePlayer(player.id)}
+                    onClick={() => {
+                      onRemovePlayer(player.id);
+                      if (state.players.length <= 1) setShowAddForm(false);
+                    }}
                     variant="ghost"
                     size="sm"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                )}
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Name *</Label>
-                  <Input
-                    type="text"
-                    placeholder="Player name"
-                    value={player.name}
-                    onChange={(e) =>
-                      onUpdatePlayer(player.id, "name", e.target.value)
-                    }
-                    className="h-10 border-2 focus:border-indigo-500"
-                    required
-                  />
                 </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Jersey Number *</Label>
-                  <Input
-                    type="text"
-                    placeholder="e.g., 10"
-                    value={player.jersey}
-                    onChange={(e) =>
-                      onUpdatePlayer(player.id, "jersey", e.target.value)
-                    }
-                    className="h-10 border-2 focus:border-indigo-500"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Position *</Label>
-                  <Input
-                    type="text"
-                    placeholder="e.g., Forward"
-                    value={player.position}
-                    onChange={(e) =>
-                      onUpdatePlayer(player.id, "position", e.target.value)
-                    }
-                    className="h-10 border-2 focus:border-indigo-500"
-                    required
-                  />
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Name *</Label>
+                    <Input
+                      type="text"
+                      placeholder="Player name"
+                      value={player.name}
+                      onChange={(e) =>
+                        onUpdatePlayer(player.id, "name", e.target.value)
+                      }
+                      className="h-10 border-2 focus:border-indigo-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">
+                      Jersey Number *
+                    </Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g., 10"
+                      value={player.jersey}
+                      onChange={(e) =>
+                        onUpdatePlayer(player.id, "jersey", e.target.value)
+                      }
+                      className="h-10 border-2 focus:border-indigo-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Position *</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g., Forward"
+                      value={player.position}
+                      onChange={(e) =>
+                        onUpdatePlayer(player.id, "position", e.target.value)
+                      }
+                      className="h-10 border-2 focus:border-indigo-500"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+
+            <Button
+              type="button"
+              onClick={onAddPlayer}
+              variant="outline"
+              size="sm"
+              className="gap-2 w-full border-dashed border-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Another Player
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-3 pt-4">
@@ -1101,7 +1110,7 @@ function PlayersStep({
         <Button
           type="submit"
           className="flex-1 h-12 text-base font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg"
-          disabled={creatingPlayers || state.players.length === 0}
+          disabled={creatingPlayers}
         >
           {creatingPlayers ? (
             <>
@@ -1299,10 +1308,9 @@ function PaymentStep({
 }) {
   return (
     <form onSubmit={onSubmit} className="space-y-6 animate-slide-in-up">
-      {/* Summary */}
+      {/* Order Summary */}
       <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-6 rounded-xl border-2 border-slate-200 space-y-4">
-        <h3 className="text-lg font-bold text-slate-900 mb-4">Order Summary</h3>
-
+        <h3 className="text-lg font-bold text-slate-900">Order Summary</h3>
         <div className="grid sm:grid-cols-2 gap-4 pb-4 border-b border-slate-300">
           <div>
             <div className="text-xs font-medium text-slate-600 mb-1">
@@ -1324,7 +1332,6 @@ function PaymentStep({
             </div>
           </div>
         </div>
-
         <div>
           <div className="text-xs font-medium text-slate-600 mb-2">
             Selected Games
@@ -1351,47 +1358,145 @@ function PaymentStep({
         </div>
       </div>
 
-      {/* Payment Method - UPI Gateway */}
+      {/* PhonePe Payment Method Selection */}
       <div className="space-y-3">
         <Label className="text-lg font-bold text-slate-900">
           Payment Method
         </Label>
-        <div className="relative p-6 border-2 border-indigo-600 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-lg">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
-              <Smartphone className="h-8 w-8 text-white" />
+
+        <div className="grid gap-3">
+          {/* UPI QR Code */}
+          <div
+            className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+              state.paymentMethod === "upi_qr"
+                ? "border-indigo-600 bg-indigo-50"
+                : "border-slate-200 hover:border-indigo-300 bg-white"
+            }`}
+            onClick={() =>
+              dispatch({ type: "SET_PAYMENT_METHOD", payload: "upi_qr" })
+            }
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  state.paymentMethod === "upi_qr"
+                    ? "bg-indigo-600"
+                    : "bg-slate-100"
+                }`}
+              >
+                <QrCode
+                  className={`h-6 w-6 ${state.paymentMethod === "upi_qr" ? "text-white" : "text-slate-600"}`}
+                />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-slate-900">UPI QR Code</div>
+                <div className="text-sm text-slate-500">
+                  Scan with any UPI app
+                </div>
+              </div>
+              {state.paymentMethod === "upi_qr" && (
+                <div className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
+                  <Check className="h-4 w-4 text-white" />
+                </div>
+              )}
             </div>
-            <div className="flex-1">
-              <div className="font-bold text-slate-900 text-lg flex items-center gap-2">
-                UPI Payment Gateway
-                <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                  Secure
-                </span>
+          </div>
+
+          {/* UPI ID */}
+          <div
+            className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+              state.paymentMethod === "upi_id"
+                ? "border-indigo-600 bg-indigo-50"
+                : "border-slate-200 hover:border-indigo-300 bg-white"
+            }`}
+            onClick={() =>
+              dispatch({ type: "SET_PAYMENT_METHOD", payload: "upi_id" })
+            }
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  state.paymentMethod === "upi_id"
+                    ? "bg-indigo-600"
+                    : "bg-slate-100"
+                }`}
+              >
+                <Smartphone
+                  className={`h-6 w-6 ${state.paymentMethod === "upi_id" ? "text-white" : "text-slate-600"}`}
+                />
               </div>
-              <div className="text-sm text-slate-600 mt-1 flex items-center gap-1">
-                <Shield className="h-4 w-4 text-green-600" />
-                Powered by UPIGATEWAY.com
+              <div className="flex-1">
+                <div className="font-semibold text-slate-900">UPI ID / VPA</div>
+                <div className="text-sm text-slate-500">
+                  Google Pay, PhonePe, Paytm, BHIM
+                </div>
               </div>
+              {state.paymentMethod === "upi_id" && (
+                <div className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
+                  <Check className="h-4 w-4 text-white" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Card */}
+          <div
+            className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+              state.paymentMethod === "card"
+                ? "border-indigo-600 bg-indigo-50"
+                : "border-slate-200 hover:border-indigo-300 bg-white"
+            }`}
+            onClick={() =>
+              dispatch({ type: "SET_PAYMENT_METHOD", payload: "card" })
+            }
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  state.paymentMethod === "card"
+                    ? "bg-indigo-600"
+                    : "bg-slate-100"
+                }`}
+              >
+                <CreditCard
+                  className={`h-6 w-6 ${state.paymentMethod === "card" ? "text-white" : "text-slate-600"}`}
+                />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-slate-900">
+                  Debit / Credit Card
+                </div>
+                <div className="text-sm text-slate-500">
+                  Visa, Mastercard, RuPay
+                </div>
+              </div>
+              {state.paymentMethod === "card" && (
+                <div className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
+                  <Check className="h-4 w-4 text-white" />
+                </div>
+              )}
             </div>
           </div>
         </div>
 
+        {/* Security note */}
         <div className="p-4 bg-indigo-50 border-2 border-indigo-200 rounded-xl">
           <div className="flex items-start gap-3">
-            <Shield className="h-5 w-5 text-indigo-600 mt-0.5" />
+            <Shield className="h-5 w-5 text-indigo-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-indigo-900">
-              <p className="font-semibold mb-1">Secure UPI Payment</p>
+              <p className="font-semibold mb-1">
+                Powered by PhonePe Payment Gateway
+              </p>
               <p className="text-indigo-700">
-                You&apos;ll be redirected to UPIGATEWAY.com&apos;s secure
-                payment page. Pay using any UPI app (Google Pay, PhonePe, Paytm,
-                etc.). All transactions are encrypted and safe.
+                You&apos;ll be redirected to PhonePe&apos;s secure checkout. All
+                transactions are 256-bit encrypted and PCI-DSS compliant.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Total Amount */}
+      {/* Total */}
       <div className="p-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl text-white shadow-2xl">
         <div className="flex justify-between items-center">
           <div>
@@ -1403,11 +1508,9 @@ function PaymentStep({
               {state.selectedGames.length !== 1 ? "s" : ""}
             </div>
           </div>
-          <div className="text-right">
-            <div className="flex items-center gap-2 text-5xl font-bold">
-              <IndianRupee className="h-10 w-10" />
-              {totalAmount.toLocaleString()}
-            </div>
+          <div className="flex items-center gap-2 text-5xl font-bold">
+            <IndianRupee className="h-10 w-10" />
+            {totalAmount.toLocaleString()}
           </div>
         </div>
       </div>
@@ -1415,16 +1518,16 @@ function PaymentStep({
       {/* Terms */}
       <div className="text-xs text-slate-600 space-y-2 p-4 bg-slate-50 rounded-lg border border-slate-200">
         <p className="flex items-start gap-2">
-          <span className="text-indigo-600 mt-0.5">•</span>
-          Registration fees are non-refundable once payment is processed
+          <span className="text-indigo-600 mt-0.5">•</span>Registration fees are
+          non-refundable once payment is processed
         </p>
         <p className="flex items-start gap-2">
-          <span className="text-indigo-600 mt-0.5">•</span>
-          Please ensure all details are correct before proceeding
+          <span className="text-indigo-600 mt-0.5">•</span>Please ensure all
+          details are correct before proceeding
         </p>
         <p className="flex items-start gap-2">
-          <span className="text-indigo-600 mt-0.5">•</span>
-          You will receive a confirmation email/SMS after successful payment
+          <span className="text-indigo-600 mt-0.5">•</span>You will receive a
+          confirmation SMS after successful payment
         </p>
       </div>
 
@@ -1441,18 +1544,18 @@ function PaymentStep({
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-14 text-base font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 shadow-2xl transition-all"
+          className="flex-1 h-14 text-base font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 shadow-2xl"
           disabled={processingPayment}
         >
           {processingPayment ? (
             <>
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Processing Payment...
+              Processing...
             </>
           ) : (
             <>
               <Smartphone className="mr-2 h-5 w-5" />
-              Pay ₹{totalAmount.toLocaleString()} via UPI
+              Pay ₹{totalAmount.toLocaleString()} via PhonePe
             </>
           )}
         </Button>

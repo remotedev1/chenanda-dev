@@ -9,6 +9,9 @@ export const publicRoutes = [
   "/contact-us",
   "/sw.js",
   "/payment",
+  "/payment/success",
+  "/payment/error ",
+  "/api/tournaments/payment/phonepe/callback",
 ];
 
 /**

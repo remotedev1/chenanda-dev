@@ -5,7 +5,6 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 export function useGames({ tournamentId }) {
-  console.log(tournamentId);
   const [games, setGames] = useState([]);
   const [tournament, setTournament] = useState(null);
   const [pagination, setPagination] = useState(null);

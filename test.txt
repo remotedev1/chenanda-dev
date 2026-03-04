@@ -1,0 +1,12 @@
+Credit Card
+Card Number: 4208 5851 9011 6667
+Card Type: CREDIT_CARD
+Issuer: VISA
+Expiry: 06/2027
+CVV: 508
+Debit Card
+Card Number: 4242 4242 4242 4242
+Card Type: DEBIT_CARD
+Issuer: VISA
+Expiry: 12/2027
+CVV: 936

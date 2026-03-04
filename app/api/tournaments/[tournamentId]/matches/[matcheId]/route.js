@@ -192,10 +192,10 @@ async function handleGet(request, { params }) {
   const setup = await setupApiHandler(request, "matches:read");
   if (setup.error) return setup.error;
 
-  const { matchesId } = params;
+  const { matcheId } = params;
 
   const match = await db.matches.findUnique({
-    where: { id: matchesId },
+    where: { id: matcheId },
     include: {
       tournament: { select: { id: true, name: true, year: true } },
       game: { select: { id: true, name: true, icon: true, category: true } },

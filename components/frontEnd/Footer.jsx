@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useMemo, memo, useCallback } from "react";
 import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
+import Link from "next/link";
 
 // Memoized Social Icon Component
 const SocialIcon = memo(({ social, index, onHover }) => {
@@ -23,7 +24,9 @@ const SocialIcon = memo(({ social, index, onHover }) => {
       onHoverStart={() => onHover(index)}
       onHoverEnd={() => onHover(null)}
     >
-      {social.icon}
+      <a href={social.url} target="_blank" rel="noopener noreferrer">
+        {social.icon}
+      </a>
     </m.div>
   );
 });
@@ -31,7 +34,7 @@ const SocialIcon = memo(({ social, index, onHover }) => {
 SocialIcon.displayName = "SocialIcon";
 
 // Memoized Link Component
-const FooterLink = memo(({ link }) => {
+const FooterLink = memo(({ link, name }) => {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -39,12 +42,12 @@ const FooterLink = memo(({ link }) => {
       whileHover={shouldReduceMotion ? {} : { x: 10 }}
       transition={{ duration: 0.2 }}
     >
-      <a
-        href="#"
+      <Link
+        href={link}
         className="text-gray-400 hover:text-yellow-400 transition-colors"
       >
-        {link}
-      </a>
+        {name}
+      </Link>
     </m.li>
   );
 });
@@ -94,18 +97,25 @@ const SportsFooter = () => {
   // Memoize static data
   const footerLinks = useMemo(
     () => ({
-      sports: ["Hockey"],
-      company: ["About Us", "Contact"],
+      tournament: [{ name: "About Tournament", link: "/about-tournament" }],
+      other: [
+        { name: "About Us", link: "/about-us" },
+        { name: "Contact", link: "#contact" },
+      ],
     }),
     [],
   );
 
   const socialIcons = useMemo(
     () => [
-      { name: "Facebook", icon: "f" },
-      { name: "Twitter", icon: "𝕏" },
-      { name: "Instagram", icon: "📷" },
-      { name: "YouTube", icon: "▶" },
+      // { name: "Facebook", icon: "f" },
+      // { name: "Twitter", icon: "𝕏" },
+      {
+        name: "Instagram",
+        icon: "📷",
+        url: "https://www.instagram.com/chenanda_hockey_2026?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+      },
+      // { name: "YouTube", icon: "▶" },
     ],
     [],
   );
@@ -218,25 +228,23 @@ const SportsFooter = () => {
                 </div>
               </m.div>
 
-              {/* Sports Links */}
-              <FooterSection title="SPORTS" delay={0.3}>
+              {/* Tournament Links */}
+              <FooterSection title="TOURNAMENTS" delay={0.3}>
                 <ul className="space-y-3">
-                  {footerLinks.sports.map((link) => (
-                    <FooterLink key={link} link={link} />
+                  {footerLinks.tournament.map(({ link, name }) => (
+                    <FooterLink key={link} link={link} name={name} />
                   ))}
                 </ul>
               </FooterSection>
 
               {/* Company Links */}
-              <FooterSection title="COMPANY" delay={0.4}>
+              <FooterSection title="OTHER" delay={0.4}>
                 <ul className="space-y-3">
-                  {footerLinks.company.map((link) => (
-                    <FooterLink key={link} link={link} />
+                  {footerLinks.other.map(({ link, name }) => (
+                    <FooterLink key={link} link={link} name={name} />
                   ))}
                 </ul>
               </FooterSection>
-
-             
             </m.div>
 
             {/* Bottom Bar */}

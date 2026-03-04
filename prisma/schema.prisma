@@ -217,14 +217,9 @@ model GameRegistration {
   teamName String?
   pool     Pool? // Assigned pool for this game
 
-  // Payment for this specific game
-  paymentStatus PaymentStatus @default(PENDING)
-  paymentAmount Float
-  paymentDate   DateTime?
-  paymentId     String? // Link to Payment model transaction ID
 
   // Registration Status
-  status       RegistrationStatus @default(PENDING)
+  paymentStatus       RegistrationStatus @default(PENDING)
   registeredAt DateTime           @default(now())
   confirmedAt  DateTime?
 
@@ -234,7 +229,6 @@ model GameRegistration {
   @@unique([gameId, participationId])
   @@index([gameId])
   @@index([participationId])
-  @@index([paymentStatus])
 }
 
 enum GameCategory {
@@ -294,11 +288,6 @@ model TournamentParticipation {
   // Game-specific registrations for this family in this tournament
   gameRegistrations GameRegistration[]
 
-  // Overall participation tracking
-  registeredAt    DateTime @default(now())
-  registeredBy    String // User ID who registered
-  registeredVia   String   @default("PHONE") // PHONE, WEB, ADMIN
-  totalAmountPaid Float    @default(0) // Total across all games registered
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -316,6 +305,7 @@ model Families {
   colors      String? // Team colors
   info        Json[]
   images      String[] // Array of image URL strings
+contacts  ContactDetails[]
 
   // Historical data (across all tournaments and sports)
   allTimeAchievements Achievements[]
@@ -334,6 +324,12 @@ model Families {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+type ContactDetails{
+  name String
+  email String?
+  phone String
 }
 
 // Tournament Placements - Per sport, per tournament
@@ -402,7 +398,7 @@ type Achievements {
   year        String?
   title       String
   description String
-} 
+}
 
 // Matches - Now sport-specific within tournaments and can link to specific games
 model Matches {
@@ -731,19 +727,17 @@ model Payment {
   family   Families @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
   // Payment details
-  amount        Float
-  currency      String        @default("INR")
-  paymentType   PaymentType
-  paymentMethod PaymentMethod
-  status        PaymentStatus @default(PENDING)
+  amount      Float
+  currency    String        @default("INR")
+  paymentType PaymentType?
+  status      PaymentStatus @default(PENDING)
 
   // Payment gateway details
   transactionId String? @unique // From payment gateway
-  orderId       String? // Your internal order ID
+  orderId       String? @unique
   receiptNumber String? @unique // Receipt/invoice number
 
   // Payment purpose
-  purpose     String // e.g., "Tournament Registration Fee - Football"
   description String?
 
   // Tournament & Sport specific (if applicable)
@@ -754,12 +748,13 @@ model Payment {
 
   // Payment metadata
   paymentDate DateTime  @default(now())
-  paidAt      DateTime?
+  feeAmount  Float?
 
   // Contact info
   payerName  String
   payerEmail String?
   payerPhone String?
+  payerAltPhone String?
 
   // Additional details
   notes       String?

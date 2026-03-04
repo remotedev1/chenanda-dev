@@ -93,7 +93,7 @@ export default function AboutChenanda() {
 
   const stats = [
     { number: "300+", label: "Family Members" },
-    { number: "4", label: "Locations" },
+    { number: "3", label: "Locations" },
     { number: "2", label: "Olympians" },
     { number: "350+", label: "Years of Legacy" },
   ];
@@ -160,7 +160,7 @@ export default function AboutChenanda() {
                   </span>
                   , deeply rooted in{" "}
                   <span className="font-semibold text-amber-800">Kokeri</span>,
-                  with family branches spread across Kodambur, Banavara and Alur
+                  with family branches spread across Kodambur, and Alur
                   Siddapura in the heart of Coorg.
                 </p>
               </Card>

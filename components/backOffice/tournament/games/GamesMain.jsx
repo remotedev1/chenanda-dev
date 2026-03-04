@@ -47,11 +47,11 @@ export function TournamentGameMain() {
     useGames({ tournamentId });
   const { updateGame, updating } = useUpdateGame(tournamentId);
   const { deleteGame, deleting } = useDeleteGame(tournamentId);
+  
 
   // UI state
   const [formDialog, setFormDialog] = useState({ open: false, game: null });
   const [deleteDialog, setDeleteDialog] = useState({ open: false, game: null });
-  // Local search state (client-side filtering)
   const [searchQuery, setSearchQuery] = useState("");
 
   /* ─────────────────────────────────────────────────────────────────────── */

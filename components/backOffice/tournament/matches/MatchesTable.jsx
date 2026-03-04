@@ -112,6 +112,7 @@ function MatchCardSkeleton() {
 
 // Match Card Component
 function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
+
   const sport = SPORT_ICONS[match.sport] || "🏆";
   const participants = match.participants || [];
   const team1 = participants[0];

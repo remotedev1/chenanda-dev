@@ -10,9 +10,7 @@ const nextConfig = {
       { protocol: "https", hostname: "images.unsplash.com", port: "" },
     ],
   },
-  api: {
-    bodyParser: false,
-  },
+
   async headers() {
     return [
       {

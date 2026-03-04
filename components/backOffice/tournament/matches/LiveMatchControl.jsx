@@ -1023,11 +1023,14 @@ export function LiveMatchControl({ matchId, tournamentId }) {
     fetch(`/api/tournaments/${tournamentId}/matches/${matchId}`)
       .then((r) => r.json())
       .then((data) => {
+        console.log(data)
         setInitialMatch(data.data);
       })
       .catch(() => toast.error("Failed to load match"))
       .finally(() => setBootstrapLoading(false));
   }, [matchId]);
+
+  console.log(initialMatch)
 
   const {
     match,

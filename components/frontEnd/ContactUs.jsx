@@ -120,8 +120,12 @@ export default function ContactUs() {
   );
 
   return (
-    <LazyMotion features={domAnimation} strict>
-      <section className="bg-gray-300 pt-10 shadow-lg relative z-10">
+    <LazyMotion features={domAnimation} strict >
+      <section
+        className="bg-gray-300 pt-10 shadow-lg relative z-10 scroll-mt-24"
+        id="contact"
+
+      >
         <m.div
           className="w-[80%] max-w-3xl relative top-8 mx-auto bg-gradient-to-br from-white via-gray-50 to-white p-5 sm:p-6 md:p-8 rounded-xl shadow-2xl border border-gray-200"
           initial={{ opacity: 0 }}

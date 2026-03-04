@@ -78,7 +78,6 @@ export function GameFormDialog({
 }) {
   const isEditing = !!game;
   const [loading, setLoading] = useState(false);
-  console.log(open);
 
   const [formData, setFormData] = useState({
     sportType: game?.sportType || "",
