@@ -101,6 +101,14 @@ async function handleGet(request) {
             isActive: true,
           },
         },
+        payments: {
+          select: {
+            id: true,
+            payerName: true,
+            gameId: true,
+            status: true,
+          },
+        },
         _count: {
           select: {
             players: true,
@@ -113,7 +121,6 @@ async function handleGet(request) {
     }),
     db.families.count({ where }),
   ]);
-
 
   return successResponse({
     data: families,

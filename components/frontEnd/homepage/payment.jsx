@@ -28,13 +28,11 @@ export default function PaymentBanner() {
 
             {/* Description */}
             <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 max-w-2xl mx-auto lg:mx-0 px-2 sm:px-0 leading-relaxed">
-              Join athletes from around the region in our annual championship
-              tournament. Compete at the highest level, showcase your skills,
-              and win amazing prizes.
+              kodava hockey tournament 2026
             </p>
 
             {/* Date Info */}
-            <div className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base text-gray-600 px-2 sm:px-0 flex-wrap">
+            {/* <div className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base text-gray-600 px-2 sm:px-0 flex-wrap">
               <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-indigo-600 flex-shrink-0" />
               <span className="text-center lg:text-left">
                 Last Registration Date:{" "}
@@ -42,7 +40,7 @@ export default function PaymentBanner() {
                   December 20, 2025
                 </span>
               </span>
-            </div>
+            </div> */}
           </div>
 
           {/* CTA Button */}

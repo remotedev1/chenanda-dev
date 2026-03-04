@@ -396,6 +396,7 @@ export default function TournamentPayment() {
     }
   }, [state.step]);
 
+
   if (tournamentLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-6">
@@ -1306,6 +1307,12 @@ function PaymentStep({
   onBack,
   processingPayment,
 }) {
+  const alreadyPaidGameIds = new Set(
+  selectedFamily?.payments?.map((p) => p.gameId) || []
+);
+const hasAlreadyPaidGame = state.selectedGames.some((id) =>
+  alreadyPaidGameIds.has(id)
+);
   return (
     <form onSubmit={onSubmit} className="space-y-6 animate-slide-in-up">
       {/* Order Summary */}
@@ -1454,6 +1461,29 @@ function PaymentStep({
           confirmation SMS after successful payment
         </p>
       </div>
+      <div>
+        {(() => {
+          const alreadyPaidGameIds = new Set(
+            selectedFamily?.payments?.map((p) => p.gameId) || [],
+          );
+          const alreadyPaidGames = state.selectedGames.filter((id) =>
+            alreadyPaidGameIds.has(id),
+          );
+
+          if (alreadyPaidGames.length === 0) return null;
+
+          return (
+            <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-xl">
+              <p className="text-amber-800 font-semibold text-sm">
+                ⚠️ Your family has already paid for:{" "}
+                {alreadyPaidGames
+                  .map((id) => gamesById.get(id)?.name)
+                  .join(", ")}
+              </p>
+            </div>
+          );
+        })()}
+      </div>
 
       <div className="flex gap-3 pt-4">
         <Button
@@ -1469,7 +1499,7 @@ function PaymentStep({
         <Button
           type="submit"
           className="flex-1 h-14 text-base font-bold bg-indigo-600  hover:bg-indigo-700 text-white shadow-2xl"
-          disabled={processingPayment}
+          disabled={processingPayment || hasAlreadyPaidGame}
         >
           {processingPayment ? (
             <>
