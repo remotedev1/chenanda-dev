@@ -99,8 +99,9 @@ async function handlePost(request) {
   const setup = await setupApiHandler(request, "tournaments:create");
   if (setup.error) return setup.error;
 
+  const { user } = await auth();
 
-
+ 
   // Validate body
   const body = await request.json();
   const validated = createTournamentSchema.parse(body);
@@ -117,7 +118,7 @@ async function handlePost(request) {
       info: validated.info || [],
       images: validated.images || [],
       createdBy: {
-        connect: { id: setup.user.userId },
+        connect: { id:user.id },
       },
     },
     include: {
@@ -130,7 +131,7 @@ async function handlePost(request) {
 
   // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "created",
     entity: "tournament",
     entityId: tournament.id,

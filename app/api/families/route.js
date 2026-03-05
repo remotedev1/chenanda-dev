@@ -133,6 +133,10 @@ async function handlePost(request) {
   const setup = await setupApiHandler(request, "families:create");
   if (setup.error) return setup.error;
 
+  const { user } = await auth();
+
+ 
+
   // Validate body
   const body = await request.json();
   const validated = createFamilySchema.parse(body);
@@ -168,7 +172,7 @@ async function handlePost(request) {
 
   // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "created",
     entity: "family",
     entityId: family.id,

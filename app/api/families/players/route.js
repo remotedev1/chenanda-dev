@@ -159,12 +159,6 @@ async function handlePost(request) {
 
   const { user } = await auth();
 
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.CREATE, RESOURCES.PLAYER)) {
-    return errorResponse("You don't have permission to create players", 403);
-  }
-
   // Validate body
   const body = await request.json();
   const validated = createPlayerSchema.parse(body);
@@ -217,7 +211,7 @@ async function handlePost(request) {
 
   // Log activity
   await logActivity({
-    userId:user.id,
+    userId: user.id,
     action: "created",
     entity: "player",
     entityId: player.id,

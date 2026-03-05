@@ -249,12 +249,6 @@ async function handleDelete(request, { params }) {
   const { user } = await auth();
   const { id: familyId } = params;
 
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.DELETE, RESOURCES.FAMILY)) {
-    return errorResponse("You don't have permission to delete families", 403);
-  }
-
   // Check if family exists
   const family = await db.families.findUnique({
     where: { id: familyId },
@@ -310,7 +304,7 @@ async function handleDelete(request, { params }) {
 
   // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "deleted",
     entity: "family",
     entityId: familyId,
