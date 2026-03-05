@@ -102,6 +102,7 @@ const SportsFooter = () => {
         { name: "About Us", link: "/about-us" },
         { name: "Gallery", link: "/gallery" },
         { name: "Contact", link: "#contact" },
+        { name: "Policies", link: "/policies" },
         { name: "Terms&conditions", link: "/terms-and-conditions" },
       ],
     }),
