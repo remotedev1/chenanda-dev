@@ -41,7 +41,9 @@ const updateTournamentSchema = z.object({
 /* ========== GET SINGLE TOURNAMENT ========== */
 
 async function handleGet(request, { params }) {
-  const setup = await setupApiHandler(request, "tournaments:get", {requireAuthentication: false});
+  const setup = await setupApiHandler(request, "tournaments:get", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   const { tournamentId } = params;
@@ -53,7 +55,7 @@ async function handleGet(request, { params }) {
   const includePlacements = searchParams.get("includePlacements") === "true";
 
   const tournament = await db.tournament.findUnique({
-    where: { id:tournamentId },
+    where: { id: tournamentId },
     include: {
       participation: includeParticipation
         ? {
@@ -104,15 +106,6 @@ async function handleGet(request, { params }) {
 async function handlePatch(request, { params }) {
   const setup = await setupApiHandler(request, "tournaments:update");
   if (setup.error) return setup.error;
-  const user = await auth();
-
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.MANAGE, "all")) {
-    return errorResponse(
-      "You don't have permission to update tournaments",
-      403
-    );
-  }
 
   const { id } = params;
 
@@ -151,7 +144,7 @@ async function handlePatch(request, { params }) {
     if (regDeadline >= startDate) {
       return errorResponse(
         "Registration deadline must be before start date",
-        400
+        400,
       );
     }
   }
@@ -214,7 +207,7 @@ async function handleDelete(request, { params }) {
   if (!ability.can(ACTIONS.DELETE, RESOURCES.TOURNAMENT)) {
     return errorResponse(
       "You don't have permission to delete tournaments",
-      403
+      403,
     );
   }
 
@@ -261,7 +254,7 @@ async function handleDelete(request, { params }) {
 
     return successResponse(
       cancelledTournament,
-      "Tournament has data and was marked as CANCELLED"
+      "Tournament has data and was marked as CANCELLED",
     );
   }
 
