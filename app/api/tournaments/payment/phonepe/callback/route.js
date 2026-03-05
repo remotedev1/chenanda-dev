@@ -22,7 +22,7 @@ export async function GET(request) {
       {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
+        "Content-Type": "application/json",
           Authorization: `O-Bearer ${accessToken}`,
         },
       },
@@ -38,7 +38,7 @@ export async function GET(request) {
     const paymentUpdate = await db.payment.update({
       where: { orderId: txnId },
       data: {
-        status: paymentState === "COMPLETED" ? "COMPLETED" : paymentState,
+        status: "COMPLETED",
         paymentMethod: statusData.paymentDetails?.paymentMode,
         paymentDate: statusData.paymentDetails?.timestamp,
         feeAmount: statusData.paymentDetails?.feeAmount,
@@ -108,7 +108,7 @@ export async function GET(request) {
 
     if (paymentState === "COMPLETED") {
       return NextResponse.redirect(
-        `${APP_URL}/payment/success?txnId=${paymentUpdate.orderId}&amount=${amount}&tournamentId=${tournamentId}`,
+        `${APP_URL}/payment/success?txnId=${paymentUpdate.orderId}&amount=${amount}&transactionId=${statusData.paymentDetails?.transactionId}`,
       );
     } else {
       return NextResponse.redirect(

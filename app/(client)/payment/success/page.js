@@ -6,9 +6,8 @@ import Link from "next/link";
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
-  const { tournamentId } = useParams();
   const txnId = searchParams.get("txnId");
-  const orderId = searchParams.get("orderId");
+  const transactionId = searchParams.get("transactionId");
   const amount = searchParams.get("amount");
   const amountFormatted = amount
     ? `₹${(parseInt(amount) / 100).toLocaleString("en-IN")}`
@@ -66,14 +65,14 @@ export default function PaymentSuccessPage() {
         <div style={styles.detailsGrid}>
           {txnId && (
             <div style={styles.detailRow}>
-              <span style={styles.detailKey}>Transaction ID</span>
+              <span style={styles.detailKey}>Order ID</span>
               <span style={styles.detailVal}>{txnId}</span>
             </div>
           )}
-          {orderId && orderId !== txnId && (
+          {transactionId && transactionId !== txnId && (
             <div style={styles.detailRow}>
-              <span style={styles.detailKey}>Order ID</span>
-              <span style={styles.detailVal}>{orderId}</span>
+              <span style={styles.detailKey}>Transaction ID</span>
+              <span style={styles.detailVal}>{transactionId}</span>
             </div>
           )}
           <div style={styles.detailRow}>

@@ -23,7 +23,6 @@ export async function GET(request) {
       },
     });
 
-
     if (!payment) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
@@ -97,6 +96,10 @@ export async function GET(request) {
     <div class="row">
   <span class="key">Order ID</span>
   <span class="value">${payment.orderId}</span>
+</div>
+    <div class="row">
+  <span class="key">Transaction ID</span>
+  <span class="value">${payment.transactionId}</span>
 </div>
 <div class="row">
   <span class="key">Payer Name</span>
