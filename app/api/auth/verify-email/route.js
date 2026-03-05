@@ -64,13 +64,13 @@ export async function GET(req) {
       console.warn(`Verification rate limit exceeded for IP: ${ip}`);
       // Redirect to error page with message
       return NextResponse.redirect(
-        new URL(`/auth/verify-email/error?reason=rate-limit`, req.url)
+        new URL(`/auth/verify-email/error?reason=rate-limit`, req.url),
       );
     }
 
     if (!token) {
       return NextResponse.redirect(
-        new URL("/auth/verify-email/error?reason=missing-token", req.url)
+        new URL("/auth/verify-email/error?reason=missing-token", req.url),
       );
     }
 
@@ -78,21 +78,17 @@ export async function GET(req) {
     if (token.length !== 64 || !/^[a-f0-9]{64}$/i.test(token)) {
       recordVerificationAttempt(ip);
       return NextResponse.redirect(
-        new URL("/auth/verify-email/error?reason=invalid-token", req.url)
+        new URL("/auth/verify-email/error?reason=invalid-token", req.url),
       );
     }
 
-    // ⭐ HASH THE TOKEN from URL (user sent plain token)
-    const hashedToken = hashToken(token);
-    console.log(hashToken);
-
     // Get token from database
-    const existingToken = await getemailVerificationTokenByToken(hashedToken);
+    const existingToken = await getemailVerificationTokenByToken(token);
 
     if (!existingToken) {
       recordVerificationAttempt(ip);
       return NextResponse.redirect(
-        new URL("/auth/verify-email/error?reason=invalid-or-used", req.url)
+        new URL("/auth/verify-email/error?reason=invalid-or-used", req.url),
       );
     }
 
@@ -106,10 +102,10 @@ export async function GET(req) {
       return NextResponse.redirect(
         new URL(
           `/auth/verify-email/error?reason=expired&email=${encodeURIComponent(
-            existingToken.email
+            existingToken.email,
           )}`,
-          req.url
-        )
+          req.url,
+        ),
       );
     }
 
@@ -121,20 +117,20 @@ export async function GET(req) {
 
     if (!user) {
       return NextResponse.redirect(
-        new URL("/auth/verify-email/error?reason=user-not-found", req.url)
+        new URL("/auth/verify-email/error?reason=user-not-found", req.url),
       );
     }
 
     if (user.emailVerified) {
       clearVerificationAttempts(ip);
       return NextResponse.redirect(
-        new URL("/auth/verify-email/success?already=true", req.url)
+        new URL("/auth/verify-email/success?already=true", req.url),
       );
     }
 
     if (user.isBlocked) {
       return NextResponse.redirect(
-        new URL("/auth/verify-email/error?reason=blocked", req.url)
+        new URL("/auth/verify-email/error?reason=blocked", req.url),
       );
     }
 
@@ -154,12 +150,12 @@ export async function GET(req) {
 
     // Redirect to success page
     return NextResponse.redirect(
-      new URL("/auth/verify-email/success", req.url)
+      new URL("/auth/verify-email/success", req.url),
     );
   } catch (err) {
     console.error("Email Verification GET Error:", err);
     return NextResponse.redirect(
-      new URL("/auth/verify-email/error?reason=server-error", req.url)
+      new URL("/auth/verify-email/error?reason=server-error", req.url),
     );
   }
 }

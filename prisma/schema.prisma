@@ -217,11 +217,10 @@ model GameRegistration {
   teamName String?
   pool     Pool? // Assigned pool for this game
 
-
   // Registration Status
-  paymentStatus       RegistrationStatus @default(PENDING)
-  registeredAt DateTime           @default(now())
-  confirmedAt  DateTime?
+  paymentStatus RegistrationStatus @default(PENDING)
+  registeredAt  DateTime           @default(now())
+  confirmedAt   DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -288,7 +287,6 @@ model TournamentParticipation {
   // Game-specific registrations for this family in this tournament
   gameRegistrations GameRegistration[]
 
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -299,13 +297,13 @@ model TournamentParticipation {
 
 // Families - Master data (reusable across tournaments and sports)
 model Families {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  familyName  String   @unique
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  familyName  String           @unique
   description String?
   colors      String? // Team colors
   info        Json[]
   images      String[] // Array of image URL strings
-contacts  ContactDetails[]
+  contacts    ContactDetails[]
 
   // Historical data (across all tournaments and sports)
   allTimeAchievements Achievements[]
@@ -326,8 +324,8 @@ contacts  ContactDetails[]
   updatedAt DateTime @updatedAt
 }
 
-type ContactDetails{
-  name String
+type ContactDetails {
+  name  String
   email String?
   phone String
 }
@@ -747,13 +745,13 @@ model Payment {
   gameId         String?    @db.ObjectId // Link to specific game if applicable
 
   // Payment metadata
-  paymentDate DateTime  @default(now())
-  feeAmount  Float?
+  paymentDate DateTime @default(now())
+  feeAmount   Float?
 
   // Contact info
-  payerName  String
-  payerEmail String?
-  payerPhone String?
+  payerName     String
+  payerEmail    String?
+  payerPhone    String?
   payerAltPhone String?
 
   // Additional details

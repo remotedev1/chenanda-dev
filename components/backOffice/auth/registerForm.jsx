@@ -64,6 +64,7 @@ export default function RegisterForm() {
       firstName: "",
       lastName: "",
       email: "",
+      phoneNumber: "",
       password: "",
       confirmPassword: "",
     },
@@ -183,7 +184,7 @@ export default function RegisterForm() {
     setLoading(true);
     setOtpError("");
 
-    console.log("i ran")
+    console.log("i ran");
 
     const validation = OTPSchema.safeParse({ otp });
     if (!validation.success) {
@@ -238,7 +239,6 @@ export default function RegisterForm() {
     setLoading(true);
     setServerError(null);
     setSuccess(false);
-
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -413,6 +413,36 @@ export default function RegisterForm() {
                               </div>
                             </FormControl>
                             <FormMessage className="text-red-500 text-sm mt-1" />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={emailForm.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Phone Number</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <div className="absolute left-10 top-1/2 -translate-y-1/2 text-gray-500">
+                                  +91
+                                </div>
+                                <Input
+                                  {...field}
+                                  type="tel"
+                                  disabled={loading}
+                                  className="pl-20"
+                                  maxLength={10}
+                                  onChange={(e) => handlePhoneInput(e, field)}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage className="text-red-500 text-sm mt-1" />
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Enter your 10-digit Indian phone number
+                            </p>
                           </FormItem>
                         )}
                       />

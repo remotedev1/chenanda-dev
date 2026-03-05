@@ -28,7 +28,9 @@ const RegisterSchema = z.object({
 
 async function handlePost(request) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "auth:register");
+  const setup = await setupApiHandler(request, "auth:register", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   // Parse and validate body
