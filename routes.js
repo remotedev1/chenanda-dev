@@ -5,6 +5,8 @@ export const publicRoutes = [
   "/",
   "/about-us",
   "/about-tournament",
+  "/policies",
+  "/terms-and-conditions",
   "/gallery",
   "/contact-us",
   "/sw.js",
