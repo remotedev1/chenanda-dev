@@ -133,14 +133,6 @@ async function handlePost(request) {
   const setup = await setupApiHandler(request, "families:create");
   if (setup.error) return setup.error;
 
-  const { user } = await auth();
-
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.CREATE, RESOURCES.FAMILY)) {
-    return errorResponse("You don't have permission to create families", 403);
-  }
-
   // Validate body
   const body = await request.json();
   const validated = createFamilySchema.parse(body);
