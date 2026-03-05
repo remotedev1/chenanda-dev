@@ -51,7 +51,9 @@ const createTournamentSchema = z.object({
 
 async function handleGet(request) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "tournaments:list", {requireAuthentication: false});
+  const setup = await setupApiHandler(request, "tournaments:list", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   // Query params
@@ -97,16 +99,8 @@ async function handlePost(request) {
   const setup = await setupApiHandler(request, "tournaments:create");
   if (setup.error) return setup.error;
 
-  const { user } = await auth();
 
-  // Ability
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.MANAGE, RESOURCES.ALL)) {
-    return errorResponse(
-      "You don't have permission to create tournaments",
-      403,
-    );
-  }
+
   // Validate body
   const body = await request.json();
   const validated = createTournamentSchema.parse(body);
