@@ -113,7 +113,7 @@ export default function TermsAndConditions() {
               <div className="prose prose-lg max-w-none">
                 <p className="text-gray-700 leading-relaxed mb-4">
                   Published in accordance with Rule 3(1) of the Information Technology (Intermediaries Guidelines) Rules, 2011, 
-                  governing access to <strong className="text-amber-800">https://www.chenanda.in/</strong> (the "Platform").
+                  governing access to <strong className="text-amber-800">https://www.chenanda.in/</strong> (the Platform).
                 </p>
 
                 <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 my-6 border border-amber-200">
