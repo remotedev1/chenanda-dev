@@ -9,16 +9,17 @@ const API_BASE = "/api/families";
 /**
  * Hook to fetch families with pagination, search, and filters
  */
-export function useFamilies() {
+export function useFamilies(search) {
   const [families, setFamilies] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    search: "",
+    search,
     sortBy: "familyName",
     page: 1,
-    limit: 10,
+    limit: 500,
   });
+
 
   const fetchFamilies = useCallback(async () => {
     setLoading(true);

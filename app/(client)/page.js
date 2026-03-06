@@ -13,7 +13,7 @@ export default function Page() {
       <Hero />
       <HomeAboutPreview />
       <EventCountdown />
-      <PaymentBanner />
+      {/* <PaymentBanner /> */}
       {/* <LiveScoreCarousel /> */}
       {/* <MatchSchedule /> */}
       {/* <VenueDetails /> */}

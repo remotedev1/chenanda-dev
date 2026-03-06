@@ -218,6 +218,18 @@ const SportsFooter = () => {
                 <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-red-500 to-yellow-500 bg-clip-text text-transparent">
                   CHENANDA
                 </h2>
+                <p
+                  style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: "0.62rem",
+                    color: "#9e8c72",
+                    letterSpacing: "0.08em",
+                    margin: 0,
+                    paddingBottom: "10px",
+                  }}
+                >
+                  KOKERI VILLAGE, CHEYYANDANE POST, KODAGU, KARNATAKA 571212
+                </p>
 
                 <div className="flex gap-3">
                   {socialIcons.map((social, idx) => (

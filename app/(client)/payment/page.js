@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useMemo,
-  useCallback,
-  useReducer,
-  useRef,
-  useEffect,
-} from "react";
+import { useState, useMemo, useCallback, useReducer, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,9 +34,8 @@ import { useFamilies } from "@/hooks/useFamily";
 import { useGames } from "@/hooks/useTournamentGame";
 import { useBatchCreatePlayers } from "@/hooks/usePlayer";
 
-// Optimized state reducer to minimize re-renders
 const initialState = {
-  step: "registration", // registration, players, games, payment
+  step: "registration",
   selectedFamilyId: "",
   registrationDetails: {
     name: "",
@@ -114,33 +106,19 @@ function formReducer(state, action) {
 export default function TournamentPayment() {
   const [state, dispatch] = useReducer(formReducer, initialState);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [familySearch, setFamilySearch] = useState("");
-  const searchTimeoutRef = useRef(null);
   const [editingPlayerId, setEditingPlayerId] = useState(null);
   const [editingPlayerData, setEditingPlayerData] = useState({});
   const { tournamentId } = useParams();
   const router = useRouter();
 
-  // Debounced search
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [state.step]);
 
-  const handleSearchChange = useCallback((value) => {
-    setFamilySearch(value);
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-    searchTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearch(value);
-    }, 300);
-  }, []);
-
-  // Optimized hooks with minimal re-renders
   const { tournaments, loading: tournamentLoading } = useTournaments();
-  const { families, loading: familiesLoading } = useFamilies(debouncedSearch);
+  // FIX: Parent fetches all families (no search) — only used to derive selectedFamily
+  // for downstream steps. RegistrationStep owns its own searched families.
+  const { families } = useFamilies();
 
   const selectedTournamentId = useMemo(
     () => tournaments?.[0]?.id || tournamentId,
@@ -155,19 +133,15 @@ export default function TournamentPayment() {
     useBatchCreatePlayers();
 
   useEffect(() => {
-    const fetchExistingPlayers = async () => {
-      if (state.selectedFamilyId) {
-        dispatch({
-          type: "SET_EXISTING_PLAYERS",
-          payload:
-            families.find((f) => f.id === state.selectedFamilyId)?.players ||
-            [],
-        });
-      } else {
-        dispatch({ type: "SET_EXISTING_PLAYERS", payload: [] });
-      }
-    };
-    fetchExistingPlayers();
+    if (state.selectedFamilyId) {
+      dispatch({
+        type: "SET_EXISTING_PLAYERS",
+        payload:
+          families.find((f) => f.id === state.selectedFamilyId)?.players || [],
+      });
+    } else {
+      dispatch({ type: "SET_EXISTING_PLAYERS", payload: [] });
+    }
   }, [state.selectedFamilyId, families]);
 
   const handleUpdateExistingPlayer = useCallback(
@@ -195,10 +169,9 @@ export default function TournamentPayment() {
         toast.error("Error updating player");
       }
     },
-    [editingPlayerData, state.existingPlayers, dispatch],
+    [editingPlayerData, state.existingPlayers],
   );
 
-  // Memoized computed values
   const gamesById = useMemo(() => {
     const map = new Map();
     games?.forEach((g) => map.set(g.id, g));
@@ -231,7 +204,6 @@ export default function TournamentPayment() {
         toast.error("Name is required");
         return;
       }
-
       if (!address.trim()) {
         toast.error("Address is required");
         return;
@@ -250,7 +222,7 @@ export default function TournamentPayment() {
 
       dispatch({ type: "SET_STEP", payload: "players" });
     },
-    [state.registrationDetails, state.players.length],
+    [state.registrationDetails],
   );
 
   const handleAddPlayer = useCallback(() => {
@@ -272,24 +244,20 @@ export default function TournamentPayment() {
     async (e) => {
       e.preventDefault();
 
-      // No new players added — skip saving and proceed
       if (state.players.length === 0) {
         dispatch({ type: "SET_STEP", payload: "games" });
         return;
       }
 
-      // Only validate/save entries that have at least one field filled
       const touchedPlayers = state.players.filter(
         (p) => p.name.trim() || p.jersey.trim() || p.position.trim(),
       );
 
-      // If nothing was touched at all, just proceed
       if (touchedPlayers.length === 0) {
         dispatch({ type: "SET_STEP", payload: "games" });
         return;
       }
 
-      // Validate only touched entries are complete
       const incompletePlayers = touchedPlayers.filter(
         (p) => !p.name.trim() || !p.jersey.trim() || !p.position.trim(),
       );
@@ -316,6 +284,7 @@ export default function TournamentPayment() {
     },
     [state.players, state.selectedFamilyId, batchCreatePlayers],
   );
+
   const handleToggleGame = useCallback((gameId) => {
     dispatch({ type: "TOGGLE_GAME", payload: gameId });
   }, []);
@@ -340,10 +309,10 @@ export default function TournamentPayment() {
         const paymentData = {
           tournamentId: selectedTournamentId,
           familyId: state.selectedFamilyId,
-          gameId: state.selectedGames[0], // Send as comma-separated string
+          gameId: state.selectedGames[0],
           registrationDetails: state.registrationDetails,
           amount: totalAmount,
-          paymentMethod: state.paymentMethod, // "upi_qr" | "upi_id" | "card"
+          paymentMethod: state.paymentMethod,
         };
 
         const response = await fetch(
@@ -358,7 +327,6 @@ export default function TournamentPayment() {
         const data = await response.json();
 
         if (data.success) {
-          // PhonePe returns a redirectUrl for all flows
           if (data.redirectUrl) {
             window.location.href = data.redirectUrl;
           } else {
@@ -396,7 +364,6 @@ export default function TournamentPayment() {
     }
   }, [state.step]);
 
-
   if (tournamentLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-6">
@@ -414,7 +381,6 @@ export default function TournamentPayment() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 sm:py-12 px-3 sm:px-6 lg:px-8 mt-20">
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
-
         * {
           font-family:
             "Inter",
@@ -422,7 +388,6 @@ export default function TournamentPayment() {
             BlinkMacSystemFont,
             sans-serif;
         }
-
         h1,
         h2,
         h3,
@@ -431,7 +396,6 @@ export default function TournamentPayment() {
         h6 {
           font-family: "Space Grotesk", sans-serif;
         }
-
         @keyframes slideInUp {
           from {
             opacity: 0;
@@ -442,14 +406,12 @@ export default function TournamentPayment() {
             transform: translateY(0);
           }
         }
-
         .animate-slide-in-up {
           animation: slideInUp 0.5s ease-out;
         }
       `}</style>
 
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8 animate-slide-in-up">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl mb-4 shadow-xl">
             <Trophy className="h-8 w-8 text-white" />
@@ -464,7 +426,6 @@ export default function TournamentPayment() {
 
         <Card className="shadow-2xl border-0 overflow-hidden">
           <CardContent className="p-0">
-            {/* Progress Steps */}
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 sm:p-8">
               <div className="flex items-center justify-between gap-2 max-w-2xl mx-auto">
                 <StepIndicator
@@ -518,10 +479,7 @@ export default function TournamentPayment() {
                 <RegistrationStep
                   state={state}
                   dispatch={dispatch}
-                  families={families}
-                  familiesLoading={familiesLoading}
-                  familySearch={familySearch}
-                  onSearchChange={handleSearchChange}
+                  // FIX: removed families/familiesLoading — RegistrationStep owns them now
                   onSubmit={handleRegistrationSubmit}
                   selectedFamily={selectedFamily}
                 />
@@ -583,36 +541,40 @@ export default function TournamentPayment() {
   );
 }
 
-// Step Components
-function RegistrationStep({
-  state,
-  dispatch,
-  families,
-  familiesLoading,
-  familySearch,
-  onSearchChange,
-  onSubmit,
-  selectedFamily,
-}) {
+// ─── Step Components ────────────────────────────────────────────────────────
+
+function RegistrationStep({ state, dispatch, onSubmit, selectedFamily }) {
+  // FIX: search state, debounce, and useFamilies all live here now
+  const [familySearch, setFamilySearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(familySearch), 300);
+    return () => clearTimeout(timer);
+  }, [familySearch]);
+
+  const { families, loading: familiesLoading, updateFilters } = useFamilies();
+
+  useEffect(() => {
+    updateFilters({ search: debouncedSearch });
+  }, [debouncedSearch]);
+  
+  console.log(families);
+
   return (
     <form onSubmit={onSubmit} className="space-y-6 animate-slide-in-up">
-      {/* Family Selection */}
       <div className="space-y-3">
         <Label className="text-lg font-semibold text-slate-900">
           Select Your Family *
         </Label>
-        {!familiesLoading && families.length > 6 && (
-          <div className="text-sm text-slate-600 text-center mt-2">
-            Showing 6 of {families.length} families. Use search to find more.
-          </div>
-        )}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
           <Input
             type="text"
             placeholder="Search family name..."
             value={familySearch}
-            onChange={(e) => onSearchChange(e.target.value)}
+            // FIX: was calling onSearchChange (deleted prop), now sets local state directly
+            onChange={(e) => setFamilySearch(e.target.value)}
             className="pl-10 h-12 text-base border-2 focus:border-indigo-500"
           />
         </div>
@@ -625,12 +587,13 @@ function RegistrationStep({
           </div>
         ) : (
           <RadioGroup
+            key={debouncedSearch}
             value={state.selectedFamilyId}
             onValueChange={(value) =>
               dispatch({ type: "SELECT_FAMILY", payload: value })
             }
           >
-            {families.slice(0, 6).map((family) => (
+            {families.map((family) => (
               <div
                 key={family.id}
                 className={`flex items-center space-x-4 p-5 border-b last:border-b-0 cursor-pointer hover:bg-indigo-50 transition-all ${
@@ -667,7 +630,6 @@ function RegistrationStep({
         )}
       </div>
 
-      {/* Registration Details */}
       {state.selectedFamilyId && (
         <div className="space-y-6 animate-slide-in-up">
           <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-100">
@@ -723,7 +685,7 @@ function RegistrationStep({
                 placeholder="+91 XXXXX XXXXX"
                 value={state.registrationDetails.phone}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/[^\d+]/g, ""); // allow digits and leading +
+                  const val = e.target.value.replace(/[^\d+]/g, "");
                   dispatch({
                     type: "UPDATE_REGISTRATION",
                     payload: { phone: val },
@@ -766,28 +728,6 @@ function RegistrationStep({
               />
             </div>
 
-            {/* <div className="space-y-2">
-              <Label
-                htmlFor="pattedharaName"
-                className="text-base font-medium text-slate-700"
-              >
-                Pattedhara Name
-              </Label>
-              <Input
-                id="pattedharaName"
-                type="text"
-                placeholder="Enter pattedhara name"
-                value={state.registrationDetails.pattedharaName}
-                onChange={(e) =>
-                  dispatch({
-                    type: "UPDATE_REGISTRATION",
-                    payload: { pattedharaName: e.target.value },
-                  })
-                }
-                className="h-12 text-base border-2 focus:border-indigo-500"
-              />
-            </div> */}
-
             <div className="space-y-2 md:col-span-2">
               <Label
                 htmlFor="address"
@@ -816,7 +756,7 @@ function RegistrationStep({
 
       <Button
         type="submit"
-        className="w-full h-14 text-base font-semibold bg-indigo-600  hover:bg-purple-700 shadow-lg text-white"
+        className="w-full h-14 text-base font-semibold bg-indigo-600 hover:bg-purple-700 shadow-lg text-white"
         disabled={!state.selectedFamilyId}
       >
         Continue to Add Players
@@ -834,10 +774,16 @@ function PlayersStep({
   onRemovePlayer,
   onSubmit,
   onBack,
-  editingPlayerId,
   creatingPlayers,
+  // FIX: these 4 were missing from destructuring
+  editingPlayerId,
+  editingPlayerData,
+  setEditingPlayerId,
+  setEditingPlayerData,
+  onUpdateExistingPlayer,
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
+
   return (
     <form onSubmit={onSubmit} className="space-y-6 animate-slide-in-up">
       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-100">
@@ -853,6 +799,7 @@ function PlayersStep({
           </div>
         </div>
       </div>
+
       {state.existingPlayers && state.existingPlayers.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
@@ -867,7 +814,11 @@ function PlayersStep({
               return (
                 <div
                   key={player.id || index}
-                  className={`p-4 border-2 rounded-xl transition-all ${isEditing ? "border-indigo-400 bg-indigo-50" : "border-green-200 bg-green-50"}`}
+                  className={`p-4 border-2 rounded-xl transition-all ${
+                    isEditing
+                      ? "border-indigo-400 bg-indigo-50"
+                      : "border-green-200 bg-green-50"
+                  }`}
                 >
                   {isEditing ? (
                     <div className="space-y-3">
@@ -983,7 +934,6 @@ function PlayersStep({
                           setEditingPlayerData({});
                         }}
                       >
-                        {/* Pencil icon — add to your lucide imports: Pencil */}
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </div>
@@ -994,6 +944,7 @@ function PlayersStep({
           </div>
         </div>
       )}
+
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Label className="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -1110,7 +1061,7 @@ function PlayersStep({
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-12 text-base font-semibold bg-indigo-600  hover:bg-purple-700 shadow-lg text-white"
+          className="flex-1 h-12 text-base font-semibold bg-indigo-600 hover:bg-purple-700 shadow-lg text-white"
           disabled={creatingPlayers}
         >
           {creatingPlayers ? (
@@ -1201,7 +1152,6 @@ function GamesStep({
                     className="w-6 h-6 mt-1 cursor-pointer accent-indigo-600"
                     onClick={(e) => e.stopPropagation()}
                   />
-
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-bold text-slate-900 mb-2">
                       {game.name}
@@ -1225,7 +1175,6 @@ function GamesStep({
                       </p>
                     )}
                   </div>
-
                   <div className="text-right flex-shrink-0">
                     <div className="inline-flex items-center gap-1 text-2xl font-bold text-indigo-600">
                       <IndianRupee className="h-6 w-6" />
@@ -1264,11 +1213,9 @@ function GamesStep({
                 {state.selectedGames.length !== 1 ? "s" : ""} selected
               </div>
             </div>
-            <div className="text-right">
-              <div className="flex items-center gap-2 text-4xl font-bold">
-                <IndianRupee className="h-8 w-8" />
-                {totalAmount.toLocaleString()}
-              </div>
+            <div className="flex items-center gap-2 text-4xl font-bold">
+              <IndianRupee className="h-8 w-8" />
+              {totalAmount.toLocaleString()}
             </div>
           </div>
         </div>
@@ -1286,7 +1233,7 @@ function GamesStep({
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-12   text-base font-semibold bg-indigo-600  hover:bg-purple-700 shadow-lg text-white"
+          className="flex-1 h-12 text-base font-semibold bg-indigo-600 hover:bg-purple-700 shadow-lg text-white"
           disabled={state.selectedGames.length === 0}
         >
           Continue to Payment
@@ -1308,14 +1255,14 @@ function PaymentStep({
   processingPayment,
 }) {
   const alreadyPaidGameIds = new Set(
-  selectedFamily?.payments?.map((p) => p.gameId) || []
-);
-const hasAlreadyPaidGame = state.selectedGames.some((id) =>
-  alreadyPaidGameIds.has(id)
-);
+    selectedFamily?.payments?.map((p) => p.gameId) || [],
+  );
+  const hasAlreadyPaidGame = state.selectedGames.some((id) =>
+    alreadyPaidGameIds.has(id),
+  );
+
   return (
     <form onSubmit={onSubmit} className="space-y-6 animate-slide-in-up">
-      {/* Order Summary */}
       <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-6 rounded-xl border-2 border-slate-200 space-y-4">
         <h3 className="text-lg font-bold text-slate-900">Order Summary</h3>
         <div className="grid sm:grid-cols-2 gap-4 pb-4 border-b border-slate-300">
@@ -1365,14 +1312,11 @@ const hasAlreadyPaidGame = state.selectedGames.some((id) =>
         </div>
       </div>
 
-      {/* PhonePe Payment Method Selection */}
       <div className="space-y-3">
         <Label className="text-lg font-bold text-slate-900">
           Payment Method
         </Label>
-
         <div className="grid gap-3">
-          {/* UPI QR Code */}
           <div
             className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
               state.paymentMethod === "upi_qr"
@@ -1410,7 +1354,6 @@ const hasAlreadyPaidGame = state.selectedGames.some((id) =>
           </div>
         </div>
 
-        {/* Security note */}
         <div className="p-4 bg-indigo-50 border-2 border-indigo-200 rounded-xl">
           <div className="flex items-start gap-3">
             <Shield className="h-5 w-5 text-indigo-600 mt-0.5 flex-shrink-0" />
@@ -1427,7 +1370,6 @@ const hasAlreadyPaidGame = state.selectedGames.some((id) =>
         </div>
       </div>
 
-      {/* Total */}
       <div className="p-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl text-white shadow-2xl">
         <div className="flex justify-between items-center">
           <div>
@@ -1446,44 +1388,35 @@ const hasAlreadyPaidGame = state.selectedGames.some((id) =>
         </div>
       </div>
 
-      {/* Terms */}
       <div className="text-xs text-slate-600 space-y-2 p-4 bg-slate-50 rounded-lg border border-slate-200">
         <p className="flex items-start gap-2">
-          <span className="text-indigo-600 mt-0.5">•</span>Registration fees are
-          non-refundable once payment is processed
+          <span className="text-indigo-600 mt-0.5">•</span>
+          Registration fees are non-refundable once payment is processed
         </p>
         <p className="flex items-start gap-2">
-          <span className="text-indigo-600 mt-0.5">•</span>Please ensure all
-          details are correct before proceeding
+          <span className="text-indigo-600 mt-0.5">•</span>
+          Please ensure all details are correct before proceeding
         </p>
         <p className="flex items-start gap-2">
-          <span className="text-indigo-600 mt-0.5">•</span>You will receive a
-          confirmation SMS after successful payment
+          <span className="text-indigo-600 mt-0.5">•</span>
+          You will receive a confirmation SMS after successful payment
         </p>
       </div>
-      <div>
-        {(() => {
-          const alreadyPaidGameIds = new Set(
-            selectedFamily?.payments?.map((p) => p.gameId) || [],
-          );
-          const alreadyPaidGames = state.selectedGames.filter((id) =>
-            alreadyPaidGameIds.has(id),
-          );
 
-          if (alreadyPaidGames.length === 0) return null;
-
-          return (
-            <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-xl">
-              <p className="text-amber-800 font-semibold text-sm">
-                ⚠️ Your family has already paid for:{" "}
-                {alreadyPaidGames
-                  .map((id) => gamesById.get(id)?.name)
-                  .join(", ")}
-              </p>
-            </div>
-          );
-        })()}
-      </div>
+      {(() => {
+        const alreadyPaidGames = state.selectedGames.filter((id) =>
+          alreadyPaidGameIds.has(id),
+        );
+        if (alreadyPaidGames.length === 0) return null;
+        return (
+          <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-xl">
+            <p className="text-amber-800 font-semibold text-sm">
+              ⚠️ Your family has already paid for:{" "}
+              {alreadyPaidGames.map((id) => gamesById.get(id)?.name).join(", ")}
+            </p>
+          </div>
+        );
+      })()}
 
       <div className="flex gap-3 pt-4">
         <Button
@@ -1498,7 +1431,7 @@ const hasAlreadyPaidGame = state.selectedGames.some((id) =>
         </Button>
         <Button
           type="submit"
-          className="flex-1 h-14 text-base font-bold bg-indigo-600  hover:bg-indigo-700 text-white shadow-2xl"
+          className="flex-1 h-14 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xl"
           disabled={processingPayment || hasAlreadyPaidGame}
         >
           {processingPayment ? (
@@ -1518,7 +1451,8 @@ const hasAlreadyPaidGame = state.selectedGames.some((id) =>
   );
 }
 
-// Helper Components
+// ─── Helper Components ───────────────────────────────────────────────────────
+
 function StepIndicator({
   icon: Icon,
   active,

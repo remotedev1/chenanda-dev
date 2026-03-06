@@ -1,297 +1,271 @@
 "use client";
 
-import { useState, useEffect } from "react";
+const sections = [
+  {
+    id: "01",
+    title: "Account & Registration",
+    body: "To access and use the Services, you agree to provide true, accurate and complete information to us during and after registration, and you shall be responsible for all acts done through the use of your registered account on the Platform.",
+  },
+  {
+    id: "02",
+    title: "No Warranty",
+    body: "Neither we nor any third parties provide any warranty or guarantee as to the accuracy, timeliness, performance, completeness or suitability of the information and materials offered on this website or through the Services, for any specific purpose. You acknowledge that such information and materials may contain inaccuracies or errors and we expressly exclude liability for any such inaccuracies or errors to the fullest extent permitted by law.",
+  },
+  {
+    id: "03",
+    title: "Use at Your Own Risk",
+    body: "Your use of our Services and the Platform is solely and entirely at your own risk and discretion for which we shall not be liable to you in any manner. You are required to independently assess and ensure that the Services meet your requirements.",
+  },
+  {
+    id: "04",
+    title: "Intellectual Property",
+    body: "The contents of the Platform and the Services are proprietary to us and are licensed to us. You will not have any authority to claim any intellectual property rights, title, or interest in its contents. The contents includes and is not limited to the design, layout, look and graphics.",
+  },
+  {
+    id: "05",
+    title: "Authorised Use",
+    body: "You acknowledge that unauthorized use of the Platform and/or the Services may lead to action against you as per these Terms of Use and/or applicable laws.",
+  },
+  {
+    id: "06",
+    title: "Payment",
+    body: "You agree to pay us the charges associated with availing the Services.",
+  },
+  {
+    id: "07",
+    title: "Lawful Use Only",
+    body: "You agree not to use the Platform and/or Services for any purpose that is unlawful, illegal or forbidden by these Terms, or Indian or local laws that might apply to you.",
+  },
+  {
+    id: "08",
+    title: "Third-Party Links",
+    body: "You agree and acknowledge that the website and the Services may contain links to other third-party websites. On accessing these links, you will be governed by the terms of use, privacy policy and such other policies of such third-party websites. These links are provided for your convenience to provide further information.",
+  },
+  {
+    id: "09",
+    title: "Binding Contract",
+    body: "You understand that upon initiating a transaction for availing the Services you are entering into a legally binding and enforceable contract with the Platform Owner for the Services.",
+  },
+  {
+    id: "10",
+    title: "Indemnification",
+    body: "You shall indemnify and hold harmless Platform Owner, its affiliates, group companies (as applicable) and their respective officers, directors, agents, and employees, from any claim or demand, or actions including reasonable attorney's fees, made by any third party or penalty imposed due to or arising out of Your breach of this Terms of Use, privacy Policy and other Policies, or Your violation of any law, rules or regulations or the rights (including infringement of intellectual property rights) of a third party.",
+  },
+  {
+    id: "11",
+    title: "Force Majeure",
+    body: "Notwithstanding anything contained in these Terms of Use, the parties shall not be liable for any failure to perform an obligation under these Terms if performance is prevented or delayed by a force majeure event.",
+  },
+  {
+    id: "12",
+    title: "Governing Law",
+    body: "These Terms and any dispute or claim relating to it, or its enforceability, shall be governed by and construed in accordance with the laws of India.",
+  },
+  {
+    id: "13",
+    title: "Jurisdiction",
+    body: "All disputes arising out of or in connection with these Terms shall be subject to the exclusive jurisdiction of the courts in India.",
+  },
+  {
+    id: "14",
+    title: "Contact Us",
+    body: "All concerns or communications relating to these Terms must be communicated to us using the contact information provided on this website.",
+  },
+];
 
 export default function TermsAndConditions() {
-  const [activeSection, setActiveSection] = useState("terms");
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight =
-        document.documentElement.scrollHeight - windowHeight;
-      const scrolled = (window.scrollY / documentHeight) * 100;
-      setScrollProgress(scrolled);
-
-      // Update active section based on scroll position
-      const sections = ["terms", "privacy", "refund", "return", "shipping"];
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 150 && rect.bottom >= 150) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const offset = 100;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50">
-      {/* Progress Bar */}
-      <div
-        className="fixed top-0 left-0 h-1 bg-gradient-to-r from-amber-600 to-orange-600 z-50 transition-all duration-300"
-        style={{ width: `${scrollProgress}%` }}
-      />
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #faf7f2; }
+      `}</style>
 
-      {/* Navigation */}
-      <nav className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-amber-200/50 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
-              Chenanda Hockey Festival 2026
+      <main
+        style={{ minHeight: "100vh", background: "#faf7f2" }}
+        className="mt-24 max-w-5xl mx-auto"
+      >
+        {/* Header */}
+        <header
+          style={{
+            borderBottom: "1px solid #e2d9c8",
+            padding: "2rem clamp(1.5rem, 6vw, 5rem)",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
+        >
+          <div>
+            <p
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.65rem",
+                letterSpacing: "0.18em",
+                color: "#9e8c72",
+                margin: "0 0 0.4rem",
+                textTransform: "uppercase",
+              }}
+            >
+              Chenanda Hockey Festival — 2026
+            </p>
+            <h1
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
+                fontWeight: 700,
+                color: "#1a1208",
+                margin: 0,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.1,
+              }}
+            >
+              Terms &amp; Conditions
             </h1>
-            <div className="flex gap-1">
-              {[
-                { id: "terms", label: "Terms" },
-                { id: "privacy", label: "Privacy" },
-                { id: "refund", label: "Refund" },
-                { id: "return", label: "Return" },
-                { id: "shipping", label: "Shipping" },
-              ].map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => scrollToSection(section.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                    activeSection === section.id
-                      ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md"
-                      : "text-amber-800 hover:bg-amber-100"
-                  }`}
-                >
-                  {section.label}
-                </button>
-              ))}
-            </div>
           </div>
-        </div>
-      </nav>
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "0.65rem",
+              letterSpacing: "0.12em",
+              color: "#b89a6a",
+              border: "1px solid #e2d9c8",
+              padding: "0.35rem 0.75rem",
+              borderRadius: "2px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Effective 2026
+          </span>
+        </header>
 
-      {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="mb-16 text-center animate-fade-in">
-          <h2 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-amber-800 via-orange-700 to-amber-800 bg-clip-text text-transparent leading-tight">
-            Legal Documentation
-          </h2>
-          <p className="text-lg text-amber-900/70 max-w-2xl mx-auto">
-            Please read these terms carefully before using our platform
+        {/* Preamble */}
+        <section
+          style={{
+            padding: "2.5rem clamp(1.5rem, 6vw, 5rem) 2rem",
+            maxWidth: "860px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "'Lora', Georgia, serif",
+              fontSize: "clamp(0.9rem, 1.5vw, 1rem)",
+              lineHeight: 1.9,
+              color: "#5a4e3a",
+              margin: 0,
+              fontStyle: "italic",
+            }}
+          >
+            This document is published in accordance with the provisions of Rule
+            3(1) of the Information Technology (Intermediaries Guidelines)
+            Rules, 2011, governing the use of{" "}
+            <a
+              href="https://www.chenanda.in/"
+              style={{ color: "#b89a6a", textDecoration: "underline" }}
+            >
+              chenanda.in
+            </a>
+            . By accessing or using the Platform, you agree to be bound by these
+            Terms. Please read them carefully.
           </p>
-          <div className="mt-8 h-1 w-24 mx-auto bg-gradient-to-r from-amber-600 to-orange-600 rounded-full"></div>
-        </div>
-
-        {/* Terms & Conditions */}
-        <section id="terms" className="mb-20 scroll-mt-24">
-          <div className="bg-white rounded-2xl shadow-xl border border-amber-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-600 to-orange-600 p-8">
-              <h2 className="text-4xl font-bold text-white mb-2">
-                Terms & Conditions
-              </h2>
-              <p className="text-amber-50">
-                Effective as of the date of acceptance
-              </p>
-            </div>
-
-            <div className="p-8 md:p-12 space-y-8">
-              <div className="bg-amber-50 border-l-4 border-amber-600 p-6 rounded-r-lg">
-                <p className="text-amber-900 leading-relaxed">
-                  This document is an electronic record under the Information
-                  Technology Act, 2000 and related provisions. Generated by a
-                  computer system, it requires no physical or digital
-                  signatures.
-                </p>
-              </div>
-
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  Published in accordance with Rule 3(1) of the Information
-                  Technology (Intermediaries Guidelines) Rules, 2011, governing
-                  access to{" "}
-                  <strong className="text-amber-800">
-                    https://www.chenanda.in/
-                  </strong>{" "}
-                  (the Platform).
-                </p>
-
-                <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 my-6 border border-amber-200">
-                  <h3 className="text-xl font-bold text-amber-900 mb-3">
-                    Platform Owner
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    <strong>CHENANDA HOCKEY FESTIVAL 2026</strong>
-                    <br />
-                    Incorporated under the Companies Act, 1956
-                    <br />
-                    Registered Office: Kokeri Village, Cheyyandane Post, Kodagu,
-                    Karnataka 571212
-                  </p>
-                </div>
-
-                <h3 className="text-2xl font-bold text-amber-900 mt-8 mb-4">
-                  Key Terms
-                </h3>
-
-                <div className="space-y-4">
-                  {[
-                    {
-                      num: 1,
-                      text: "To access and use the Services, you agree to provide true, accurate and complete information during and after registration, and you shall be responsible for all acts done through your registered account.",
-                    },
-                    {
-                      num: 2,
-                      text: "Neither we nor any third parties provide any warranty or guarantee as to the accuracy, timeliness, performance, completeness or suitability of the information and materials offered on this website or through the Services.",
-                    },
-                    {
-                      num: 3,
-                      text: "Your use of our Services and the Platform is solely at your own risk and discretion for which we shall not be liable to you in any manner.",
-                    },
-                    {
-                      num: 4,
-                      text: "The contents of the Platform and Services are proprietary to us and licensed to us. You will not have any authority to claim any intellectual property rights, title, or interest in its contents.",
-                    },
-                    {
-                      num: 5,
-                      text: "You acknowledge that unauthorized use of the Platform and/or Services may lead to action against you as per these Terms and/or applicable laws.",
-                    },
-                    {
-                      num: 6,
-                      text: "You agree to pay us the charges associated with availing the Services.",
-                    },
-                    {
-                      num: 7,
-                      text: "You agree not to use the Platform and/or Services for any purpose that is unlawful, illegal or forbidden by these Terms, or Indian or local laws.",
-                    },
-                    {
-                      num: 8,
-                      text: "The website and Services may contain links to third party websites. On accessing these links, you will be governed by their respective terms of use and privacy policies.",
-                    },
-                    {
-                      num: 9,
-                      text: "Upon initiating a transaction, you are entering into a legally binding and enforceable contract with the Platform Owner.",
-                    },
-                    {
-                      num: 10,
-                      text: "You shall indemnify and hold harmless the Platform Owner, its affiliates, and their officers, directors, agents, and employees from any claim, demand, or actions made by any third party due to your breach of these Terms.",
-                    },
-                    {
-                      num: 11,
-                      text: "The parties shall not be liable for any failure to perform obligations if prevented or delayed by a force majeure event.",
-                    },
-                    {
-                      num: 12,
-                      text: "These Terms shall be governed by and construed in accordance with the laws of India.",
-                    },
-                    {
-                      num: 13,
-                      text: "All disputes shall be subject to the exclusive jurisdiction of courts in India.",
-                    },
-                    {
-                      num: 14,
-                      text: "All concerns or communications must be made using the contact information provided on this website.",
-                    },
-                  ].map((item) => (
-                    <div
-                      key={item.num}
-                      className="flex gap-4 group hover:bg-amber-50 p-4 rounded-lg transition-all duration-300"
-                    >
-                      <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-amber-600 to-orange-600 text-white rounded-full flex items-center justify-center font-bold text-sm group-hover:scale-110 transition-transform duration-300">
-                        {item.num}
-                      </div>
-                      <p className="text-gray-700 leading-relaxed flex-1">
-                        {item.text}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
 
-        {/* Contact Footer */}
-        <div className="bg-gradient-to-r from-amber-900 to-orange-900 rounded-2xl p-8 md:p-12 text-white text-center">
-          <h3 className="text-3xl font-bold mb-4 text-white">Need Help?</h3>
-          <p className="text-amber-100 mb-6 max-w-2xl mx-auto">
-            For any questions, concerns, or communications regarding these
-            policies, please contact us using the information provided on our
-            website.
-          </p>
-          <div className="inline-block bg-white/10 backdrop-blur-sm rounded-xl px-6 py-3 border border-white/20">
-            <p className="text-amber-100">
-              📧 Contact us via the website for assistance
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating Back to Top Button */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="fixed bottom-8 right-8 bg-gradient-to-r from-amber-600 to-orange-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 z-40"
-        aria-label="Scroll to top"
-      >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        {/* Divider */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            padding: "0 clamp(1.5rem, 6vw, 5rem) 0.5rem",
+          }}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 10l7-7m0 0l7 7m-7-7v18"
-          />
-        </svg>
-      </button>
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "0.6rem",
+              letterSpacing: "0.18em",
+              color: "#9e8c72",
+              textTransform: "uppercase",
+            }}
+          >
+            Clauses
+          </span>
+          <div style={{ flex: 1, height: "1px", background: "#e2d9c8" }} />
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "0.6rem",
+              color: "#c4b49a",
+            }}
+          >
+            {sections.length} items
+          </span>
+        </div>
 
-      <style jsx>{`
-        @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap");
+        {/* All Clauses — fully visible */}
+        <section
+          style={{
+            padding: "1rem clamp(1.5rem, 6vw, 5rem) 4rem",
+            maxWidth: "860px",
+          }}
+        >
+          {sections.map((s, i) => (
+            <div
+              key={s.id}
+              style={{
+                borderTop: "1px solid #e2d9c8",
+                padding: "1.75rem 0",
+                display: "grid",
+                gridTemplateColumns: "2.5rem 1fr",
+                gap: "0 1.25rem",
+                ...(i === sections.length - 1
+                  ? { borderBottom: "1px solid #e2d9c8" }
+                  : {}),
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.68rem",
+                  color: "#b89a6a",
+                  letterSpacing: "0.08em",
+                  paddingTop: "0.3rem",
+                }}
+              >
+                {s.id}
+              </span>
 
-        * {
-          font-family: "Inter", sans-serif;
-        }
-
-        h1,
-        h2,
-        h3 {
-          font-family: "Playfair Display", serif;
-        }
-
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out;
-        }
-
-        .prose {
-          max-width: none;
-        }
-      `}</style>
-    </div>
+              <div>
+                <h2
+                  style={{
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontSize: "clamp(1rem, 2vw, 1.15rem)",
+                    fontWeight: 600,
+                    color: "#1a1208",
+                    margin: "0 0 0.65rem",
+                    letterSpacing: "0.01em",
+                  }}
+                >
+                  {s.title}
+                </h2>
+                <p
+                  style={{
+                    fontFamily: "'Lora', Georgia, serif",
+                    fontSize: "clamp(0.88rem, 1.4vw, 0.95rem)",
+                    color: "#4a3f2e",
+                    lineHeight: 1.85,
+                    margin: 0,
+                  }}
+                >
+                  {s.body}
+                </p>
+              </div>
+            </div>
+          ))}
+        </section>
+      </main>
+    </>
   );
 }

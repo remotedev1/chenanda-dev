@@ -1,550 +1,392 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-export default function TermsAndConditions() {
-  const [activeSection, setActiveSection] = useState("terms");
-  const [scrollProgress, setScrollProgress] = useState(0);
+const policies = {
+  privacy: {
+    label: "Privacy Policy",
+    sections: [
+      {
+        id: "01",
+        title: "Introduction",
+        body: "This Privacy Policy describes how CHENANDA HOCKEY FESTIVAL 2026 and its affiliates collect, use, share, protect or otherwise process your information/personal data through our website chenanda.in. By visiting this Platform, providing your information or availing any product/service offered, you expressly agree to be bound by the terms and conditions of this Privacy Policy and the applicable laws of India. If you do not agree, please do not use or access our Platform.",
+      },
+      {
+        id: "02",
+        title: "Collection",
+        body: "We collect your personal data when you use our Platform, services or otherwise interact with us. This includes information provided during sign-up such as name, date of birth, address, telephone/mobile number, email ID, and any such information shared as proof of identity or address. Sensitive personal data such as bank account, credit/debit card details, or biometric information may be collected with your consent in accordance with applicable laws. You always have the option to not provide information by choosing not to use a particular service or feature.",
+      },
+      {
+        id: "03",
+        title: "Usage",
+        body: "We use personal data to provide the services you request. We use your personal data to assist in handling and fulfilling orders; enhancing customer experience; to resolve disputes; troubleshoot problems; inform you about offers, products, services, and updates; customise your experience; detect and protect against error, fraud and other criminal activity; enforce our terms and conditions; and conduct marketing research, analysis and surveys.",
+      },
+      {
+        id: "04",
+        title: "Sharing",
+        body: "We may share your personal data internally within our group entities and affiliates to provide access to their services and products. We may disclose personal data to third parties such as sellers, business partners, logistics partners, and payment providers. We may also disclose personal data to government agencies or authorised law enforcement agencies if required to do so by law or in good faith belief that such disclosure is reasonably necessary.",
+      },
+      {
+        id: "05",
+        title: "Security Precautions",
+        body: "To protect your personal data from unauthorised access, loss or misuse, we adopt reasonable security practices and procedures. However, the transmission of information is not completely secure for reasons beyond our control. By using the Platform, users accept the security implications of data transmission over the internet. Users are responsible for ensuring the protection of login and password records for their account.",
+      },
+      {
+        id: "06",
+        title: "Data Deletion & Retention",
+        body: "You have an option to delete your account by visiting your profile and settings on our Platform, which will result in losing all information related to your account. We retain your personal data for a period no longer than required for the purpose for which it was collected or as required under applicable law. We may retain data if necessary to prevent fraud or future abuse, or for other legitimate purposes.",
+      },
+      {
+        id: "07",
+        title: "Your Rights",
+        body: "You may access, rectify, and update your personal data directly through the functionalities provided on the Platform.",
+      },
+      {
+        id: "08",
+        title: "Consent",
+        body: "By visiting our Platform or by providing your information, you consent to the collection, use, storage, disclosure and processing of your information in accordance with this Privacy Policy. You have an option to withdraw your consent by writing to the Grievance Officer. Please note that withdrawal of consent will not be retrospective and we reserve the right to restrict or deny provision of services for which such information is considered necessary.",
+      },
+      {
+        id: "09",
+        title: "Changes to This Policy",
+        body: "Please check our Privacy Policy periodically for changes. We may update this Privacy Policy to reflect changes to our information practices and will alert you about significant changes as may be required under applicable laws.",
+      },
+    ],
+  },
+  refund: {
+    label: "Refund & Cancellation",
+    sections: [
+      {
+        id: "01",
+        title: "Cancellation Window",
+        body: "Cancellations will only be considered if the request is made within 1 day of placing the order. However, cancellation requests may not be entertained if the orders have been communicated to the seller/merchant and they have initiated the process of shipping, or the product is out for delivery. In such an event, you may choose to reject the product at the doorstep.",
+      },
+      {
+        id: "02",
+        title: "Perishable Items",
+        body: "CHENANDA HOCKEY FESTIVAL 2026 does not accept cancellation requests for perishable items like flowers, eatables, etc. However, a refund or replacement can be made if the user establishes that the quality of the product delivered is not good.",
+      },
+      {
+        id: "03",
+        title: "Damaged or Defective Items",
+        body: "In case of receipt of damaged or defective items, please report to our customer service team within 1 day of receipt of products. The request will be entertained once the seller/merchant has checked and determined the same at their own end.",
+      },
+      {
+        id: "04",
+        title: "Product Not as Described",
+        body: "In case you feel that the product received is not as shown on the site or as per your expectations, you must bring it to the notice of our customer service within 1 day of receiving the product. The customer service team will look into your complaint and take an appropriate decision.",
+      },
+      {
+        id: "05",
+        title: "Warranty Claims",
+        body: "In case of complaints regarding products that come with a warranty from the manufacturers, please refer the issue to them directly.",
+      },
+      {
+        id: "06",
+        title: "Refund Processing",
+        body: "In case of any refunds approved by CHENANDA HOCKEY FESTIVAL 2026, it will take 1 day for the refund to be processed to you.",
+      },
+    ],
+  },
+  return: {
+    label: "Return Policy",
+    sections: [
+      {
+        id: "01",
+        title: "Return & Exchange Window",
+        body: "We offer refund/exchange within the first 5 days from the date of your purchase. If 5 days have passed since your purchase, you will not be offered a return, exchange or refund of any kind.",
+      },
+      {
+        id: "02",
+        title: "Eligibility Conditions",
+        body: "In order to become eligible for a return or an exchange: (i) the purchased item should be unused and in the same condition as you received it, (ii) the item must have original packaging, (iii) if the item was purchased on sale, it may not be eligible for a return/exchange. Only such items are replaced if they are found defective or damaged.",
+      },
+      {
+        id: "03",
+        title: "Exempted Categories",
+        body: "There may be certain categories of products/items that are exempted from returns or refunds. Such categories will be identified to you at the time of purchase.",
+      },
+      {
+        id: "04",
+        title: "Processing of Returns",
+        body: "Once your returned product/item is received and inspected by us, we will send you an email to notify you about receipt. If approved after the quality check at our end, your request for return/exchange will be processed in accordance with our policies.",
+      },
+    ],
+  },
+  shipping: {
+    label: "Shipping Policy",
+    sections: [
+      {
+        id: "01",
+        title: "Shipping Partners",
+        body: "Orders are shipped through registered domestic courier companies and/or speed post only.",
+      },
+      {
+        id: "02",
+        title: "Dispatch Timeline",
+        body: "Orders are shipped within 1 day from the date of the order and/or payment or as per the delivery date agreed at the time of order confirmation, subject to courier company/post office norms.",
+      },
+      {
+        id: "03",
+        title: "Delivery Liability",
+        body: "Platform Owner shall not be liable for any delay in delivery by the courier company/postal authority. Delivery of all orders will be made to the address provided by the buyer at the time of purchase.",
+      },
+      {
+        id: "04",
+        title: "Delivery Confirmation",
+        body: "Delivery of our services will be confirmed on your email ID as specified at the time of registration.",
+      },
+      {
+        id: "05",
+        title: "Shipping Costs",
+        body: "If there are any shipping costs levied by the seller or the Platform Owner, the same are not refundable.",
+      },
+    ],
+  },
+};
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight =
-        document.documentElement.scrollHeight - windowHeight;
-      const scrolled = (window.scrollY / documentHeight) * 100;
-      setScrollProgress(scrolled);
+const tabs = [
+  { key: "privacy", label: "Privacy Policy" },
+  { key: "refund", label: "Refund & Cancellation" },
+  { key: "return", label: "Return Policy" },
+  { key: "shipping", label: "Shipping Policy" },
+];
 
-      // Update active section based on scroll position
-      const sections = ["terms", "privacy", "refund", "return", "shipping"];
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 150 && rect.bottom >= 150) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const offset = 100;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-    }
-  };
+export default function Policies() {
+  const [active, setActive] = useState("privacy");
+  const policy = policies[active];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50">
-      {/* Progress Bar */}
-      <div
-        className="fixed top-0 left-0 h-1 bg-gradient-to-r from-amber-600 to-orange-600 z-50 transition-all duration-300"
-        style={{ width: `${scrollProgress}%` }}
-      />
-
-      {/* Navigation */}
-      <nav className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-amber-200/50 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
-              Chenanda Hockey Festival 2026
-            </h1>
-            <div className="flex gap-1">
-              {[
-                { id: "terms", label: "Terms" },
-                { id: "privacy", label: "Privacy" },
-                { id: "refund", label: "Refund" },
-                { id: "return", label: "Return" },
-                { id: "shipping", label: "Shipping" },
-              ].map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => scrollToSection(section.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                    activeSection === section.id
-                      ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md"
-                      : "text-amber-800 hover:bg-amber-100"
-                  }`}
-                >
-                  {section.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="mb-16 text-center animate-fade-in">
-          <h2 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-amber-800 via-orange-700 to-amber-800 bg-clip-text text-transparent leading-tight">
-            Policies
-          </h2>
-          <p className="text-lg text-amber-900/70 max-w-2xl mx-auto">
-            Please read these terms carefully before using our platform
-          </p>
-          <div className="mt-8 h-1 w-24 mx-auto bg-gradient-to-r from-amber-600 to-orange-600 rounded-full"></div>
-        </div>
-
-        {/* Privacy Policy */}
-        <section id="privacy" className="mb-20 scroll-mt-24">
-          <div className="bg-white rounded-2xl shadow-xl border border-amber-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-orange-600 to-amber-600 p-8">
-              <h2 className="text-4xl font-bold text-white mb-2">
-                Privacy Policy
-              </h2>
-              <p className="text-orange-50">
-                How we collect, use, and protect your data
-              </p>
-            </div>
-
-            <div className="p-8 md:p-12 space-y-8">
-              <div className="bg-orange-50 border-l-4 border-orange-600 p-6 rounded-r-lg">
-                <p className="text-orange-900 leading-relaxed">
-                  We do not offer any product/service outside India. Your
-                  personal data will primarily be stored and processed in India.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  {
-                    title: "Collection",
-                    icon: "📊",
-                    content:
-                      "We collect personal data when you use our Platform or services, including name, contact details, payment information, and transaction history. You always have the option to not provide information by choosing not to use a particular service.",
-                  },
-                  {
-                    title: "Usage",
-                    icon: "🎯",
-                    content:
-                      "We use personal data to provide requested services, enhance customer experience, resolve disputes, inform you about offers, detect fraud, conduct marketing research, and enforce our terms and conditions.",
-                  },
-                  {
-                    title: "Sharing",
-                    icon: "🔄",
-                    content:
-                      "We may share your data internally within our group entities, with third parties like sellers and business partners, logistics partners, and payment processors to provide you access to our services and products.",
-                  },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-amber-200 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-                  >
-                    <div className="text-4xl mb-3">{item.icon}</div>
-                    <h3 className="text-xl font-bold text-amber-900 mb-3">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-700 leading-relaxed text-sm">
-                      {item.content}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-6">
-                <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-                  <h3 className="text-xl font-bold text-red-900 mb-3 flex items-center gap-2">
-                    <span>⚠️</span> Security Alert
-                  </h3>
-                  <p className="text-red-800 leading-relaxed">
-                    If you receive an email or call from someone claiming to be
-                    Chenanda Hockey Festival 2026 seeking personal data like
-                    debit/credit card PIN, net-banking or mobile banking
-                    password, <strong>never provide such information</strong>.
-                    Report it immediately to law enforcement.
-                  </p>
-                </div>
-
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
-                  <h3 className="text-xl font-bold text-amber-900 mb-3">
-                    Your Rights
-                  </h3>
-                  <ul className="space-y-2 text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">•</span>
-                      <span>
-                        Access, rectify, and update your personal data through
-                        Platform functionalities
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">•</span>
-                      <span>
-                        Delete your account by visiting your profile and
-                        settings
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">•</span>
-                      <span>Withdraw consent for processing personal data</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">•</span>
-                      <span>
-                        We retain your data only as long as required by law or
-                        for legitimate purposes
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                  <h3 className="text-xl font-bold text-blue-900 mb-3">
-                    Security Precautions
-                  </h3>
-                  <p className="text-blue-800 leading-relaxed">
-                    We adopt reasonable security practices and procedures to
-                    protect your personal data from unauthorized access,
-                    disclosure, loss or misuse. However, data transmission over
-                    the internet cannot always be guaranteed as completely
-                    secure. Users are responsible for protecting their login
-                    credentials.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Refund & Cancellation Policy */}
-        <section id="refund" className="mb-20 scroll-mt-24">
-          <div className="bg-white rounded-2xl shadow-xl border border-amber-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-700 to-orange-700 p-8">
-              <h2 className="text-4xl font-bold text-white mb-2">
-                Refund & Cancellation
-              </h2>
-              <p className="text-amber-100">
-                Our policies for cancellations and refunds
-              </p>
-            </div>
-
-            <div className="p-8 md:p-12">
-              <div className="space-y-4">
-                {[
-                  {
-                    title: "Cancellation Window",
-                    content:
-                      "Cancellations will only be considered if requested within 1 day of placing the order. Requests may not be entertained if orders have been communicated to sellers and shipping has been initiated.",
-                    highlight: true,
-                  },
-                  {
-                    title: "Perishable Items",
-                    content:
-                      "We do not accept cancellation requests for perishable items like flowers and eatables. However, refund/replacement can be made if you establish that the quality delivered is not good.",
-                  },
-                  {
-                    title: "Damaged/Defective Items",
-                    content:
-                      "Report damaged or defective items to our customer service team within 1 day of receipt. The request will be entertained once the seller has verified the issue.",
-                  },
-                  {
-                    title: "Product Discrepancy",
-                    content:
-                      "If the product received is not as shown on the site or as per your expectations, bring it to our customer service within 1 day of receiving the product.",
-                  },
-                  {
-                    title: "Warranty Items",
-                    content:
-                      "For complaints regarding products with manufacturer warranties, please refer the issue directly to the manufacturer.",
-                  },
-                  {
-                    title: "Refund Processing",
-                    content:
-                      "Any refunds approved will take 1 day to be processed to you.",
-                    highlight: true,
-                  },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className={`rounded-xl p-6 border ${
-                      item.highlight
-                        ? "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-300"
-                        : "bg-gray-50 border-gray-200"
-                    } hover:shadow-md transition-all duration-300`}
-                  >
-                    <h3 className="font-bold text-amber-900 mb-2 text-lg">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-700 leading-relaxed">
-                      {item.content}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Return Policy */}
-        <section id="return" className="mb-20 scroll-mt-24">
-          <div className="bg-white rounded-2xl shadow-xl border border-amber-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-orange-700 to-amber-700 p-8">
-              <h2 className="text-4xl font-bold text-white mb-2">
-                Return Policy
-              </h2>
-              <p className="text-orange-100">
-                Guidelines for returns and exchanges
-              </p>
-            </div>
-
-            <div className="p-8 md:p-12 space-y-6">
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-8 border-2 border-amber-300">
-                <h3 className="text-2xl font-bold text-amber-900 mb-4">
-                  5-Day Return Window
-                </h3>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  We offer refund/exchange within the first{" "}
-                  <strong className="text-amber-800">5 days</strong> from the
-                  date of your purchase. If 5 days have passed since your
-                  purchase, you will not be offered a return, exchange or refund
-                  of any kind.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-                  <h3 className="text-lg font-bold text-green-900 mb-3 flex items-center gap-2">
-                    <span>✓</span> Eligible for Return
-                  </h3>
-                  <ul className="space-y-2 text-green-800">
-                    <li className="flex items-start gap-2">
-                      <span>•</span>
-                      <span>Item is unused and in original condition</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span>•</span>
-                      <span>Original packaging is intact</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span>•</span>
-                      <span>Item is defective or damaged</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-                  <h3 className="text-lg font-bold text-red-900 mb-3 flex items-center gap-2">
-                    <span>✗</span> Not Eligible for Return
-                  </h3>
-                  <ul className="space-y-2 text-red-800">
-                    <li className="flex items-start gap-2">
-                      <span>•</span>
-                      <span>Sale items (certain categories)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span>•</span>
-                      <span>Items without original packaging</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span>•</span>
-                      <span>Used or damaged items (non-defective)</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                <h3 className="text-xl font-bold text-blue-900 mb-3">
-                  Return Process
-                </h3>
-                <ol className="space-y-3 text-blue-800">
-                  <li className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                      1
-                    </span>
-                    <span>
-                      Submit your return/exchange request through the Platform
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                      2
-                    </span>
-                    <span>
-                      Ship the product back to us in original packaging
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                      3
-                    </span>
-                    <span>We inspect and verify the returned product</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                      4
-                    </span>
-                    <span>
-                      You receive email confirmation of approval/rejection
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                      5
-                    </span>
-                    <span>
-                      If approved, your return/exchange is processed per our
-                      policies
-                    </span>
-                  </li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Shipping Policy */}
-        <section id="shipping" className="mb-20 scroll-mt-24">
-          <div className="bg-white rounded-2xl shadow-xl border border-amber-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-600 to-orange-600 p-8">
-              <h2 className="text-4xl font-bold text-white mb-2">
-                Shipping Policy
-              </h2>
-              <p className="text-amber-50">
-                Delivery information and timelines
-              </p>
-            </div>
-
-            <div className="p-8 md:p-12 space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
-                  <div className="text-3xl mb-3">📦</div>
-                  <h3 className="text-xl font-bold text-amber-900 mb-3">
-                    Shipping Method
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Orders are shipped through registered domestic courier
-                    companies and/or speed post only.
-                  </p>
-                </div>
-
-                <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-amber-200">
-                  <div className="text-3xl mb-3">⏱️</div>
-                  <h3 className="text-xl font-bold text-amber-900 mb-3">
-                    Processing Time
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Orders are shipped within 1 day from the date of order
-                    and/or payment, or as per the agreed delivery date.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-amber-50 border-l-4 border-amber-600 p-6 rounded-r-lg">
-                <h3 className="font-bold text-amber-900 mb-2 text-lg">
-                  Important Notes
-                </h3>
-                <ul className="space-y-2 text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
-                    <span>
-                      Delivery to the address provided at time of purchase
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
-                    <span>
-                      Platform Owner is not liable for courier/postal authority
-                      delays
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
-                    <span>
-                      Service delivery confirmation sent to registered email
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 font-bold">•</span>
-                    <span>
-                      Shipping costs (if applicable) are non-refundable
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Contact Footer */}
-        <div className="bg-gradient-to-r from-amber-900 to-orange-900 rounded-2xl p-8 md:p-12 text-white text-center">
-          <h3 className="text-3xl font-bold mb-4  text-white">Need Help?</h3>
-          <p className="text-amber-100 mb-6 max-w-2xl mx-auto">
-            For any questions, concerns, or communications regarding these
-            policies, please contact us using the information provided on our
-            website.
-          </p>
-          <div className="inline-block bg-white/10 backdrop-blur-sm rounded-xl px-6 py-3 border border-white/20">
-            <p className="text-amber-100">
-              📧 Contact us via the website for assistance
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating Back to Top Button */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="fixed bottom-8 right-8 bg-gradient-to-r from-amber-600 to-orange-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 z-40"
-        aria-label="Scroll to top"
-      >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 10l7-7m0 0l7 7m-7-7v18"
-          />
-        </svg>
-      </button>
-
-      <style jsx>{`
-        @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap");
-
-        * {
-          font-family: "Inter", sans-serif;
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #faf7f2; }
+        .tab-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-family: 'DM Mono', monospace;
+          font-size: 0.68rem;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          padding: 0.55rem 1rem;
+          border-radius: 2px;
+          transition: background 0.2s, color 0.2s;
+          white-space: nowrap;
+          color: #7a6a52;
         }
-
-        h1,
-        h2,
-        h3 {
-          font-family: "Playfair Display", serif;
-        }
-
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out;
-        }
-
-        .prose {
-          max-width: none;
+        .tab-btn:hover { background: #f0ebe1; }
+        .tab-btn.active {
+          background: #1a1208;
+          color: #faf7f2 !important;
         }
       `}</style>
-    </div>
+
+      <main
+        style={{ minHeight: "100vh", background: "#faf7f2" }}
+        className="max-w-5xl mx-auto mt-24"
+      >
+        {/* Header */}
+        <header
+          style={{
+            borderBottom: "1px solid #e2d9c8",
+            padding: "2rem clamp(1.5rem, 6vw, 5rem)",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
+        >
+          <div>
+            <p
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.65rem",
+                letterSpacing: "0.18em",
+                color: "#9e8c72",
+                margin: "0 0 0.4rem",
+                textTransform: "uppercase",
+              }}
+            >
+              Chenanda Hockey Festival — 2026
+            </p>
+            <h1
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
+                fontWeight: 700,
+                color: "#1a1208",
+                margin: 0,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.1,
+              }}
+            >
+              {policy.label}
+            </h1>
+          </div>
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "0.65rem",
+              letterSpacing: "0.12em",
+              color: "#b89a6a",
+              border: "1px solid #e2d9c8",
+              padding: "0.35rem 0.75rem",
+              borderRadius: "2px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Effective 2026
+          </span>
+        </header>
+
+        {/* Tab Navigation */}
+        <nav
+          style={{
+            borderBottom: "1px solid #e2d9c8",
+            padding: "0.75rem clamp(1.5rem, 6vw, 5rem)",
+            display: "flex",
+            gap: "0.35rem",
+            overflowX: "auto",
+            flexWrap: "wrap",
+          }}
+        >
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActive(t.key)}
+              className={`tab-btn${active === t.key ? " active" : ""}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Preamble */}
+        <section
+          style={{
+            padding: "2.5rem clamp(1.5rem, 6vw, 5rem) 2rem",
+            maxWidth: "860px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "'Lora', Georgia, serif",
+              fontSize: "clamp(0.9rem, 1.5vw, 1rem)",
+              lineHeight: 1.9,
+              color: "#5a4e3a",
+              margin: 0,
+              fontStyle: "italic",
+            }}
+          >
+            Please read this policy carefully as it governs your use of the
+            Platform and services offered by{" "}
+            <a
+              href="https://www.chenanda.in/"
+              style={{ color: "#b89a6a", textDecoration: "underline" }}
+            >
+              chenanda.in
+            </a>
+            . By accessing or using the Platform, you agree to be bound by these
+            terms.
+          </p>
+        </section>
+
+        {/* Divider */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            padding: "0 clamp(1.5rem, 6vw, 5rem) 0.5rem",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "0.6rem",
+              letterSpacing: "0.18em",
+              color: "#9e8c72",
+              textTransform: "uppercase",
+            }}
+          >
+            Clauses
+          </span>
+          <div style={{ flex: 1, height: "1px", background: "#e2d9c8" }} />
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "0.6rem",
+              color: "#c4b49a",
+            }}
+          >
+            {policy.sections.length} items
+          </span>
+        </div>
+
+        {/* Clauses */}
+        <section
+          style={{
+            padding: "1rem clamp(1.5rem, 6vw, 5rem) 4rem",
+            maxWidth: "860px",
+          }}
+        >
+          {policy.sections.map((s, i) => (
+            <div
+              key={s.id}
+              style={{
+                borderTop: "1px solid #e2d9c8",
+                padding: "1.75rem 0",
+                display: "grid",
+                gridTemplateColumns: "2.5rem 1fr",
+                gap: "0 1.25rem",
+                ...(i === policy.sections.length - 1
+                  ? { borderBottom: "1px solid #e2d9c8" }
+                  : {}),
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.68rem",
+                  color: "#b89a6a",
+                  letterSpacing: "0.08em",
+                  paddingTop: "0.3rem",
+                }}
+              >
+                {s.id}
+              </span>
+              <div>
+                <h2
+                  style={{
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontSize: "clamp(1rem, 2vw, 1.15rem)",
+                    fontWeight: 600,
+                    color: "#1a1208",
+                    margin: "0 0 0.65rem",
+                    letterSpacing: "0.01em",
+                  }}
+                >
+                  {s.title}
+                </h2>
+                <p
+                  style={{
+                    fontFamily: "'Lora', Georgia, serif",
+                    fontSize: "clamp(0.88rem, 1.4vw, 0.95rem)",
+                    color: "#4a3f2e",
+                    lineHeight: 1.85,
+                    margin: 0,
+                  }}
+                >
+                  {s.body}
+                </p>
+              </div>
+            </div>
+          ))}
+        </section>
+      </main>
+    </>
   );
 }
