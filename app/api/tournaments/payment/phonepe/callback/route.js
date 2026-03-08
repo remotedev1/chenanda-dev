@@ -30,7 +30,6 @@ export async function GET(request) {
 
     const statusData = await statusResponse.json();
     const paymentState = statusData.state || statusData.data?.state;
-    const orderId = statusData.orderId || statusData.data?.orderId || txnId;
     const amount = statusData.amount || statusData.data?.amount;
 
     // Update DB

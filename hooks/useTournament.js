@@ -1,6 +1,94 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
+// ─── Cache Utility ────────────────────────────────────────────────────────────
+
+const CACHE_PREFIX = "tournament_cache:";
+const DEFAULT_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Generates a safe, deterministic cache key from an arbitrary string.
+ * Prefixed to avoid collisions with other localStorage keys.
+ */
+function makeCacheKey(raw) {
+  // Sanitize: strip characters that aren't alphanumeric, dash, underscore, or colon
+  const safe = String(raw).replace(/[^a-zA-Z0-9_:=-]/g, "_");
+  return `${CACHE_PREFIX}${safe}`;
+}
+
+function cacheGet(key) {
+  try {
+    const raw = localStorage.getItem(makeCacheKey(key));
+    if (!raw) return null;
+
+    const { data, expiresAt } = JSON.parse(raw);
+
+    if (Date.now() > expiresAt) {
+      localStorage.removeItem(makeCacheKey(key));
+      return null;
+    }
+
+    return data;
+  } catch {
+    // Corrupted entry — evict it silently
+    try {
+      localStorage.removeItem(makeCacheKey(key));
+    } catch {}
+    return null;
+  }
+}
+
+function cacheSet(key, data, ttlMs = DEFAULT_TTL_MS) {
+  try {
+    const entry = JSON.stringify({ data, expiresAt: Date.now() + ttlMs });
+    localStorage.setItem(makeCacheKey(key), entry);
+  } catch (err) {
+    // localStorage may be full (QuotaExceededError) — fail silently
+    if (err?.name === "QuotaExceededError") {
+      evictOldestCacheEntries();
+    }
+  }
+}
+
+function cacheDelete(key) {
+  try {
+    localStorage.removeItem(makeCacheKey(key));
+  } catch {}
+}
+
+/** Remove all tournament cache entries whose keys start with the prefix. */
+function cacheDeleteAll() {
+  try {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith(CACHE_PREFIX))
+      .forEach((k) => localStorage.removeItem(k));
+  } catch {}
+}
+
+/** Evict the oldest cache entries when storage is full. */
+function evictOldestCacheEntries() {
+  try {
+    const entries = Object.keys(localStorage)
+      .filter((k) => k.startsWith(CACHE_PREFIX))
+      .map((k) => {
+        try {
+          const { expiresAt } = JSON.parse(localStorage.getItem(k));
+          return { k, expiresAt };
+        } catch {
+          return { k, expiresAt: 0 };
+        }
+      })
+      .sort((a, b) => a.expiresAt - b.expiresAt);
+
+    // Remove the oldest half
+    entries
+      .slice(0, Math.ceil(entries.length / 2))
+      .forEach(({ k }) => localStorage.removeItem(k));
+  } catch {}
+}
+
+// ─── Hooks ────────────────────────────────────────────────────────────────────
+
 // Fetch tournaments with filters
 export function useTournaments(initialFilters = {}) {
   const [tournaments, setTournaments] = useState([]);
@@ -15,36 +103,55 @@ export function useTournaments(initialFilters = {}) {
     ...initialFilters,
   });
 
-  const fetchTournaments = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const fetchTournaments = useCallback(
+    async ({ bustCache = false } = {}) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          params.append(key, value.toString());
+      const cacheKey = `tournaments:${JSON.stringify(filters)}`;
+
+      // Restore from cache on first load (skip if explicitly busting)
+      if (!bustCache) {
+        const cached = cacheGet(cacheKey);
+        if (cached) {
+          setTournaments(cached.tournaments);
+          setPagination(cached.pagination);
+          setLoading(false);
+          return;
         }
-      });
-
-      const response = await fetch(`/api/tournaments?${params.toString()}`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch tournaments");
       }
 
-      setTournaments(data.data.tournaments || []);
-      setPagination(data.data.pagination || null);
-    } catch (err) {
-      setError(err.message);
-      toast.error("Failed to load tournaments", {
-        description: err.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
+      try {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            params.append(key, value.toString());
+          }
+        });
+
+        const response = await fetch(`/api/tournaments?${params.toString()}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch tournaments");
+        }
+
+        const tournaments = data.data.tournaments || [];
+        const pagination = data.data.pagination || null;
+
+        setTournaments(tournaments);
+        setPagination(pagination);
+
+        cacheSet(cacheKey, { tournaments, pagination });
+      } catch (err) {
+        setError(err.message);
+        toast.error("Failed to load tournaments", { description: err.message });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [filters],
+  );
 
   useEffect(() => {
     fetchTournaments();
@@ -58,8 +165,9 @@ export function useTournaments(initialFilters = {}) {
     setFilters((prev) => ({ ...prev, page }));
   }, []);
 
+  /** Hard-refresh: bypass cache and re-fetch from the network. */
   const refresh = useCallback(() => {
-    fetchTournaments();
+    fetchTournaments({ bustCache: true });
   }, [fetchTournaments]);
 
   return {
@@ -80,50 +188,64 @@ export function useTournament(id, options = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchTournament = useCallback(async () => {
-    if (!id) return;
+  const fetchTournament = useCallback(
+    async ({ bustCache = false } = {}) => {
+      if (!id) return;
 
-    setLoading(true);
-    setError(null);
+      setLoading(true);
+      setError(null);
 
-    try {
-      const params = new URLSearchParams({
-        includeParticipation: options.includeParticipation || false,
-        includeMatches: options.includeMatches || false,
-        includePlacements: options.includePlacements || false,
-      });
+      const cacheKey = `tournament:${id}:${JSON.stringify(options)}`;
 
-      const response = await fetch(
-        `/api/tournaments/${id}?${params.toString()}`,
-      );
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch tournament");
+      if (!bustCache) {
+        const cached = cacheGet(cacheKey);
+        if (cached) {
+          setTournament(cached);
+          setLoading(false);
+          return;
+        }
       }
 
-      setTournament(data.data);
-    } catch (err) {
-      setError(err.message);
-      toast.error("Failed to load tournament", {
-        description: err.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    id,
-    options.includeParticipation,
-    options.includeMatches,
-    options.includePlacements,
-  ]);
+      try {
+        const params = new URLSearchParams({
+          includeParticipation: options.includeParticipation || false,
+          includeMatches: options.includeMatches || false,
+          includePlacements: options.includePlacements || false,
+        });
+
+        const response = await fetch(
+          `/api/tournaments/${id}?${params.toString()}`,
+        );
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch tournament");
+        }
+
+        setTournament(data.data);
+        cacheSet(cacheKey, data.data);
+      } catch (err) {
+        setError(err.message);
+        toast.error("Failed to load tournament", { description: err.message });
+      } finally {
+        setLoading(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      id,
+      options.includeParticipation,
+      options.includeMatches,
+      options.includePlacements,
+    ],
+  );
 
   useEffect(() => {
     fetchTournament();
   }, [fetchTournament]);
 
   const refresh = useCallback(() => {
-    fetchTournament();
+    fetchTournament({ bustCache: true });
   }, [fetchTournament]);
 
   return { tournament, loading, error, refresh };
@@ -149,15 +271,16 @@ export function useCreateTournament() {
         throw new Error(result.error || "Failed to create tournament");
       }
 
+      // New tournament → invalidate all list caches
+      cacheDeleteAll();
+
       toast.success("Tournament created successfully", {
         description: `${data.name} has been created`,
       });
 
       return result.data;
     } catch (err) {
-      toast.error("Failed to create tournament", {
-        description: err.message,
-      });
+      toast.error("Failed to create tournament", { description: err.message });
       throw err;
     } finally {
       setCreating(false);
@@ -187,15 +310,16 @@ export function useUpdateTournament() {
         throw new Error(result.error || "Failed to update tournament");
       }
 
+      // Invalidate cached entries for this tournament and all list views
+      cacheDeleteAll();
+
       toast.success("Tournament updated successfully", {
         description: `${result.data.name} has been updated`,
       });
 
       return result.data;
     } catch (err) {
-      toast.error("Failed to update tournament", {
-        description: err.message,
-      });
+      toast.error("Failed to update tournament", { description: err.message });
       throw err;
     } finally {
       setUpdating(false);
@@ -223,15 +347,16 @@ export function useDeleteTournament() {
         throw new Error(result.error || "Failed to delete tournament");
       }
 
+      // Remove specific tournament cache + all list caches
+      cacheDeleteAll();
+
       toast.success(result.message || "Tournament deleted successfully", {
         description: tournamentName,
       });
 
       return result.data;
     } catch (err) {
-      toast.error("Failed to delete tournament", {
-        description: err.message,
-      });
+      toast.error("Failed to delete tournament", { description: err.message });
       throw err;
     } finally {
       setDeleting(false);

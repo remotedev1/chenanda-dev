@@ -6,6 +6,7 @@ import VenueDetails from "@/components/frontEnd/homepage/venueDetails";
 import LiveScoreCarousel from "@/components/frontEnd/homepage/LiveScoreCarousel";
 import HomeAboutPreview from "@/components/frontEnd/homepage/HomeAboutPreview";
 import PaymentBanner from "@/components/frontEnd/homepage/payment";
+import TournamentContactCard from "@/components/frontEnd/homepage/TournamentContactCard";
 
 export default function Page() {
   return (
@@ -14,6 +15,7 @@ export default function Page() {
       <HomeAboutPreview />
       <EventCountdown />
       {/* <PaymentBanner /> */}
+      <TournamentContactCard />
       {/* <LiveScoreCarousel /> */}
       {/* <MatchSchedule /> */}
       {/* <VenueDetails /> */}

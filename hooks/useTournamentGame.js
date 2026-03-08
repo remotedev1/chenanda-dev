@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-export function useGames({ tournamentId }) {
+export function useGames(dataParams) {
   const [games, setGames] = useState([]);
   const [tournament, setTournament] = useState(null);
   const [pagination, setPagination] = useState(null);
@@ -17,11 +17,11 @@ export function useGames({ tournamentId }) {
     sortBy: "date",
     sortOrder: "asc",
     page: 1,
-    limit: 10,
+    limit: 40,
   });
 
   const fetchGames = useCallback(async () => {
-    if (!tournamentId) {
+    if (!dataParams?.tournamentId) {
       setLoading(false);
       return;
     }
@@ -40,12 +40,12 @@ export function useGames({ tournamentId }) {
       params.append("limit", filters.limit.toString());
 
       const response = await fetch(
-        `/api/tournaments/${tournamentId}/games?${params}`,
+        `/api/tournaments/${dataParams?.tournamentId}/games?${params}`,
       );
       if (!response.ok) throw new Error("Failed to fetch games");
 
-      const data = await response.json();
-      setGames(data.data.data || []);
+      const { data } = await response.json();
+      setGames(data.data || []);
       setTournament(data.data.tournament || null);
       setPagination(data.data.pagination || null);
     } catch (error) {
@@ -54,7 +54,7 @@ export function useGames({ tournamentId }) {
     } finally {
       setLoading(false);
     }
-  }, [filters, tournamentId]);
+  }, [filters, dataParams?.tournamentId]);
 
   useEffect(() => {
     fetchGames();

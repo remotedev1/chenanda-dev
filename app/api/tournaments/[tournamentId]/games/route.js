@@ -11,6 +11,7 @@ import {
   withErrorHandling,
 } from "@/lib/api/helpers";
 import { auth } from "@/auth";
+import { partition } from "d3-hierarchy";
 
 /* ---------------- SCHEMAS ---------------- */
 
@@ -113,12 +114,8 @@ async function handleGet(request, { params }) {
       take: limit,
       orderBy,
       include: {
-        _count: {
-          select: {
-            registrations: true,
-            matches: true,
-          },
-        },
+        registrations: true,
+        matches: true,
       },
     }),
     db.tournamentGame.count({ where }),

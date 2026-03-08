@@ -731,9 +731,9 @@ model Payment {
   status      PaymentStatus @default(PENDING)
 
   // Payment gateway details
-  transactionId String? @unique // From payment gateway
-  orderId       String? @unique
-  receiptNumber String? @unique // Receipt/invoice number
+  transactionId String? 
+  orderId       String? 
+  receiptNumber String? 
 
   // Payment purpose
   description String?

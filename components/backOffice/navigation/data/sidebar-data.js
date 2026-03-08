@@ -25,7 +25,7 @@ export const baseSidebarData = {
               url: "/dashboard/tournaments",
               icon: UserCog,
             },
-           
+
             {
               title: "Families List",
               url: "/dashboard/families",
@@ -34,6 +34,11 @@ export const baseSidebarData = {
             {
               title: "Players List",
               url: "/dashboard/families/players",
+              icon: UserCog,
+            },
+            {
+              title: "Payments List",
+              url: "/dashboard/tournaments/payments",
               icon: UserCog,
             },
             {
@@ -68,4 +73,3 @@ export const baseSidebarData = {
     },
   ],
 };
-
