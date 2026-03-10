@@ -104,7 +104,7 @@ async function handleGet(request) {
           select: {
             id: true,
             payerName: true,
-            gameId: true,
+            gameIds: true,
             status: true,
           },
         },
@@ -121,7 +121,6 @@ async function handleGet(request) {
     db.families.count({ where }),
   ]);
 
-  console.log(limit);
   return successResponse({
     data: families,
     ...buildPaginationResponse(page, limit, total, families),

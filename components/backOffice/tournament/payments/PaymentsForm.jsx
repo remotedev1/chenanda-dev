@@ -22,6 +22,7 @@ import {
   ChevronDown,
   Trophy,
   Gamepad2,
+  X,
 } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -56,13 +57,13 @@ const paymentFormSchema = z.object({
   description: z.string().max(500).optional().nullable(),
   tournamentId: z.string().optional().nullable(),
   tournamentName: z.string().optional().nullable(),
-  gameId: z.string().optional().nullable(),
+  gameIds: z.array(z.string()).min(1, "Select at least one game").optional(),
   payerName: z.string().min(1, "Payer name is required"),
   payerEmail: z.string().email("Invalid email").optional().nullable(),
   payerPhone: z.string().min(10, "Phone must be at least 10 digits"),
   payerAltPhone: z.string().optional().nullable(),
   transactionId: z.string().optional().nullable(),
-  receiptNumber: z.string().optional().nullable(),
+  receiptNumber: z.string().min(5, "Please enter the receipt number"),
   paymentMethod: z.enum(["CASH", "UPI", "CARD"]).optional().nullable(),
   paymentDate: z.date().optional().nullable(),
   feeAmount: z.number().optional().nullable(),
@@ -81,7 +82,7 @@ function makeSelectStyles(error) {
       "&:hover": { borderColor: state.isFocused ? "#10b981" : "#d1d5db" },
       cursor: "pointer",
     }),
-    valueContainer: (p) => ({ ...p, padding: "0 8px" }),
+    valueContainer: (p) => ({ ...p, padding: "4px 8px", gap: "4px" }),
     input: (p) => ({ ...p, margin: "0px" }),
     indicatorSeparator: () => ({ display: "none" }),
     menu: (p) => ({
@@ -102,6 +103,26 @@ function makeSelectStyles(error) {
       cursor: "pointer",
       padding: "8px 12px",
       "&:active": { backgroundColor: "#d1fae5" },
+    }),
+    multiValue: (p) => ({
+      ...p,
+      backgroundColor: "#ecfdf5",
+      border: "1px solid #a7f3d0",
+      borderRadius: "6px",
+    }),
+    multiValueLabel: (p) => ({
+      ...p,
+      color: "#065f46",
+      fontSize: "12px",
+      fontWeight: 600,
+      padding: "2px 4px",
+    }),
+    multiValueRemove: (p) => ({
+      ...p,
+      color: "#059669",
+      cursor: "pointer",
+      borderRadius: "0 6px 6px 0",
+      "&:hover": { backgroundColor: "#d1fae5", color: "#065f46" },
     }),
     placeholder: (p) => ({ ...p, color: "#9ca3af" }),
   };
@@ -239,7 +260,7 @@ function TournamentCombobox({ value, onChange, tournaments, loading, error }) {
   );
 }
 
-/* ---- Game Combobox ---- */
+/* ---- ✅ Multi-Game Combobox ---- */
 
 function GameCombobox({
   value,
@@ -251,7 +272,9 @@ function GameCombobox({
   currency,
 }) {
   const options = games.map((g) => ({ value: g.id, label: g.name, data: g }));
-  const selected = options.find((o) => o.value === value) || null;
+
+  // value is now string[] — map to option objects
+  const selected = options.filter((o) => value.includes(o.value));
 
   const formatOptionLabel = ({ label, data }) => (
     <div className="flex items-center gap-2">
@@ -278,21 +301,29 @@ function GameCombobox({
     <div className="space-y-2">
       <Label className="flex items-center gap-1.5">
         <Gamepad2 className="h-3.5 w-3.5 text-muted-foreground" />
-        Game Event
+        Game Events
         {!disabled && (
           <span className="text-xs text-muted-foreground font-normal">
-            (auto-fills amount)
+            (select multiple · auto-sums amount)
           </span>
         )}
       </Label>
       <ReactSelect
+        isMulti // ✅ multi-select
         value={selected}
-        onChange={(opt) => onChange(opt?.value ?? null, opt?.data ?? null)}
+        onChange={(opts) =>
+          onChange(
+            opts ? opts.map((o) => o.value) : [],
+            opts ? opts.map((o) => o.data) : [],
+          )
+        }
         options={options}
         isLoading={loading}
         isDisabled={disabled || loading}
         isClearable
         isSearchable
+        closeMenuOnSelect={false} // keep menu open after each pick
+        hideSelectedOptions={true}
         placeholder={
           <div className="flex items-center gap-2 text-muted-foreground">
             <Gamepad2 className="h-4 w-4 shrink-0" />
@@ -301,7 +332,7 @@ function GameCombobox({
                 ? "Select a tournament first..."
                 : loading
                   ? "Loading games..."
-                  : "Search game event..."}
+                  : "Search & select game events..."}
             </span>
           </div>
         }
@@ -311,6 +342,53 @@ function GameCombobox({
         components={{ DropdownIndicator: sharedDropdownIndicator }}
       />
       {error && <p className="text-sm text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+/* ---- Selected Games Summary ---- */
+
+function SelectedGamesSummary({ selectedGames, currency, onRemove }) {
+  if (!selectedGames.length) return null;
+
+  const total = selectedGames.reduce(
+    (sum, g) => sum + Number(g?.registrationFee ?? 0),
+    0,
+  );
+
+  return (
+    <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3 space-y-2">
+      <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
+        Selected Games · {selectedGames.length}
+      </p>
+      <div className="space-y-1.5">
+        {selectedGames.map((g) => (
+          <div key={g.id} className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Gamepad2 className="h-3.5 w-3.5 text-violet-500 shrink-0" />
+              <span className="text-sm text-stone-700 truncate">{g.name}</span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm font-semibold text-emerald-700 tabular-nums">
+                {currency} {Number(g.registrationFee ?? 0).toFixed(2)}
+              </span>
+              <button
+                type="button"
+                onClick={() => onRemove(g.id)}
+                className="p-0.5 rounded-full text-stone-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-between pt-2 border-t border-emerald-200">
+        <span className="text-xs font-semibold text-stone-500">Total</span>
+        <span className="text-base font-bold text-emerald-700 tabular-nums">
+          {currency} {total.toFixed(2)}
+        </span>
+      </div>
     </div>
   );
 }
@@ -362,6 +440,8 @@ export function PaymentForm({
   const [selectedFamily, setSelectedFamily] = useState(null);
   const [existingPayments, setExistingPayments] = useState([]);
   const [checkingPayments, setCheckingPayments] = useState(false);
+  // ✅ track selected game objects for the summary panel
+  const [selectedGameObjects, setSelectedGameObjects] = useState([]);
 
   const [formData, setFormData] = useState({
     familyId: initialData?.familyId || "",
@@ -372,11 +452,11 @@ export function PaymentForm({
     amount: initialData?.amount || "",
     tournamentId: initialData?.tournamentId || "",
     tournamentName: initialData?.tournamentName || "",
-    gameId: initialData?.gameId || "",
+    gameIds: initialData?.gameIds || [], // ✅ array
     description: initialData?.description || "",
     status: initialData?.status || "COMPLETED",
     transactionId: initialData?.transactionId || "",
-    receiptNumber: initialData?.receiptNumber || "",
+    receiptNumber: initialData?.receiptNumber,
     paymentMethod: initialData?.paymentMethod || "",
     paymentDate: initialData?.paymentDate
       ? new Date(initialData.paymentDate)
@@ -387,7 +467,6 @@ export function PaymentForm({
 
   const [errors, setErrors] = useState({});
 
-  // Data hooks
   const { families, loading: loadingFamilies } = useFamilies({ limit: 1000 });
   const { tournaments, loading: loadingTournaments } = useTournaments({
     limit: 100,
@@ -400,10 +479,9 @@ export function PaymentForm({
         : null,
     [formData.tournamentId],
   );
-
   const { games, loading: loadingGames } = useGames(gameFilters);
 
-  // Auto-select active tournament on mount (only when creating new)
+  // Auto-select active tournament on mount
   useEffect(() => {
     if (initialData?.tournamentId || !tournaments?.length) return;
     const active = tournaments.find((t) => t.status === "ACTIVE");
@@ -416,11 +494,25 @@ export function PaymentForm({
     }
   }, [tournaments, initialData]);
 
-  const alreadyPaidGameIds = new Set(
-    selectedFamily?.payments?.map((p) => p.gameId) || [],
-  );
+  // ✅ Auto-sum fees whenever selected games change
+  useEffect(() => {
+    if (!selectedGameObjects.length) return;
+    const total = selectedGameObjects.reduce(
+      (sum, g) => sum + Number(g?.registrationFee ?? 0),
+      0,
+    );
+    if (total > 0) {
+      setFormData((prev) => ({ ...prev, amount: total }));
+    }
+  }, [selectedGameObjects]);
 
-  const hasAlreadyPaidGame = alreadyPaidGameIds.has(formData.gameId);
+  const alreadyPaidGameIds = new Set(
+    selectedFamily?.payments?.map((p) => p.gameId).filter(Boolean) || [],
+  );
+  const alreadyPaidGames = formData.gameIds.filter((id) =>
+    alreadyPaidGameIds.has(id),
+  );
+  const hasAlreadyPaidGame = alreadyPaidGames.length > 0;
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -432,20 +524,25 @@ export function PaymentForm({
       ...prev,
       tournamentId: id || "",
       tournamentName: tournament?.name || "",
-      gameId: "", // reset game when tournament changes
+      gameIds: [], // reset games when tournament changes
+      amount: "",
     }));
+    setSelectedGameObjects([]);
     if (errors.tournamentId)
       setErrors((prev) => ({ ...prev, tournamentId: undefined }));
   };
 
-  const handleGameChange = (id, game) => {
-    handleChange("gameId", id || "");
-    if (game?.registrationFee != null) {
-      handleChange("amount", game.registrationFee);
-      toast.success(
-        `Amount set to ${"₹"} ${Number(game.registrationFee).toFixed(2)} from game entry fee`,
-      );
-    }
+  // ✅ receives arrays: (ids[], gameDataObjects[])
+  const handleGameChange = (ids, gameDataArray) => {
+    handleChange("gameIds", ids);
+    setSelectedGameObjects(gameDataArray || []);
+  };
+
+  const handleRemoveGame = (gameId) => {
+    const newIds = formData.gameIds.filter((id) => id !== gameId);
+    const newObjects = selectedGameObjects.filter((g) => g.id !== gameId);
+    handleChange("gameIds", newIds);
+    setSelectedGameObjects(newObjects);
   };
 
   const checkExistingPayments = async (familyId) => {
@@ -498,10 +595,10 @@ export function PaymentForm({
         payerEmail: formData.payerEmail || null,
         tournamentId: formData.tournamentId || null,
         tournamentName: formData.tournamentName || null,
-        gameId: formData.gameId || null,
+        gameIds: formData.gameIds.length ? formData.gameIds : undefined,
         description: formData.description || null,
         transactionId: formData.transactionId || null,
-        receiptNumber: formData.receiptNumber || null,
+        receiptNumber: formData.receiptNumber,
         paymentMethod: formData.paymentMethod || null,
         notes: formData.notes || null,
       };
@@ -529,14 +626,13 @@ export function PaymentForm({
       ? "₹"
       : formData.currency === "USD"
         ? "$"
-        : formData.currency;
+        : formData.currency || "₹";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* ── Family ── */}
       <div className="space-y-4">
         <SectionLabel>Family</SectionLabel>
-
         <FamilyCombobox
           value={formData.familyId}
           onChange={(v) => {
@@ -606,7 +702,6 @@ export function PaymentForm({
               <p className="text-sm text-red-500">{errors.payerName}</p>
             )}
           </div>
-
           <div className="space-y-2">
             <Label>
               Phone <span className="text-red-500">*</span>
@@ -623,7 +718,6 @@ export function PaymentForm({
             )}
           </div>
         </div>
-
         <OptionalSection title="+ Additional contact details (email, alternate phone)">
           <div className="grid gap-4 md:grid-cols-2 pt-4">
             <div className="space-y-2">
@@ -654,7 +748,6 @@ export function PaymentForm({
       <div className="space-y-4">
         <SectionLabel>Payment Details</SectionLabel>
 
-        {/* 1. Tournament */}
         <TournamentCombobox
           value={formData.tournamentId}
           onChange={handleTournamentChange}
@@ -663,21 +756,33 @@ export function PaymentForm({
           error={errors.tournamentId}
         />
 
-        {/* 2. Game — unlocked after tournament selected */}
+        {/* ✅ Multi-select game combobox */}
         <GameCombobox
-          value={formData.gameId}
+          value={formData.gameIds}
           onChange={handleGameChange}
           games={games || []}
           loading={loadingGames}
-          error={errors.gameId}
+          error={errors.gameIds}
           disabled={!formData.tournamentId}
           currency={currencySymbol}
+        />
+
+        {/* ✅ Selected games summary with auto-summed total */}
+        <SelectedGamesSummary
+          selectedGames={selectedGameObjects}
+          currency={currencySymbol}
+          onRemove={handleRemoveGame}
         />
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label>
               Amount <span className="text-red-500">*</span>
+              {selectedGameObjects.length > 1 && (
+                <span className="ml-2 text-xs font-normal text-emerald-600">
+                  (auto-summed from {selectedGameObjects.length} games)
+                </span>
+              )}
             </Label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium pointer-events-none">
@@ -716,6 +821,7 @@ export function PaymentForm({
               </SelectContent>
             </Select>
           </div>
+
           <div className="space-y-2">
             <Label>Payment Method</Label>
             <Select
@@ -733,6 +839,15 @@ export function PaymentForm({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Receipt Number</Label>
+            <Input
+              value={formData.receiptNumber}
+              onChange={(e) => handleChange("receiptNumber", e.target.value)}
+              placeholder="Receipt / invoice number"
+              className="h-12"
+            />
           </div>
         </div>
 
@@ -760,15 +875,7 @@ export function PaymentForm({
                 className="h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label>Receipt Number</Label>
-              <Input
-                value={formData.receiptNumber}
-                onChange={(e) => handleChange("receiptNumber", e.target.value)}
-                placeholder="Receipt / invoice number"
-                className="h-12"
-              />
-            </div>
+
             <div className="space-y-2">
               <Label>Payment Date</Label>
               <Input
@@ -822,7 +929,11 @@ export function PaymentForm({
       {hasAlreadyPaidGame && (
         <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-xl">
           <p className="text-amber-800 font-semibold text-sm">
-            ⚠️ Your family has already paid.{" "}
+            ⚠️ This family has already paid for{" "}
+            {alreadyPaidGames.length === 1
+              ? "one of the selected games"
+              : `${alreadyPaidGames.length} of the selected games`}
+            .
           </p>
         </div>
       )}

@@ -749,7 +749,7 @@ model Payment {
   tournamentId   String?    @db.ObjectId
   tournamentName String? // Denormalized
   sport          SportType? // If payment is sport-specific
-  gameId         String?    @db.ObjectId // Link to specific game if applicable
+  gameIds        String[]   @db.ObjectId // Link to specific game if applicable
 
   // Payment metadata
   paymentDate DateTime @default(now())
@@ -778,7 +778,7 @@ model Payment {
   @@index([familyId])
   @@index([status])
   @@index([sport])
-  @@index([gameId])
+  @@index([gameIds])
   @@index([paymentDate])
 }
 

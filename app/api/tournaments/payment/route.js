@@ -62,14 +62,14 @@ export const createPaymentSchema = z.object({
   tournamentId: z.string().optional().nullable(),
   tournamentName: z.string().optional().nullable(),
   sport: z.string().optional().nullable(),
-  gameId: z.string().optional().nullable(),
+  gameIds: z.array(z.string()).default([]),
   payerName: z.string().min(1, "Payer name is required"),
   payerEmail: z.string().email("Invalid email").optional().nullable(),
   payerPhone: z.string().min(10, "Phone must be at least 10 digits"),
   payerAltPhone: z.string().optional().nullable(),
   transactionId: z.string().optional().nullable(),
   orderId: z.string().optional().nullable(),
-  receiptNumber: z.string().optional().nullable(),
+  receiptNumber: z.string(),
   paymentDate: z
     .string()
     .datetime()
@@ -170,39 +170,50 @@ async function handlePost(request) {
 
   const { user } = await auth();
   const body = await request.json();
-  const validated = createPaymentSchema.parse(body);
 
-  // Verify family exists
+  // ✅ Detect batch mode: gameIds[] sent from the multi-select form
+  const isBatch = Array.isArray(body.gameIds) && body.gameIds.length > 0;
+
+  const validated = createPaymentSchema.parse({
+    ...body,
+    gameIds: isBatch ? body.gameIds : body.gameId ? [body.gameId] : [],
+  });
+
+  /* ── 1. Verify family ── */
   const family = await db.families.findUnique({
     where: { id: validated.familyId },
     select: { id: true, familyName: true },
   });
-  if (!family) {
-    return errorResponse("Selected family does not exist", 400);
-  }
+  if (!family) return errorResponse("Selected family does not exist", 400);
 
-  // If tournamentId provided, verify it exists
+  /* ── 2. Verify tournament (if provided) ── */
   if (validated.tournamentId) {
     const tournament = await db.tournament.findUnique({
       where: { id: validated.tournamentId },
       select: { id: true, name: true },
     });
-    if (!tournament) {
+    if (!tournament)
       return errorResponse("Selected tournament does not exist", 400);
-    }
   }
 
-  // If gameId provided, verify it exists
-  if (validated.gameId) {
-    const game = await db.tournamentGame.findUnique({
-      where: { id: validated.gameId },
+  /* ── 3. Verify ALL game IDs upfront ── */
+  if (validated.gameIds?.length) {
+    const games = await db.tournamentGame.findMany({
+      where: { id: { in: validated.gameIds } },
       select: { id: true, name: true },
     });
-    if (!game) {
-      return errorResponse("Selected game does not exist", 400);
+
+    if (games.length !== validated.gameIds.length) {
+      const foundIds = new Set(games.map((g) => g.id));
+      const missing = validated.gameIds.filter((id) => !foundIds.has(id));
+      return errorResponse(
+        `The following game IDs do not exist: ${missing.join(", ")}`,
+        400,
+      );
     }
   }
 
+  /* ── 4. Create a single Payment record for all games ── */
   const payment = await db.payment.create({
     data: {
       familyId: validated.familyId,
@@ -214,7 +225,8 @@ async function handlePost(request) {
       tournamentId: validated.tournamentId || null,
       tournamentName: validated.tournamentName || null,
       sport: validated.sport || null,
-      gameId: validated.gameId || null,
+      // Store all gameIds on the payment for reference
+      gameIds: validated.gameIds ?? [],
       payerName: validated.payerName,
       payerEmail: validated.payerEmail || null,
       payerPhone: validated.payerPhone,
@@ -228,8 +240,9 @@ async function handlePost(request) {
     },
   });
 
-  // Find or create TournamentParticipation
-  if (validated.tournamentId && validated.gameId) {
+  /* ── 5. Batch-create GameRegistration for each gameId ── */
+  if (validated.tournamentId && validated.gameIds?.length) {
+    // Find or create a single TournamentParticipation for this family + tournament
     let participation = await db.tournamentParticipation.findUnique({
       where: {
         tournamentId_familyId: {
@@ -248,30 +261,36 @@ async function handlePost(request) {
       });
     }
 
-    await db.gameRegistration.upsert({
-      where: {
-        gameId_participationId_familyId: {
-          gameId: validated.gameId,
-          participationId: participation.id,
-          familyId: validated.familyId,
-        },
-      },
-      update: {
-        paymentStatus: "CONFIRMED",
-        paymentId: payment.id,
-        confirmedAt: new Date(),
-      },
-      create: {
-        gameId: validated.gameId,
-        participationId: participation.id,
-        paymentId: payment.id,
-        familyId: validated.familyId,
-        paymentStatus: "CONFIRMED",
-        confirmedAt: new Date(),
-      },
-    });
+    // Upsert a GameRegistration for EACH game — all share the same paymentId
+    await Promise.all(
+      validated.gameIds.map((gameId) =>
+        db.gameRegistration.upsert({
+          where: {
+            gameId_participationId_familyId: {
+              gameId,
+              participationId: participation.id,
+              familyId: validated.familyId,
+            },
+          },
+          update: {
+            paymentStatus: "CONFIRMED",
+            paymentId: payment.id,
+            confirmedAt: new Date(),
+          },
+          create: {
+            gameId,
+            participationId: participation.id,
+            paymentId: payment.id,
+            familyId: validated.familyId,
+            paymentStatus: "CONFIRMED",
+            confirmedAt: new Date(),
+          },
+        }),
+      ),
+    );
   }
 
+  /* ── 6. Update family record ── */
   await db.families.update({
     where: { id: validated.familyId },
     data: {
@@ -288,13 +307,17 @@ async function handlePost(request) {
     },
   });
 
+  /* ── 7. Activity log ── */
+  const gameCount = validated.gameIds?.length ?? 0;
   await logActivity({
     userId: user.id,
     action: "created",
     entity: "payment",
     entityId: payment.id,
     entityName: `${payment.currency} ${payment.amount.toFixed(2)}`,
-    description: `Created payment of ${payment.currency} ${payment.amount.toFixed(2)} for family "${family.familyName}"`,
+    description: `Created payment of ${payment.currency} ${payment.amount.toFixed(2)} for family "${family.familyName}"${
+      gameCount > 1 ? ` across ${gameCount} games` : ""
+    }`,
     request,
   });
 
