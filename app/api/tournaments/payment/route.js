@@ -103,7 +103,6 @@ async function handleGet(request) {
     sortOrder: searchParams.get("sortOrder") || undefined,
   });
 
-
   const { page, limit, skip } = parsePagination(searchParams);
 
   const where = {
@@ -158,7 +157,6 @@ async function handleGet(request) {
     }),
     db.payment.count({ where }),
   ]);
-
 
   return successResponse({
     data: payments,
@@ -260,11 +258,13 @@ async function handlePost(request) {
       },
       update: {
         paymentStatus: "CONFIRMED",
+        paymentId: payment.id,
         confirmedAt: new Date(),
       },
       create: {
         gameId: validated.gameId,
         participationId: participation.id,
+        paymentId: payment.id,
         familyId: validated.familyId,
         paymentStatus: "CONFIRMED",
         confirmedAt: new Date(),

@@ -299,7 +299,7 @@ export default function TournamentContactCard() {
                       <div className="flex items-center gap-1.5 text-xs text-stone-500">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                         Registration found · ID #
-                        {matchedTeam.id?.slice(0, 8) ?? "—"}
+                        {matchedTeam.payment.receiptNumber?.slice(0, 8) ?? "—"}
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-stone-400">
                         <Clock className="w-3.5 h-3.5 shrink-0" />

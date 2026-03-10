@@ -213,6 +213,9 @@ model GameRegistration {
   participationId String                  @db.ObjectId
   participation   TournamentParticipation @relation(fields: [participationId], references: [id], onDelete: Cascade)
 
+  paymentId String  @db.ObjectId
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
   // Team/Player Details for this specific game
   familyId String   @db.ObjectId
   family   Families @relation(fields: [familyId], references: [id])
@@ -229,6 +232,7 @@ model GameRegistration {
   @@unique([gameId, participationId, familyId])
   @@index([gameId])
   @@index([participationId])
+  @@index([paymentId])
   @@index([familyId])
 }
 
@@ -767,8 +771,9 @@ model Payment {
   refundedAt   DateTime?
   refundReason String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  GameRegistration GameRegistration[]
 
   @@index([familyId])
   @@index([status])

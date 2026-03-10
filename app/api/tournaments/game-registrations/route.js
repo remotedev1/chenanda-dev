@@ -64,6 +64,7 @@ async function handleGet(request, { params }) {
       take: limit,
       orderBy,
       include: {
+        payment: true,
         family: true,
         participation: {
           select: {
@@ -75,7 +76,6 @@ async function handleGet(request, { params }) {
     }),
     db.gameRegistration.count({ where }),
   ]);
-
 
   return successResponse({
     data: registrations,
