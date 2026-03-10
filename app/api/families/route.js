@@ -18,7 +18,7 @@ import { auth } from "@/auth";
 
 const querySchema = z.object({
   page: z.string().default("1"),
-  limit: z.string().default("10"),
+  limit: z.string().default("500"),
   search: z.string().optional(),
   sortBy: z
     .enum(["createdAt", "familyName", "updatedAt"])
@@ -56,7 +56,6 @@ async function handleGet(request) {
 
   // Query params
   const { searchParams } = new URL(request.url);
-
   const validated = querySchema.parse({
     page: searchParams.get("page"),
     limit: searchParams.get("limit"),
@@ -122,6 +121,7 @@ async function handleGet(request) {
     db.families.count({ where }),
   ]);
 
+  console.log(limit);
   return successResponse({
     data: families,
     ...buildPaginationResponse(page, limit, total, families),
@@ -134,8 +134,6 @@ async function handlePost(request) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-
- 
 
   // Validate body
   const body = await request.json();

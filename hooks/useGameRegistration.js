@@ -51,7 +51,6 @@ export function useGameRegistrations() {
         throw new Error(`Request failed: ${res.status} ${res.statusText}`);
 
       const { data } = await res.json();
-      console.log(data.data);
       setRegistrations(data.data ?? []);
       setTotalCount(data.data.length ?? 0);
     } catch (err) {

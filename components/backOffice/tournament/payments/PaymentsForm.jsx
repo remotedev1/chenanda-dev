@@ -422,8 +422,6 @@ export function PaymentForm({
 
   const hasAlreadyPaidGame = alreadyPaidGameIds.has(formData.gameId);
 
-  console.log(alreadyPaidGameIds, formData.gameId);
-
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));

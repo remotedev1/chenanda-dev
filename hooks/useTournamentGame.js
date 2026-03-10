@@ -40,7 +40,7 @@ export function useGames(dataParams) {
       params.append("limit", filters.limit.toString());
 
       const response = await fetch(
-        `/api/tournaments/${dataParams?.tournamentId}/games?${params}`,
+        `/api/tournaments/${process.env.NEXT_PUBLIC_TOURNAMENT_ID}/games?${params}`,
       );
       if (!response.ok) throw new Error("Failed to fetch games");
 
