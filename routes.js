@@ -12,6 +12,7 @@ export const publicRoutes = [
   "/sw.js",
   "/payment",
   "/payment/success",
+  "/api/tournaments/game-registrations",
   "/payment/error ",
   "/api/tournaments/payment/phonepe/callback",
 ];

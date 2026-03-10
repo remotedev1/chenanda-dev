@@ -10,7 +10,7 @@ import TournamentContactCard from "@/components/frontEnd/homepage/TournamentCont
 
 export default function Page() {
   return (
-    <main className="relative min-h-screen flex flex-col bg-black text-white overflow-hidden">
+    <main className="relative min-h-screen flex flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50  text-white overflow-hidden">
       <Hero />
       <HomeAboutPreview />
       <EventCountdown />

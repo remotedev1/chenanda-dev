@@ -97,7 +97,7 @@ const SportsFooter = () => {
   // Memoize static data
   const footerLinks = useMemo(
     () => ({
-      tournament: [{ name: "About Tournament", link: "/about-tournament" }],
+      tournament: [{ name: "About ", link: "/about-tournament" }],
       other: [
         { name: "About Us", link: "/about-us" },
         { name: "Gallery", link: "/gallery" },

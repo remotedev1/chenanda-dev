@@ -214,7 +214,8 @@ model GameRegistration {
   participation   TournamentParticipation @relation(fields: [participationId], references: [id], onDelete: Cascade)
 
   // Team/Player Details for this specific game
-  teamName String?
+  familyId String   @db.ObjectId
+  family   Families @relation(fields: [familyId], references: [id])
   pool     Pool? // Assigned pool for this game
 
   // Registration Status
@@ -225,9 +226,10 @@ model GameRegistration {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([gameId, participationId])
+  @@unique([gameId, participationId, familyId])
   @@index([gameId])
   @@index([participationId])
+  @@index([familyId])
 }
 
 enum GameCategory {
@@ -320,8 +322,9 @@ model Families {
   // Payments made by this family
   payments Payment[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  GameRegistration GameRegistration[]
 }
 
 type ContactDetails {
@@ -731,9 +734,9 @@ model Payment {
   status      PaymentStatus @default(PENDING)
 
   // Payment gateway details
-  transactionId String? 
-  orderId       String? 
-  receiptNumber String? 
+  transactionId String?
+  orderId       String?
+  receiptNumber String?
 
   // Payment purpose
   description String?
