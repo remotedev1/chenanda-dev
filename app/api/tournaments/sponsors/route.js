@@ -11,7 +11,6 @@ import {
   logActivity,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 
 /* ---------------- SCHEMAS ---------------- */
@@ -57,7 +56,11 @@ export const createSponsorSchema = z.object({
 
 async function handleGet(request) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "sponsors:list");
+  const setup = await setupApiHandler(
+    request,
+    "sponsors:list",
+    (requireAuthentication = false),
+  );
   if (setup.error) return setup.error;
 
   // Query params
@@ -79,6 +82,8 @@ async function handleGet(request) {
     ...buildSearchWhere(validated.search, ["name", "description"]),
     ...(validated.status && { status: validated.status }),
   };
+
+  console.log(where);
 
   // Fetch data with counts
   const [sponsors, total] = await Promise.all([
