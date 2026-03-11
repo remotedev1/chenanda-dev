@@ -1,61 +1,114 @@
-"use client"
+"use client";
 import { useMemo } from "react";
+import { useSponsors } from "@/hooks/useSponsor";
+import Image from "next/image";
 
-const sponsors = [
-  { name: "SportTech", tier: "platinum" },
-  { name: "AthletiCo", tier: "gold" },
-  { name: "ProGear", tier: "gold" },
-  { name: "EnergyMax", tier: "silver" },
-  { name: "FitLife", tier: "silver" },
-];
+// Outside component — never recreated
+const shuffleArray = (array) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+const TIER_BORDER = {
+  platinum: "border-slate-300/30",
+  gold: "border-yellow-500/30",
+  silver: "border-slate-500/30",
+};
+
+// Memoised — only re-renders if `sponsor` ref changes
+
+const SponsorCard = ({ sponsor }) => {
+  const borderColor = TIER_BORDER[sponsor.tier] ?? TIER_BORDER.silver;
+  return (
+    <div className=" shrink-0 cursor-pointer ">
+      <div
+        className={`
+          p-0
+          
+           ${borderColor}
+          transition-all duration-300 transform-gpu
+          flex flex-col items-center 
+        `}
+      >
+        {sponsor.logo[0]?.url && (
+          <div className="relative h-6 sm:h-7 md:h-8 w-16 sm:w-20 md:w-24 shrink-0">
+            <Image
+              src={sponsor.logo[0].url}
+              alt={sponsor.name}
+              fill
+              className="object-contain opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+              sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, 96px"
+            />
+          </div>
+        )}
+        <div className=" text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl font-black text-slate-300 group-hover:text-white transition-colors whitespace-nowrap">
+         {sponsor.name.charAt(0).toUpperCase() + sponsor.name.slice(1)}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Header = () => (
+  <div className="text-center mb-8 sm:mb-10 md:mb-12 px-4">
+    <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-black text-white mb-2 sm:mb-3 md:mb-4">
+      Our Sponsors
+    </h2>
+    <p className="text-xs xs:text-sm sm:text-base text-slate-400">
+      Powered by industry leaders
+    </p>
+  </div>
+);
 
 const SponsorsList = () => {
-  // Fisher-Yates shuffle algorithm for true randomization
-  const shuffleArray = (array) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
+  const { sponsors, loading } = useSponsors({ status: "active", limit: 50 });
 
-  // Shuffle once on mount and create enough duplicates for seamless loop
+  // Single shuffle → duplicate once → animate to -50% for seamless loop
+  // Total DOM nodes = sponsors.length × 2  (not × 8)
   const displaySponsors = useMemo(() => {
+    if (!sponsors.length) return [];
     const shuffled = shuffleArray(sponsors);
-    // Duplicate 4 times for truly seamless infinite scroll
-    return [...shuffled, ...shuffled, ...shuffled, ...shuffled];
-  }, []);
+    return [...shuffled, ...shuffled]; // duplicate once only
+  }, [sponsors]);
+
+  if (loading) {
+    return (
+      <div className="py-12 sm:py-16 md:py-20 bg-blue-900 overflow-hidden">
+        <Header />
+        <div className="flex justify-center gap-4 px-8">
+          {Array.from({ length: 5 }, (_, i) => (
+            <div
+              key={i}
+              className="shrink-0 w-36 h-16 rounded-2xl bg-white/5 border border-slate-500/30 animate-pulse"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!displaySponsors.length) return null;
 
   return (
     <div className="py-12 sm:py-16 md:py-20 bg-blue-900 overflow-hidden">
-      <div className="text-center mb-8 sm:mb-10 md:mb-12 px-4">
-        <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-black mb-2 sm:mb-3 md:mb-4">
-          Our Sponsors
-        </h2>
-        <p className="text-xs xs:text-sm sm:text-base text-slate-400">
-          Powered by industry leaders
-        </p>
-      </div>
+      <Header />
 
-      {/* Marquee Container */}
       <div className="relative">
-        {/* Gradient Overlays */}
         <div className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 md:w-40 bg-gradient-to-r from-blue-900 to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 md:w-40 bg-gradient-to-l from-blue-900 to-transparent z-10 pointer-events-none" />
-        
-        {/* Marquee Track */}
+
+        {/* Single track — animates to -50% so the duplicate snaps back perfectly */}
         <div className="flex overflow-hidden">
-          <div className="flex gap-4 xs:gap-6 sm:gap-8 md:gap-10 lg:gap-12 animate-marquee">
+          <div className="flex gap-2  animate-marquee shrink-0">
             {displaySponsors.map((sponsor, i) => (
-              <SponsorCard key={`set1-${i}`} sponsor={sponsor} />
-            ))}
-          </div>
-          
-          {/* Duplicate set for seamless loop */}
-          <div className="flex gap-4 xs:gap-6 sm:gap-8 md:gap-10 lg:gap-12 animate-marquee" aria-hidden="true">
-            {displaySponsors.map((sponsor, i) => (
-              <SponsorCard key={`set2-${i}`} sponsor={sponsor} />
+              <SponsorCard
+                key={`${sponsor.id ?? sponsor.name}-${i}`}
+                sponsor={sponsor}
+              />
             ))}
           </div>
         </div>
@@ -67,65 +120,25 @@ const SponsorsList = () => {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-100%);
-          }
+            transform: translateX(-50%);
+          } /* -50% of doubled list = one full set */
         }
-
         .animate-marquee {
-          animation: marquee 60s linear infinite;
+          animation: marquee 40s linear infinite;
           will-change: transform;
+          backface-visibility: hidden;
         }
-
         @media (min-width: 640px) {
-          .animate-marquee {
-            animation-duration: 55s;
-          }
-        }
-
-        @media (min-width: 768px) {
           .animate-marquee {
             animation-duration: 50s;
           }
         }
-
-        // .animate-marquee:hover {
-        //   animation-play-state: paused;
-        // }
-
-        /* Performance optimization */
-        .flex {
-          backface-visibility: hidden;
-          perspective: 1000px;
+        @media (min-width: 768px) {
+          .animate-marquee {
+            animation-duration: 60s;
+          }
         }
       `}</style>
-    </div>
-  );
-};
-
-const SponsorCard = ({ sponsor }) => {
-  const borderColor = useMemo(() => {
-    switch(sponsor.tier) {
-      case "platinum": return "border-slate-300/30";
-      case "gold": return "border-yellow-500/30";
-      default: return "border-slate-500/30";
-    }
-  }, [sponsor.tier]);
-
-  return (
-    <div className="group shrink-0 cursor-pointer">
-      <div
-        className={`
-          px-4 py-3 xs:px-5 xs:py-4 sm:px-6 sm:py-5 md:px-8 md:py-6 
-          rounded-lg xs:rounded-xl sm:rounded-2xl 
-          bg-white/5 backdrop-blur-xl border ${borderColor}
-          hover:bg-white/10 transition-all duration-300
-          transform-gpu
-        `}
-      >
-        <div className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl font-black text-slate-300 group-hover:text-white transition-colors whitespace-nowrap">
-          {sponsor.name}
-        </div>
-      </div>
     </div>
   );
 };

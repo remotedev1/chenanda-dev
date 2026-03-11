@@ -137,7 +137,7 @@ async function handlePost(request) {
       logo: validated.logo || null,
       status: validated.status,
       createdBy: {
-        connect: { id: setup.user.userId },
+        connect: { id: user.id },
       },
     },
   });
