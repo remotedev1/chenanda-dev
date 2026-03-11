@@ -56,11 +56,9 @@ export const createSponsorSchema = z.object({
 
 async function handleGet(request) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(
-    request,
-    "sponsors:list",
-    (requireAuthentication = false),
-  );
+  const setup = await setupApiHandler(request, "sponsors:list", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   // Query params

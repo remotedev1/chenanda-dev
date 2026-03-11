@@ -12,6 +12,7 @@ import {
   Clock,
   Sparkles,
   ShieldAlert,
+  Users,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -265,55 +266,23 @@ export default function TournamentContactCard() {
             }`}
           >
             {searchResult === "found" && matchedTeam && (
-              <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 p-4 animate-fadeSlideUp">
-                <div className="flex items-start gap-3">
-                  <TeamAvatar name={matchedTeam.family.familyName} size="lg" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-base font-bold text-stone-900 tracking-tight truncate">
-                        <Highlight
-                          text={matchedTeam.family.familyName}
-                          query={query}
-                        />
-                      </p>
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                          matchedTeam.paymentStatus === "CONFIRMED"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            matchedTeam.paymentStatus === "CONFIRMED"
-                              ? "bg-emerald-500"
-                              : "bg-amber-400"
-                          }`}
-                        />
-                        {matchedTeam.paymentStatus === "CONFIRMED"
-                          ? "Confirmed"
-                          : "Pending Payment"}
-                      </span>
-                    </div>
-                    <div className="mt-2 space-y-1">
-                      <div className="flex items-center gap-1.5 text-xs text-stone-500">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                        Registration found · ID #
-                        {matchedTeam.payment.receiptNumber?.slice(0, 8) ?? "—"}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-stone-400">
-                        <Clock className="w-3.5 h-3.5 shrink-0" />
-                        Fixtures will be announced before the event
-                      </div>
-                    </div>
-                  </div>
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  Registration found · ID #
+                  {matchedTeam.payment.receiptNumber ?? "—"}
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-emerald-100 flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
-                  <p className="text-[11px] text-stone-500">
-                    Your team is in — get ready for the tournament!
-                  </p>
+                <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                  <Users className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  {matchedTeam.payment.gameIds.length === 2
+                    ? "Men's & Women's teams registered"
+                    : "Men's team registered"}
+                </div>
+
+                <div className="flex items-center gap-1.5 text-xs text-stone-400">
+                  <Clock className="w-3.5 h-3.5 shrink-0" />
+                  Fixtures will be announced before the event
                 </div>
               </div>
             )}
