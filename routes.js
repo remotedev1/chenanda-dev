@@ -13,6 +13,7 @@ export const publicRoutes = [
   "/payment",
   "/payment/success",
   "/api/tournaments/game-registrations",
+  "/api/tournaments/sponsors",
   "/payment/error ",
   "/api/tournaments/payment/phonepe/callback",
 ];
