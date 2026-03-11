@@ -17,7 +17,6 @@ import {
   useUpdateFamily,
   useDeleteFamily,
 } from "@/hooks/useFamily";
-import { Can } from "@/hooks/useAbility";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FamilyForm } from "./FamiliesForm";
 import { FamilyTable } from "./FamiliesTable";
@@ -27,12 +26,19 @@ const FamiliesMain = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedFamily, setSelectedFamily] = useState(null);
 
-  const { families, setPage, pagination, loading, filters, updateFilters, refresh } = useFamilies();
+  const {
+    families,
+    setPage,
+    pagination,
+    loading,
+    filters,
+    updateFilters,
+    refresh,
+  } = useFamilies();
   const { createFamily, creating } = useCreateFamily();
   const { updateFamily, updating } = useUpdateFamily();
   const { deleteFamily } = useDeleteFamily();
-
-  const handleCreate = async (data) => {
+    const handleCreate = async (data) => {
     await createFamily(data);
     setCreateDialogOpen(false);
     refresh();
@@ -97,13 +103,13 @@ const FamiliesMain = () => {
             Manage tournament families and their members
           </p>
         </div>
-          <Button
-            onClick={() => setCreateDialogOpen(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Family
-          </Button>
+        <Button
+          onClick={() => setCreateDialogOpen(true)}
+          className="bg-orange-500 hover:bg-orange-600 text-white"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add Family
+        </Button>
       </div>
 
       {/* Content */}

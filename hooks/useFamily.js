@@ -17,7 +17,7 @@ export function useFamilies(search) {
     search,
     sortBy: "familyName",
     page: 1,
-    limit: 500,
+    limit: 1000,
   });
 
 

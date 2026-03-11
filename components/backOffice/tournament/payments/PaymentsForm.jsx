@@ -467,7 +467,8 @@ export function PaymentForm({
 
   const [errors, setErrors] = useState({});
 
-  const { families, loading: loadingFamilies } = useFamilies({ limit: 1000 });
+  const { families, loading: loadingFamilies } = useFamilies();
+
   const { tournaments, loading: loadingTournaments } = useTournaments({
     limit: 100,
   });

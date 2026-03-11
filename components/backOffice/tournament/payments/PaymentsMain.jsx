@@ -21,7 +21,6 @@ import {
   useUpdatePayment,
   useDeletePayment,
 } from "@/hooks/usePayment";
-import { Can } from "@/hooks/useAbility";
 
 const PaymentsMain = ({ tournaments = [], games = [] }) => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
