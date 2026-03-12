@@ -23,7 +23,6 @@ import {
   useUpdateMatch,
   useDeleteMatch,
 } from "@/hooks/useMatch";
-import { Can } from "@/hooks/useAbility";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LiveMatchControl } from "./LiveMatchControl";
 import { useParams } from "next/navigation";

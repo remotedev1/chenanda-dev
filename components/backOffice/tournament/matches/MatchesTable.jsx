@@ -32,8 +32,6 @@ import {
   Swords,
 } from "lucide-react";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { Can } from "@/hooks/useAbility";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 /* ---- Constants ---- */
@@ -281,7 +279,6 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
                   <DropdownMenuSeparator />
                 </>
               )}
-              <Can I="update" a="Match">
                 <DropdownMenuItem
                   onClick={() => onEdit(match)}
                   className="cursor-pointer"
@@ -289,8 +286,6 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-              </Can>
-              <Can I="delete" a="Match">
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-red-600 cursor-pointer"
@@ -299,7 +294,6 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
-              </Can>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

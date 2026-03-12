@@ -38,7 +38,6 @@ import {
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { EmptyState } from "@/components/common/EmptyState";
 import { useTournament } from "@/hooks/useTournament";
-import { Can } from "@/hooks/useAbility";
 import { cn } from "@/utils/tournament.utils";
 import { toast } from "sonner";
 
@@ -130,7 +129,6 @@ export default function ParticipantsPage() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Can I="manage" a="Participation">
             <Button variant="outline" onClick={handleImport}>
               <Upload className="mr-2 h-4 w-4" />
               Import
@@ -139,7 +137,6 @@ export default function ParticipantsPage() {
               <Plus className="mr-2 h-4 w-4" />
               Add Family
             </Button>
-          </Can>
         </div>
       </div>
 
@@ -282,7 +279,6 @@ export default function ParticipantsPage() {
                 )}
 
                 {/* Actions */}
-                <Can I="manage" a="Participation">
                   <div className="flex gap-2 pt-2">
                     <Button
                       variant="outline"
@@ -305,7 +301,6 @@ export default function ParticipantsPage() {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                </Can>
               </CardContent>
             </Card>
           ))}

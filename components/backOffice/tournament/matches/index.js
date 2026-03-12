@@ -32,7 +32,6 @@ import {
 import { sportConfig } from "@/schemas/participants.schema";
 import { EmptyState } from "@/components/common/EmptyState";
 import { useTournament } from "@/hooks/useTournament";
-import { Can } from "@/hooks/useAbility";
 import { cn, formatDateTime, formatDate } from "@/utils/tournament.utils";
 import { toast } from "sonner";
 
@@ -109,7 +108,6 @@ export default function MatchesPage() {
           </p>
         </div>
 
-        <Can I="manage" a="Match">
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleGenerateFixtures}>
               <Calendar className="mr-2 h-4 w-4" />
@@ -120,7 +118,6 @@ export default function MatchesPage() {
               Create Match
             </Button>
           </div>
-        </Can>
       </div>
 
       {/* Stats Cards */}
