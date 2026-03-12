@@ -6,11 +6,9 @@ import {
   buildPaginationResponse,
   buildSearchWhere,
   successResponse,
-  errorResponse,
   logActivity,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 
 /* ---------------- SCHEMAS ---------------- */
@@ -19,10 +17,21 @@ const querySchema = z.object({
   page: z.string().default("1"),
   limit: z.string().default("10"),
   search: z.string().optional(),
+
   sortBy: z
     .enum(["createdAt", "name", "year", "startDate"])
     .default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
+  status: z
+    .enum([
+      "DRAFT",
+      "REGISTRATION",
+      "UPCOMING",
+      "ONGOING",
+      "COMPLETED",
+      "CANCELLED",
+    ])
+    .optional(),
 });
 
 const createTournamentSchema = z.object({
@@ -50,39 +59,54 @@ const createTournamentSchema = z.object({
 /* ---------------- HANDLERS ---------------- */
 
 async function handleGet(request) {
-  // Setup (auth + rate limit)
   const setup = await setupApiHandler(request, "tournaments:list", {
     requireAuthentication: false,
   });
   if (setup.error) return setup.error;
 
-  // Query params
   const { searchParams } = new URL(request.url);
+
   const validated = querySchema.parse({
     page: searchParams.get("page"),
     limit: searchParams.get("limit"),
     search: searchParams.get("search") || undefined,
     sortBy: searchParams.get("sortBy") || undefined,
+    status: searchParams.get("status") || undefined, // ✅ no longer crashes
     sortOrder: searchParams.get("sortOrder") || undefined,
   });
 
   const { page, limit, skip } = parsePagination(searchParams);
 
-  // Search filter
-  const where = buildSearchWhere(validated.search, ["name", "description"]);
+  // ✅ Search only on name, status filter applied separately
+  const searchWhere = buildSearchWhere(validated.search, ["name"]);
+  const where = {
+    ...searchWhere,
+    ...(validated.status && { status: validated.status }), // ✅ actually filters
+  };
 
-  // Fetch data
   const [tournaments, total] = await Promise.all([
     db.tournament.findMany({
       where,
       skip,
       take: limit,
       orderBy: { [validated.sortBy]: validated.sortOrder },
-      include: {
-        games: true,
-        participation: true,
-        matches: true,
-        placements: true,
+      select: {
+        // ✅ use select+_count instead of
+        id: true, // loading all relations into memory
+        name: true,
+        year: true,
+        startDate: true,
+        endDate: true,
+        status: true,
+        description: true,
+        images: true,
+        createdAt: true,
+        _count: {
+          select: {
+            participation: true,
+            matches: true,
+          },
+        },
       },
     }),
     db.tournament.count({ where }),
@@ -101,7 +125,6 @@ async function handlePost(request) {
 
   const { user } = await auth();
 
- 
   // Validate body
   const body = await request.json();
   const validated = createTournamentSchema.parse(body);
@@ -118,7 +141,7 @@ async function handlePost(request) {
       info: validated.info || [],
       images: validated.images || [],
       createdBy: {
-        connect: { id:user.id },
+        connect: { id: user.id },
       },
     },
     include: {

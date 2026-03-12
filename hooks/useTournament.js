@@ -97,37 +97,44 @@ export function useTournaments(initialFilters = {}) {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     page: 1,
-    limit: 10,
+    limit: 100,
     sortBy: "createdAt",
     sortOrder: "desc",
+    status: "REGISTRATION",
     ...initialFilters,
   });
-
   const fetchTournaments = useCallback(
     async ({ bustCache = false } = {}) => {
-      setLoading(true);
       setError(null);
 
       const cacheKey = `tournaments:${JSON.stringify(filters)}`;
 
-      // Restore from cache on first load (skip if explicitly busting)
+      // ─── Step 1: Check cache first ────────────────────────────────────────
+      // Every unique filter/search combination has its own cache entry.
+      // If we get a hit, render immediately — no loading state, no network call.
       if (!bustCache) {
         const cached = cacheGet(cacheKey);
         if (cached) {
           setTournaments(cached.tournaments);
           setPagination(cached.pagination);
-          setLoading(false);
-          return;
+          setLoading(false); // ✅ Clear any previous loading state
+          return; // ✅ Skip network entirely
         }
       }
+
+      // ─── Step 2: Cache miss — fetch from network ──────────────────────────
+      // Only show the loading spinner when we actually need to hit the API.
+      setLoading(true);
 
       try {
         const params = new URLSearchParams();
         Object.entries(filters).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== "") {
+
             params.append(key, value.toString());
           }
         });
+
 
         const response = await fetch(`/api/tournaments?${params.toString()}`);
         const data = await response.json();
@@ -142,6 +149,8 @@ export function useTournaments(initialFilters = {}) {
         setTournaments(tournaments);
         setPagination(pagination);
 
+        // ─── Step 3: Populate cache for this filter combination ───────────
+        // Next time the same search/filter is used, Step 1 will serve it instantly.
         cacheSet(cacheKey, { tournaments, pagination });
       } catch (err) {
         setError(err.message);
@@ -157,6 +166,7 @@ export function useTournaments(initialFilters = {}) {
     fetchTournaments();
   }, [fetchTournaments]);
 
+  // ✅ Search calls this → triggers fetchTournaments → cache checked first
   const updateFilters = useCallback((newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
   }, []);
@@ -165,7 +175,6 @@ export function useTournaments(initialFilters = {}) {
     setFilters((prev) => ({ ...prev, page }));
   }, []);
 
-  /** Hard-refresh: bypass cache and re-fetch from the network. */
   const refresh = useCallback(() => {
     fetchTournaments({ bustCache: true });
   }, [fetchTournaments]);
@@ -185,7 +194,7 @@ export function useTournaments(initialFilters = {}) {
 // Fetch single tournament
 export function useTournament(id, options = {}) {
   const [tournament, setTournament] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchTournament = useCallback(
@@ -216,14 +225,13 @@ export function useTournament(id, options = {}) {
         const response = await fetch(
           `/api/tournaments/${id}?${params.toString()}`,
         );
-        const data = await response.json();
+        const { data } = await response.json();
 
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch tournament");
         }
-
-        setTournament(data.data);
-        cacheSet(cacheKey, data.data);
+        setTournament(data);
+        cacheSet(cacheKey, data);
       } catch (err) {
         setError(err.message);
         toast.error("Failed to load tournament", { description: err.message });

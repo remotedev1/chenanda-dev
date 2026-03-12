@@ -45,8 +45,8 @@ import {
   Phone,
 } from "lucide-react";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { Can } from "@/hooks/useAbility";
 import Image from "next/image";
+import { Can } from "@/components/providers/AbilityContext";
 
 const statusColors = {
   ACTIVE: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",

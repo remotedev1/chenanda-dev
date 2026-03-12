@@ -50,7 +50,6 @@ enum UserRole {
   ADMIN // Tournament management
   MODERATOR // Content management
   SCORER // Match scoring/updates
-  FAMILY // family manager
   USER // Basic access
 }
 

@@ -8,6 +8,7 @@ import {
   withErrorHandling,
 } from "@/lib/api/helpers";
 import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
+import { auth } from "@/auth";
 
 /* ---------------- ENUMS ---------------- */
 
@@ -106,10 +107,13 @@ async function handlePatch(request, { params }) {
   const setup = await setupApiHandler(request, "tournaments:update");
   if (setup.error) return setup.error;
 
-  const { id } = params;
+  const user = auth();
+  console.log(user);
+
+  const { tournamentId } = params;
 
   const existingTournament = await db.tournament.findUnique({
-    where: { id },
+    where: { id: tournamentId },
   });
 
   if (!existingTournament) {
@@ -149,7 +153,7 @@ async function handlePatch(request, { params }) {
   }
 
   const updatedTournament = await db.tournament.update({
-    where: { id },
+    where: { id: tournamentId },
     data: {
       ...(validated.name && { name: validated.name }),
       ...(validated.year && { year: validated.year }),
@@ -168,7 +172,6 @@ async function handlePatch(request, { params }) {
       ...(validated.description !== undefined && {
         description: validated.description,
       }),
-      ...(validated.sponsors && { sponsors: validated.sponsors }),
       ...(validated.info && { info: validated.info }),
       ...(validated.images && { images: validated.images }),
     },

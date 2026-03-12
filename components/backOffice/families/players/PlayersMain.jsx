@@ -20,6 +20,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayerForm } from "./PlayersForm";
 import { PlayerTable } from "./PlayersTable";
+import { withPermission } from "@/components/auth/WithPerission";
 
 const PlayersMain = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -186,4 +187,5 @@ const PlayersMain = () => {
   );
 };
 
-export default PlayersMain;
+export default withPermission("view", "PlayerManagement")(PlayersMain);
+

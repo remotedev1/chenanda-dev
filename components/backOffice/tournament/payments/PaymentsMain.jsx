@@ -21,6 +21,7 @@ import {
   useUpdatePayment,
   useDeletePayment,
 } from "@/hooks/usePayment";
+import { withPermission } from "@/components/auth/WithPerission";
 
 const PaymentsMain = ({ tournaments = [], games = [] }) => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -190,4 +191,5 @@ const PaymentsMain = ({ tournaments = [], games = [] }) => {
   );
 };
 
-export default PaymentsMain;
+export default withPermission("view", "PaymentManagement")(PaymentsMain);
+

@@ -20,6 +20,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { FamilyForm } from "./FamiliesForm";
 import { FamilyTable } from "./FamiliesTable";
+import { withPermission } from "@/components/auth/WithPerission";
 
 const FamiliesMain = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -38,7 +39,7 @@ const FamiliesMain = () => {
   const { createFamily, creating } = useCreateFamily();
   const { updateFamily, updating } = useUpdateFamily();
   const { deleteFamily } = useDeleteFamily();
-    const handleCreate = async (data) => {
+  const handleCreate = async (data) => {
     await createFamily(data);
     setCreateDialogOpen(false);
     refresh();
@@ -69,27 +70,6 @@ const FamiliesMain = () => {
       if (!isOpen) setSelectedFamily(null);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-9 w-48 mb-2" />
-            <Skeleton className="h-5 w-64" />
-          </div>
-          <Skeleton className="h-10 w-32" />
-        </div>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-10 w-40" />
-          </div>
-          <Skeleton className="h-[400px] w-full" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -138,6 +118,7 @@ const FamiliesMain = () => {
       <Dialog
         open={createDialogOpen}
         onOpenChange={(isOpen) => handleDialogClose(isOpen, "create")}
+        model={false}
       >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
           <DialogHeader>
@@ -158,6 +139,7 @@ const FamiliesMain = () => {
       <Dialog
         open={editDialogOpen}
         onOpenChange={(isOpen) => handleDialogClose(isOpen, "edit")}
+        model={false}
       >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
           <DialogHeader>
@@ -181,4 +163,4 @@ const FamiliesMain = () => {
   );
 };
 
-export default FamiliesMain;
+export default withPermission("view", "FamilyManagement")(FamiliesMain);

@@ -43,8 +43,8 @@ import {
   Trophy,
 } from "lucide-react";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { Can } from "@/hooks/useAbility";
-import { format, differenceInYears } from "date-fns";
+import { differenceInYears } from "date-fns";
+import { Can } from "@/components/providers/AbilityContext";
 
 const statusColors = {
   true: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
@@ -53,10 +53,13 @@ const statusColors = {
 
 const sportColors = {
   FOOTBALL: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  BASKETBALL: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
-  VOLLEYBALL: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+  BASKETBALL:
+    "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+  VOLLEYBALL:
+    "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
   CRICKET: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  TENNIS: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+  TENNIS:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
   BADMINTON: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
   ATHLETICS: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
 };
@@ -114,7 +117,7 @@ export function PlayerTable({
       cell: ({ row }) => {
         const player = row.original;
         const age = calculateAge(player.dateOfBirth);
-        
+
         return (
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -154,10 +157,7 @@ export function PlayerTable({
         if (!sport) return <span className="text-muted-foreground">-</span>;
 
         return (
-          <Badge 
-            variant="outline" 
-            className={sportColors[sport] || ""}
-          >
+          <Badge variant="outline" className={sportColors[sport] || ""}>
             {sport}
           </Badge>
         );
@@ -345,7 +345,7 @@ export function PlayerTable({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 ))}
@@ -374,7 +374,7 @@ export function PlayerTable({
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

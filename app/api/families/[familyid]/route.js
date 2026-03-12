@@ -7,9 +7,7 @@ import {
   errorResponse,
   logActivity,
   withErrorHandling,
-  requireAuth,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 import { deleteImageKitFile } from "@/lib/imageKit";
 
@@ -31,19 +29,17 @@ const updateFamilySchema = z.object({
     .max(500, "Colors must be less than 500 characters")
     .optional()
     .or(z.literal("")),
-  info: z
-    .array(z.record(z.any()))
-    .optional(),
-  images: z
-    .array(z.string().url("Invalid image URL"))
-    .optional(),
+  info: z.array(z.record(z.any())).optional(),
+  images: z.array(z.string().url("Invalid image URL")).optional(),
 });
 
 /* ---------------- HANDLERS ---------------- */
 
 async function handleGet(request, { params }) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "families:read",{requireAuthentication: false});
+  const setup = await setupApiHandler(request, "families:read", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   const { id } = params;
@@ -130,19 +126,13 @@ async function handleGet(request, { params }) {
   return successResponse(family);
 }
 
-async function handlePatch(request, { params }) {
+async function handlePut(request, { params }) {
   // Setup (auth + rate limit)
   const setup = await setupApiHandler(request, "families:update");
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { id: familyId } = params;
-
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.UPDATE, RESOURCES.FAMILY)) {
-    return errorResponse("You don't have permission to update families", 403);
-  }
+  const { familyId } = params;
 
   // Validate body
   const body = await request.json();
@@ -161,13 +151,13 @@ async function handlePatch(request, { params }) {
   if (validated.images !== undefined) {
     const oldImages = existing.images || [];
     const newImages = validated.images || [];
-    
+
     // Find images that were removed
-    const removedImages = oldImages.filter(img => !newImages.includes(img));
-    
+    const removedImages = oldImages.filter((img) => !newImages.includes(img));
+
     // Extract fileIds and delete from ImageKit (async, don't wait)
     if (removedImages.length > 0) {
-      removedImages.forEach(imageUrl => {
+      removedImages.forEach((imageUrl) => {
         // Extract fileId from URL if possible
         // Example: https://ik.imagekit.io/xxx/families/fileId.jpg
         const fileIdMatch = imageUrl.match(/\/([^\/]+)\.[^.]+$/);
@@ -229,7 +219,7 @@ async function handlePatch(request, { params }) {
 
   // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "updated",
     entity: "family",
     entityId: family.id,
@@ -247,7 +237,7 @@ async function handleDelete(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { id: familyId } = params;
+  const { familyId } = params;
 
   // Check if family exists
   const family = await db.families.findUnique({
@@ -271,22 +261,24 @@ async function handleDelete(request, { params }) {
   // Check for associated data and prevent deletion if any exist
   const counts = family._count;
   const associations = [];
-  
+
   if (counts.players > 0) associations.push(`${counts.players} player(s)`);
-  if (counts.participations > 0) associations.push(`${counts.participations} participation(s)`);
-  if (counts.placements > 0) associations.push(`${counts.placements} placement(s)`);
+  if (counts.participations > 0)
+    associations.push(`${counts.participations} participation(s)`);
+  if (counts.placements > 0)
+    associations.push(`${counts.placements} placement(s)`);
   if (counts.payments > 0) associations.push(`${counts.payments} payment(s)`);
 
   if (associations.length > 0) {
     return errorResponse(
       `Cannot delete family. It is associated with ${associations.join(", ")}. Please remove the associations first.`,
-      400
+      400,
     );
   }
 
   // Delete family images from ImageKit (async, don't wait)
   if (family.images && family.images.length > 0) {
-    family.images.forEach(imageUrl => {
+    family.images.forEach((imageUrl) => {
       // Extract fileId from URL if possible
       const fileIdMatch = imageUrl.match(/\/([^\/]+)\.[^.]+$/);
       if (fileIdMatch && fileIdMatch[1]) {
@@ -319,5 +311,5 @@ async function handleDelete(request, { params }) {
 /* ---------------- EXPORTS ---------------- */
 
 export const GET = withErrorHandling(handleGet, "family");
-export const PATCH = withErrorHandling(handlePatch, "family");
+export const PUT = withErrorHandling(handlePut, "family");
 export const DELETE = withErrorHandling(handleDelete, "family");

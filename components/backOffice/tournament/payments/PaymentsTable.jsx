@@ -33,9 +33,9 @@ import {
   Receipt,
 } from "lucide-react";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { Can } from "@/hooks/useAbility";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Can } from "@/components/providers/AbilityContext";
 
 /* ---- Constants ---- */
 

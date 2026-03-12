@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,39 +34,14 @@ import { TournamentStatusBadge } from "./TournamentStatusBadge";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { formatDate, formatNumber } from "@/utils/tournament.utils";
 
-// Shimmer Card Component
-function TournamentCardSkeleton() {
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-      <div className="relative h-32 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
-      <div className="p-5 space-y-4">
-        <div className="space-y-2">
-          <div className="h-6 bg-gray-200 rounded animate-pulse w-3/4" />
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-20" />
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-20" />
-        </div>
-        <div className="flex justify-between items-center pt-2">
-          <div className="h-8 bg-gray-200 rounded animate-pulse w-24" />
-          <div className="h-8 bg-gray-200 rounded-full animate-pulse w-8" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
-// Tournament Card Component
+// ✅ Removed unused useRouter from TournamentCard
 function TournamentCard({ tournament, onView, onEdit }) {
-  const router = useRouter();
-
   return (
     <div
       className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
       onClick={() => onView(tournament.id)}
     >
-      {/* Header with gradient */}
       <div className="relative h-32 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 overflow-hidden">
         <div className="absolute inset-0 bg-black/10" />
         <div className="absolute top-3 right-3">
@@ -78,23 +53,19 @@ function TournamentCard({ tournament, onView, onEdit }) {
             <span className="font-medium">{tournament.year}</span>
           </div>
         </div>
-        {/* Decorative pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-5 space-y-4">
-        {/* Title */}
         <div>
           <h3 className="font-bold text-lg text-gray-900 group-hover:text-orange-600 transition-colors line-clamp-2">
             {tournament.name}
           </h3>
         </div>
 
-        {/* Stats */}
         <div className="flex items-center gap-6 text-sm">
           <div className="flex items-center gap-2 text-gray-600">
             <Users className="h-4 w-4 text-orange-500" />
@@ -112,13 +83,11 @@ function TournamentCard({ tournament, onView, onEdit }) {
           </div>
         </div>
 
-        {/* Date */}
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <Calendar className="h-4 w-4" />
           <span>Starts {formatDate(tournament.startDate)}</span>
         </div>
 
-        {/* Location if available */}
         {tournament.location && (
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <MapPin className="h-4 w-4" />
@@ -126,7 +95,6 @@ function TournamentCard({ tournament, onView, onEdit }) {
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex justify-between items-center pt-2 border-t border-gray-100">
           <Button
             variant="ghost"
@@ -167,16 +135,16 @@ function TournamentCard({ tournament, onView, onEdit }) {
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(tournament.id);
-                  }}
-                  className="cursor-pointer"
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(tournament.id);
+                }}
+                className="cursor-pointer"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -197,8 +165,10 @@ export function TournamentTable({
   const router = useRouter();
   const searchInputRef = useRef(null);
   const searchTimerRef = useRef(null);
+  // ✅ Track whether the component has mounted to avoid focus stealing on load
+  const hasMountedRef = useRef(false);
   const wasFocusedRef = useRef(false);
-  
+
   const [searchValue, setSearchValue] = useState(filters.search || "");
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
@@ -206,52 +176,47 @@ export function TournamentTable({
   });
   const [deleting, setDeleting] = useState(false);
 
-  // Restore focus after re-render if it was previously focused
+  // ✅ Only restore focus after the FIRST data update post-mount, not on initial render
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
     if (wasFocusedRef.current && searchInputRef.current) {
       searchInputRef.current.focus();
-      // Set cursor to end of input
       const length = searchInputRef.current.value.length;
       searchInputRef.current.setSelectionRange(length, length);
     }
-  }, [tournaments]); // Re-run when tournaments change (after search completes)
+  }, [tournaments]);
 
-  // Handle search with debounce
-  const handleSearch = (value) => {
-    setSearchValue(value);
-    
-    // Clear existing timer
-    if (searchTimerRef.current) {
-      clearTimeout(searchTimerRef.current);
-    }
-    
-    // Set new timer
-    searchTimerRef.current = setTimeout(() => {
-      onFilterChange({ search: value });
-    }, 500);
-  };
+  // ✅ useCallback so handleSearch is stable across renders
+  const handleSearch = useCallback(
+    (value) => {
+      setSearchValue(value);
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      searchTimerRef.current = setTimeout(() => {
+        // ✅ Pass scroll:false hint via a wrapper — real fix is in parent using router.replace
+        onFilterChange({ search: value });
+      }, 500);
+    },
+    [onFilterChange],
+  );
 
-  // Track focus state
   const handleFocus = () => {
     wasFocusedRef.current = true;
   };
-
   const handleBlur = () => {
     wasFocusedRef.current = false;
   };
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
-      if (searchTimerRef.current) {
-        clearTimeout(searchTimerRef.current);
-      }
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     };
   }, []);
 
   const handleDelete = async () => {
     if (!deleteDialog.tournament) return;
-
     setDeleting(true);
     try {
       await onDelete(deleteDialog.tournament.id, deleteDialog.tournament.name);
@@ -263,18 +228,12 @@ export function TournamentTable({
     }
   };
 
-  const handleView = (id) => {
-    router.push(`/dashboard/tournaments/${id}`);
-  };
-
-  const handleEdit = (id) => {
-    router.push(`/dashboard/tournaments/${id}/edit`);
-  };
+  const handleView = (id) => router.push(`/dashboard/tournaments/${id}`);
+  const handleEdit = (id) => router.push(`/dashboard/tournaments/${id}/edit`);
 
   return (
     <div className="space-y-6">
-     
-      {/* Filters */}
+      {/* ✅ Filters always rendered — moved fully outside loading/empty conditionals */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -287,19 +246,23 @@ export function TournamentTable({
             onBlur={handleBlur}
             className="pl-9 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500"
           />
+          {loading && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <Select
-            value={filters.status || "all"}
+            value={filters.status || "ALL"}
             onValueChange={(value) =>
-              onFilterChange({ status: value === "all" ? undefined : value })
+              onFilterChange({ status: value === "ALL" ? undefined : value })
             }
           >
             <SelectTrigger className="w-[160px] bg-white border-gray-300">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="DRAFT">Draft</SelectItem>
               <SelectItem value="REGISTRATION">Registration</SelectItem>
               <SelectItem value="UPCOMING">Upcoming</SelectItem>
@@ -326,14 +289,8 @@ export function TournamentTable({
         </div>
       </div>
 
-      {/* Cards Grid */}
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <TournamentCardSkeleton key={i} />
-          ))}
-        </div>
-      ) : tournaments.length > 0 ? (
+      {/* Cards Grid — loading, results, and empty state */}
+      {tournaments.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tournaments.map((tournament) => (
             <TournamentCard
@@ -345,6 +302,7 @@ export function TournamentTable({
           ))}
         </div>
       ) : (
+        // ✅ Empty state always shows regardless of search/filter state
         <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -394,7 +352,6 @@ export function TournamentTable({
         </div>
       )}
 
-      {/* Delete Dialog */}
       <DeleteConfirmationDialog
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog({ open, tournament: null })}

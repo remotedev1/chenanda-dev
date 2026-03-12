@@ -24,8 +24,7 @@ import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmation
 import { TournamentDetailSkeleton } from "./TournamentSkeleton";
 import { formatDate, formatDateTime } from "@/utils/tournament.utils";
 import { useTournament, useDeleteTournament } from "@/hooks/useTournament";
-import { Can } from "@/hooks/useAbility";
-import { ACTIONS, RESOURCES } from "@/lib/ability";
+import { Can } from "@/components/providers/AbilityContext";
 
 export default function TournamentDetailPage() {
   const router = useRouter();
@@ -99,23 +98,25 @@ export default function TournamentDetailPage() {
         </div>
 
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() =>
-              router.push(`/dashboard/tournaments/${tournament.id}/edit`)
-            }
-          >
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            className="text-red-600 hover:text-red-700 dark:text-red-400"
-            onClick={() => setDeleteDialog(true)}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </Button>
+          <Can I="manage" a="TournamentManagement">
+            <Button
+              variant="outline"
+              onClick={() =>
+                router.push(`/dashboard/tournaments/${tournament.id}/edit`)
+              }
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+            <Button
+              variant="outline"
+              className="text-red-600 hover:text-red-700 dark:text-red-400"
+              onClick={() => setDeleteDialog(true)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </Button>
+          </Can>
         </div>
       </div>
 
@@ -307,72 +308,75 @@ export default function TournamentDetailPage() {
         {/* Right Column - Timeline */}
         <div className="space-y-6 ">
           <TournamentTimeline tournament={tournament} />
+          <Can I="manage" a="TournamentManagement">
+            {/* Quick Actions */}
+            <Card className="bg-slate-50 text-blue-500 ">
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
 
-          {/* Quick Actions */}
-          <Card className="bg-slate-50 text-blue-500 "> 
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
+              <CardContent className="space-y-2 ">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => router.push(`/dashboard/tournaments/sponsors`)}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Sponsors
+                </Button>
 
-            <CardContent className="space-y-2 ">
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => router.push(`/dashboard/tournaments/sponsors`)}
-              >
-                <Users className="mr-2 h-4 w-4" />
-                Manage Sponsors
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() =>
+                    router.push(`/dashboard/tournaments/${tournament.id}/games`)
+                  }
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Games
+                </Button>
 
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() =>
-                  router.push(`/dashboard/tournaments/${tournament.id}/games`)
-                }
-              >
-                <Users className="mr-2 h-4 w-4" />
-                Manage Games
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() =>
+                    router.push(
+                      `/dashboard/tournaments/${tournament.id}/participants`,
+                    )
+                  }
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Participants
+                </Button>
 
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() =>
-                  router.push(
-                    `/dashboard/tournaments/${tournament.id}/participants`,
-                  )
-                }
-              >
-                <Users className="mr-2 h-4 w-4" />
-                Manage Participants
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() =>
+                    router.push(
+                      `/dashboard/tournaments/${tournament.id}/matches`,
+                    )
+                  }
+                >
+                  <Trophy className="mr-2 h-4 w-4" />
+                  Manage Matches
+                </Button>
 
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() =>
-                  router.push(`/dashboard/tournaments/${tournament.id}/matches`)
-                }
-              >
-                <Trophy className="mr-2 h-4 w-4" />
-                Manage Matches
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() =>
-                  router.push(
-                    `/dashboard/tournaments/${tournament.id}/placements`,
-                  )
-                }
-              >
-                <Medal className="mr-2 h-4 w-4" />
-                Manage Placements
-              </Button>
-            </CardContent>
-          </Card>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() =>
+                    router.push(
+                      `/dashboard/tournaments/${tournament.id}/placements`,
+                    )
+                  }
+                >
+                  <Medal className="mr-2 h-4 w-4" />
+                  Manage Placements
+                </Button>
+              </CardContent>
+            </Card>
+          </Can>
         </div>
       </div>
 
