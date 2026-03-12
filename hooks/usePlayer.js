@@ -19,7 +19,7 @@ export function usePlayers() {
     status: undefined,
     sortBy: "playerName",
     page: 1,
-    limit: 10,
+    limit: 1000,
   });
 
   const fetchPlayers = useCallback(async () => {
@@ -33,10 +33,11 @@ export function usePlayers() {
       params.append("page", filters.page.toString());
       params.append("limit", filters.limit.toString());
 
+
       const response = await fetch(`${API_BASE}?${params}`);
       if (!response.ok) throw new Error("Failed to fetch players");
 
-      const {data} = await response.json();
+      const { data } = await response.json();
       setPlayers(data.data || []);
       setPagination(data.pagination);
     } catch (error) {

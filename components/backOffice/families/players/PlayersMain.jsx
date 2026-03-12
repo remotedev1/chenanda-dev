@@ -17,10 +17,10 @@ import {
   useUpdatePlayer,
   useDeletePlayer,
 } from "@/hooks/usePlayer";
-import { Skeleton } from "@/components/ui/skeleton";
 import { PlayerForm } from "./PlayersForm";
 import { PlayerTable } from "./PlayersTable";
 import { withPermission } from "@/components/auth/WithPerission";
+import { Can } from "@/components/providers/AbilityContext";
 
 const PlayersMain = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -39,7 +39,6 @@ const PlayersMain = () => {
   const { createPlayer, creating } = useCreatePlayer();
   const { updatePlayer, updating } = useUpdatePlayer();
   const { deletePlayer } = useDeletePlayer();
-
 
   const handleCreate = async (data) => {
     await createPlayer(data);
@@ -73,30 +72,6 @@ const PlayersMain = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-9 w-48 mb-2" />
-            <Skeleton className="h-5 w-64" />
-          </div>
-          <Skeleton className="h-10 w-32" />
-        </div>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-10 w-64" />
-            <div className="flex gap-2">
-              <Skeleton className="h-10 w-40" />
-              <Skeleton className="h-10 w-40" />
-            </div>
-          </div>
-          <Skeleton className="h-[400px] w-full" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -119,16 +94,7 @@ const PlayersMain = () => {
       </div>
 
       {/* Content */}
-      {players.length === 0 && !filters.search ? (
-        <EmptyState
-          icon={Users2}
-          title="No players yet"
-          description="Start adding players to build your tournament roster"
-          actionLabel="Add Player"
-          onAction={() => setCreateDialogOpen(true)}
-          showAction={true}
-        />
-      ) : (
+      {
         <PlayerTable
           players={players}
           pagination={pagination}
@@ -138,7 +104,7 @@ const PlayersMain = () => {
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
-      )}
+      }
 
       {/* Create Dialog */}
       <Dialog
@@ -188,4 +154,3 @@ const PlayersMain = () => {
 };
 
 export default withPermission("view", "PlayerManagement")(PlayersMain);
-

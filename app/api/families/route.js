@@ -11,7 +11,6 @@ import {
   logActivity,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 
 /* ---------------- SCHEMAS ---------------- */
@@ -53,6 +52,7 @@ async function handleGet(request) {
     requireAuthentication: false,
   });
   if (setup.error) return setup.error;
+
 
   // Query params
   const { searchParams } = new URL(request.url);

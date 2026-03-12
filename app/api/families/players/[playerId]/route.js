@@ -38,13 +38,7 @@ const updatePlayerSchema = z.object({
     ])
     .optional()
     .nullable(),
-  jerseyNumber: z
-    .number()
-    .int()
-    .min(0)
-    .max(999)
-    .optional()
-    .nullable(),
+  jerseyNumber: z.number().int().min(0).max(999).optional().nullable(),
   biography: z
     .string()
     .max(2000, "Biography must be less than 2000 characters")
@@ -58,14 +52,17 @@ const updatePlayerSchema = z.object({
 
 async function handleGet(request, { params }) {
   // Setup (auth + rate limit)
-  const setup = await setupApiHandler(request, "players:read",{requireAuthentication: false});
+  const setup = await setupApiHandler(request, "players:read", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
-  const { id } = params;
+  const { playerId } = params;
+  console.log(playerId);
 
   // Fetch player with related data
   const player = await db.player.findUnique({
-    where: { id },
+    where: { id: playerId },
     include: {
       family: {
         select: {
@@ -131,13 +128,7 @@ async function handlePatch(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { id: playerId } = params;
-
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.UPDATE, RESOURCES.PLAYER)) {
-    return errorResponse("You don't have permission to update players", 403);
-  }
+  const { playerId } = params;
 
   // Validate body
   const body = await request.json();
@@ -173,7 +164,7 @@ async function handlePatch(request, { params }) {
   // Check for duplicate name (if name is being changed and family stays same or changes)
   if (validated.playerName && validated.playerName !== existing.playerName) {
     const targetFamilyId = validated.familyId || existing.familyId;
-    
+
     const duplicate = await db.player.findFirst({
       where: {
         playerName: validated.playerName,
@@ -185,7 +176,7 @@ async function handlePatch(request, { params }) {
     if (duplicate) {
       return errorResponse(
         "A player with this name already exists in this family",
-        409
+        409,
       );
     }
   }
@@ -224,18 +215,12 @@ async function handlePatch(request, { params }) {
           familyName: true,
         },
       },
-      _count: {
-        select: {
-          achievements: true,
-          manOfTheMatchIn: true,
-        },
-      },
     },
   });
 
   // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "updated",
     entity: "player",
     entityId: player.id,
@@ -254,12 +239,6 @@ async function handleDelete(request, { params }) {
 
   const { user } = await auth();
   const { id: playerId } = params;
-
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.DELETE, RESOURCES.PLAYER)) {
-    return errorResponse("You don't have permission to delete players", 403);
-  }
 
   // Check if player exists
   const player = await db.player.findUnique({
@@ -295,7 +274,7 @@ async function handleDelete(request, { params }) {
   if (associations.length > 0) {
     return errorResponse(
       `Cannot delete player. It is associated with ${associations.join(", ")}. Please remove the associations first.`,
-      400
+      400,
     );
   }
 
@@ -306,7 +285,7 @@ async function handleDelete(request, { params }) {
 
   // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "deleted",
     entity: "player",
     entityId: playerId,

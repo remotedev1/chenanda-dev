@@ -22,6 +22,7 @@ const querySchema = z.object({
   search: z.string().optional(),
   sport: z
     .enum([
+      "HOCKEY",
       "FOOTBALL",
       "BASKETBALL",
       "VOLLEYBALL",
@@ -84,7 +85,6 @@ async function handleGet(request) {
 
   // Query params
   const { searchParams } = new URL(request.url);
-
   const validated = querySchema.parse({
     page: searchParams.get("page"),
     limit: searchParams.get("limit"),
