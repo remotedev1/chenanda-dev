@@ -6,12 +6,14 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ImageKitProvider } from "imagekitio-next";
 import { useEffect, useState } from "react";
 import { AbilityProvider } from "@/components/providers/AbilityContext";
+import { useSession } from "next-auth/react";
 
 const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
 
 export const Providers = ({ children }) => {
   const [mounted, setMounted] = useState(false);
+  const { data } = useSession();
   //fixing hydration error caused by sonner toaster
   useEffect(() => {
     setMounted(true);
@@ -37,7 +39,9 @@ export const Providers = ({ children }) => {
           urlEndpoint={urlEndpoint}
           authenticator={authenticator}
         >
-          <AbilityProvider role={"SUPER_ADMIN"}>{children}</AbilityProvider>
+          <AbilityProvider role={`${data?.user?.role}`}>
+            {children}
+          </AbilityProvider>
         </ImageKitProvider>
 
         <Toaster position="top-right" richColors />

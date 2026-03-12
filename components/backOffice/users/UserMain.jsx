@@ -20,6 +20,7 @@ import {
 } from "@/hooks/useUser";
 import { UserForm } from "./UserForm";
 import { UserTable } from "./UserTable";
+import { withPermission } from "@/components/auth/WithPerission";
 
 const UsersMain = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -208,4 +209,4 @@ const UsersMain = () => {
   );
 };
 
-export default UsersMain;
+export default withPermission("view", "UserManagement")(UsersMain);

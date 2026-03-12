@@ -265,7 +265,7 @@ async function handleDelete(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { id } = params;
+  const { userId } = params;
 
 
 

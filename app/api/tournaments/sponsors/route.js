@@ -55,7 +55,6 @@ export const createSponsorSchema = z.object({
 /* ---------------- HANDLERS ---------------- */
 
 async function handleGet(request) {
-  // Setup (auth + rate limit)
   const setup = await setupApiHandler(request, "sponsors:list", {
     requireAuthentication: false,
   });
@@ -63,7 +62,6 @@ async function handleGet(request) {
 
   // Query params
   const { searchParams } = new URL(request.url);
-
   const validated = querySchema.parse({
     page: searchParams.get("page"),
     limit: searchParams.get("limit"),
@@ -81,15 +79,12 @@ async function handleGet(request) {
     ...(validated.status && { status: validated.status }),
   };
 
-  console.log(where);
-
   // Fetch data with counts
   const [sponsors, total] = await Promise.all([
     db.sponsor.findMany({
       where,
       skip,
       take: limit,
-      orderBy: { [validated.sortBy]: validated.sortOrder },
     }),
     db.sponsor.count({ where }),
   ]);
@@ -106,15 +101,6 @@ async function handlePost(request) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-
-  // Ability check
-  // const ability = defineAbilityFor(user);
-  // if (!ability.can(ACTIONS.CREATE, RESOURCES.SPONSOR)) {
-  //   return errorResponse(
-  //     "You don't have permission to create sponsors",
-  //     403
-  //   );
-  // }
 
   // Validate body
   const body = await request.json();

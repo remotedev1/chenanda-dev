@@ -26,6 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Upload, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 const userFormSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -137,7 +138,8 @@ export const UserForm = ({
               <div className="relative">
                 {imagePreview ? (
                   <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200">
-                    <img
+                    <Image
+                      fill
                       src={imagePreview}
                       alt="Profile"
                       className="w-full h-full object-cover"
@@ -376,99 +378,99 @@ export const UserForm = ({
         </Card>
 
         {/* Role & Permissions - Super Admin Only */}
-          <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <span className="text-orange-600">🔒</span>
-                Role & Permissions
-                <span className="text-xs font-normal text-orange-600">
-                  (Super Admin Only)
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span className="text-orange-600">🔒</span>
+              Role & Permissions
+              <span className="text-xs font-normal text-orange-600">
+                (Super Admin Only)
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>User Role</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="USER">User</SelectItem>
+                      <SelectItem value="MANAGER">Manager</SelectItem>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Defines the user&apos;s permissions and access level
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Separator />
+
+            <div className="space-y-4">
               <FormField
                 control={form.control}
-                name="role"
+                name="isActive"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>User Role</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a role" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="USER">User</SelectItem>
-                        <SelectItem value="MANAGER">Manager</SelectItem>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
-                        <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Defines the user&apos;s permissions and access level
-                    </FormDescription>
-                    <FormMessage />
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">
+                        Active Account
+                      </FormLabel>
+                      <FormDescription>
+                        User can log in and access the system
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
                   </FormItem>
                 )}
               />
 
-              <Separator />
-
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="isActive"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Active Account
-                        </FormLabel>
-                        <FormDescription>
-                          User can log in and access the system
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="isBlocked"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base text-red-600">
-                          Block Account
-                        </FormLabel>
-                        <FormDescription>
-                          Prevent user from accessing the system entirely
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-red-600"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              <FormField
+                control={form.control}
+                name="isBlocked"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base text-red-600">
+                        Block Account
+                      </FormLabel>
+                      <FormDescription>
+                        Prevent user from accessing the system entirely
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="data-[state=checked]:bg-red-600"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Form Actions */}
         <div className="flex justify-end gap-3 pt-4">

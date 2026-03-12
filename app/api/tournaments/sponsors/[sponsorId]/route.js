@@ -8,7 +8,6 @@ import {
   logActivity,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 import { deleteImageKitFile } from "@/lib/imageKit";
 
@@ -83,12 +82,6 @@ async function handlePatch(request, { params }) {
   // const { user } = await auth();
   const { sponsorId } = params;
 
-  // Ability check
-  // const ability = defineAbilityFor(user);
-  // if (!ability.can(ACTIONS.UPDATE, RESOURCES.SPONSOR)) {
-  //   return errorResponse("You don't have permission to update sponsors", 403);
-  // }
-
   // Check if sponsor exists
   const existing = await db.sponsor.findUnique({
     where: { id: sponsorId },
@@ -162,12 +155,6 @@ async function handleDelete(request, { params }) {
 
   const { user } = await auth();
   const { sponsorId } = params;
-
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.DELETE, RESOURCES.SPONSOR)) {
-    return errorResponse("You don't have permission to delete sponsors", 403);
-  }
 
   // Check if sponsor exists
   const sponsor = await db.sponsor.findUnique({

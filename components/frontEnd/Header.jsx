@@ -13,6 +13,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 // Memoized Navigation Link Component
 const NavLink = memo(({ href, children, onClick }) => (
@@ -109,6 +110,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
+  const data = useSession();
   // Memoized scroll handler
   const handleScroll = useCallback(() => {
     setIsFixed(window.scrollY > 10);
@@ -152,18 +154,20 @@ export default function Header() {
             <MobileNav open={open} setOpen={setOpen} />
 
             {/* Login/User */}
-            <Link
-              href="/auth/login"
-              className="no-underline cursor-pointer"
-              aria-label="Login"
-            >
-              <User
-                className={clsx(
-                  "w-6 h-6 hover:text-yellow-400 transition-colors duration-300",
-                  iconColor,
-                )}
-              />
-            </Link>
+            {data.status === "authenticated" && (
+              <Link
+                href="/auth/login"
+                className="no-underline cursor-pointer"
+                aria-label="Login"
+              >
+                <User
+                  className={clsx(
+                    "w-6 h-6 hover:text-yellow-400 transition-colors duration-300",
+                    iconColor,
+                  )}
+                />
+              </Link>
+            )}
           </div>
         </div>
       </header>

@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-
-
 export function useSponsors(initialFilters = {}) {
   const [sponsors, setSponsors] = useState([]);
   const [pagination, setPagination] = useState({
@@ -17,7 +15,6 @@ export function useSponsors(initialFilters = {}) {
     status: "all",
     ...initialFilters,
   });
-
   const fetchSponsors = useCallback(async () => {
     try {
       setLoading(true);
@@ -44,18 +41,13 @@ export function useSponsors(initialFilters = {}) {
       }
 
       const response = await fetch(`/api/tournaments/sponsors?${params}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setSponsors(data.data.data);
-        setPagination((prev) => ({
-          ...prev,
-          total: data.total,
-          totalPages: data.totalPages,
-        }));
-      } else {
-        toast.error(data.error || "Failed to fetch sponsors");
-      }
+      const { data } = await response.json();
+      setSponsors(data.data);
+      setPagination((prev) => ({
+        ...prev,
+        total: data.total,
+        totalPages: data.totalPages,
+      }));
     } catch (error) {
       toast.error("Failed to fetch sponsors");
       console.error("Fetch sponsors error:", error);
@@ -67,8 +59,6 @@ export function useSponsors(initialFilters = {}) {
   useEffect(() => {
     fetchSponsors();
   }, [fetchSponsors]);
-
-
 
   // STABLE updateFilters - no dependencies that change
   const updateFilters = useCallback((newFilters) => {
