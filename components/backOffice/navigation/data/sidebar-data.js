@@ -11,8 +11,14 @@ export const baseSidebarData = {
           url: "/dashboard",
           icon: LayoutDashboard,
         },
+        {
+          title: "Users",
+          url: "/dashboard/users",
+          icon: LayoutDashboard,
+        },
       ],
     },
+
     {
       title: "Management",
       items: [

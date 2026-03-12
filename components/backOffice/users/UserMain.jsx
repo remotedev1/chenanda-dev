@@ -18,8 +18,6 @@ import {
   useUpdateUser,
   useDeleteUser,
 } from "@/hooks/useUser";
-import { Can } from "@/hooks/useAbility";
-import { Skeleton } from "@/components/ui/skeleton";
 import { UserForm } from "./UserForm";
 import { UserTable } from "./UserTable";
 
@@ -70,25 +68,6 @@ const UsersMain = () => {
     refresh();
   };
 
-  if (!loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-9 w-48 mb-2" />
-            <Skeleton className="h-5 w-64" />
-          </div>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-        <Skeleton className="h-96" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -101,15 +80,13 @@ const UsersMain = () => {
             Manage system users and their permissions
           </p>
         </div>
-        <Can I="create" a="User">
-          <Button
-            onClick={() => setCreateDialogOpen(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add User
-          </Button>
-        </Can>
+        <Button
+          onClick={() => setCreateDialogOpen(true)}
+          className="bg-orange-500 hover:bg-orange-600 text-white"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add User
+        </Button>
       </div>
 
       {/* Statistics Cards */}
@@ -174,27 +151,17 @@ const UsersMain = () => {
       </div>
 
       {/* Content */}
-      {users.length === 0 && !filters.search ? (
-        <EmptyState
-          icon={Users}
-          title="No users yet"
-          description="Start adding users to your system"
-          actionLabel="Add User"
-          onAction={() => setCreateDialogOpen(true)}
-          showAction={true}
-        />
-      ) : (
-        <UserTable
-          users={users}
-          pagination={pagination}
-          filters={filters}
-          onFilterChange={updateFilters}
-          onPageChange={setPage}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onBlockToggle={handleBlockToggle}
-        />
-      )}
+
+      <UserTable
+        users={users}
+        pagination={pagination}
+        filters={filters}
+        onFilterChange={updateFilters}
+        onPageChange={setPage}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onBlockToggle={handleBlockToggle}
+      />
 
       {/* Create Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>

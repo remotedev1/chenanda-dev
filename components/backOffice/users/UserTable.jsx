@@ -40,7 +40,6 @@ import {
   Shield,
   Eye,
 } from "lucide-react";
-import { Can } from "@/hooks/useAbility";
 import { format } from "date-fns";
 import {
   Pagination,
@@ -94,7 +93,6 @@ export const UserTable = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-
   const handleDeleteClick = (user) => {
     setUserToDelete(user);
     setDeleteDialogOpen(true);
@@ -102,7 +100,10 @@ export const UserTable = ({
 
   const handleDeleteConfirm = () => {
     if (userToDelete) {
-      onDelete(userToDelete.id, `${userToDelete.firstName} ${userToDelete.lastName}`);
+      onDelete(
+        userToDelete.id,
+        `${userToDelete.firstName} ${userToDelete.lastName}`,
+      );
       setDeleteDialogOpen(false);
       setUserToDelete(null);
     }
@@ -183,7 +184,7 @@ export const UserTable = ({
       </div>
 
       {/* Table */}
-      <div className="rounded-md border bg-white dark:bg-slate-900">
+      <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
             <TableRow>
@@ -294,7 +295,9 @@ export const UserTable = ({
                   <TableCell>
                     {user.lastLoginAt ? (
                       <div className="text-sm">
-                        <div>{format(new Date(user.lastLoginAt), "MMM dd, yyyy")}</div>
+                        <div>
+                          {format(new Date(user.lastLoginAt), "MMM dd, yyyy")}
+                        </div>
                         <div className="text-muted-foreground">
                           {format(new Date(user.lastLoginAt), "HH:mm")}
                         </div>
@@ -320,54 +323,46 @@ export const UserTable = ({
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        
-                        <Can I="read" a="User">
-                          <DropdownMenuItem onClick={() => onEdit(user)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                        </Can>
 
-                        <Can I="update" a="User">
-                          <DropdownMenuItem onClick={() => onEdit(user)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit User
-                          </DropdownMenuItem>
-                        </Can>
+                        <DropdownMenuItem onClick={() => onEdit(user)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </DropdownMenuItem>
 
-                        <Can I="manage" a="User">
-                          <DropdownMenuItem
-                            onClick={() => onBlockToggle(user)}
-                            className={
-                              user.isBlocked
-                                ? "text-green-600"
-                                : "text-orange-600"
-                            }
-                          >
-                            {user.isBlocked ? (
-                              <>
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Unblock User
-                              </>
-                            ) : (
-                              <>
-                                <Ban className="mr-2 h-4 w-4" />
-                                Block User
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                        </Can>
+                        <DropdownMenuItem onClick={() => onEdit(user)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit User
+                        </DropdownMenuItem>
 
-                        <Can I="delete" a="User">
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteClick(user)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete User
-                          </DropdownMenuItem>
-                        </Can>
+                        <DropdownMenuItem
+                          onClick={() => onBlockToggle(user)}
+                          className={
+                            user.isBlocked
+                              ? "text-green-600"
+                              : "text-orange-600"
+                          }
+                        >
+                          {user.isBlocked ? (
+                            <>
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              Unblock User
+                            </>
+                          ) : (
+                            <>
+                              <Ban className="mr-2 h-4 w-4" />
+                              Block User
+                            </>
+                          )}
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(user)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete User
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -385,7 +380,7 @@ export const UserTable = ({
             Showing {(pagination.currentPage - 1) * pagination.pageSize + 1} to{" "}
             {Math.min(
               pagination.currentPage * pagination.pageSize,
-              pagination.totalItems
+              pagination.totalItems,
             )}{" "}
             of {pagination.totalItems} users
           </p>

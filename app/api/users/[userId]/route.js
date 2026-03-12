@@ -8,7 +8,6 @@ import {
   logActivity,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 import bcrypt from "bcryptjs";
 
@@ -112,11 +111,11 @@ async function handlePatch(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { id } = params;
+  const { userId } = params;
 
   // Check if user exists
   const existingUser = await db.user.findUnique({
-    where: { id },
+    where: { id :userId},
   });
 
   if (!existingUser) {
@@ -268,11 +267,7 @@ async function handleDelete(request, { params }) {
   const { user } = await auth();
   const { id } = params;
 
-  // Only super admin can delete users
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.DELETE, RESOURCES.USER)) {
-    return errorResponse("Only super admin can delete users", 403);
-  }
+
 
   // Check if user exists
   const targetUser = await db.user.findUnique({
@@ -311,7 +306,7 @@ async function handleDelete(request, { params }) {
 
   // Log activity
   await logActivity({
-    userId: user.userId,
+    userId: user.id,
     action: "deleted",
     entity: "user",
     entityId: id,

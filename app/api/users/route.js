@@ -11,7 +11,6 @@ import {
   logActivity,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 import bcrypt from "bcryptjs";
 
@@ -188,11 +187,7 @@ async function handlePost(request) {
 
   const { user } = await auth();
 
-  // Ability check
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.CREATE, RESOURCES.USER)) {
-    return errorResponse("You don't have permission to create users", 403);
-  }
+
 
   // Validate body
   const body = await request.json();
@@ -255,7 +250,7 @@ async function handlePost(request) {
 
   // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "created",
     entity: "user",
     entityId: newUser.id,

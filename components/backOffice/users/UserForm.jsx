@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -25,7 +24,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Can } from "@/hooks/useAbility";
 import { Upload, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -378,7 +376,6 @@ export const UserForm = ({
         </Card>
 
         {/* Role & Permissions - Super Admin Only */}
-        <Can I="manage" a="User">
           <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -472,7 +469,6 @@ export const UserForm = ({
               </div>
             </CardContent>
           </Card>
-        </Can>
 
         {/* Form Actions */}
         <div className="flex justify-end gap-3 pt-4">

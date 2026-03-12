@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -53,10 +52,10 @@ export const useUsers = () => {
         throw new Error(error.message || "Failed to fetch users");
       }
 
-      const result = await response.json();
+      const {data} = await response.json();
 
       // Handle the new response structure
-      setUsers(result.data || []);
+      setUsers(data.data || []);
       setPagination({
         currentPage: result.currentPage || 1,
         pageSize: result.pageSize || 10,
