@@ -358,6 +358,8 @@ export function FamilyTable({
 
   return (
     <div className="space-y-6">
+           {/* Summary Cards */}
+  
       {/* ── Filters ── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
         <div className="relative flex-1 max-w-md">

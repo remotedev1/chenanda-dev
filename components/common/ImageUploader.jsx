@@ -21,7 +21,7 @@ export function ImageUploader({
   const [existing, setExisting] = useState([]);
   const { uploadImage, uploadMultiple, uploading, progress } =
     useImageKitUpload();
-
+    
   // Initialize existing images
   useEffect(() => {
     if (existingImages.length > 0) {

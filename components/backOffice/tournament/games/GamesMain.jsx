@@ -149,6 +149,19 @@ export function TournamentGameMain() {
 
   return (
     <div className="space-y-6">
+          {games.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-4 border border-emerald-200">
+            <div className="text-sm font-medium text-emerald-700">
+              Total families
+            </div>
+            <div className="text-2xl font-bold text-emerald-900 mt-1">
+             {games.length}
+            </div>
+          </div>
+        
+        </div>
+      )}
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

@@ -109,7 +109,7 @@ export function SponsorForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 ">
       <div className="grid gap-6 md:grid-cols-2">
         {/* Name */}
         <div className="space-y-2">
@@ -245,7 +245,7 @@ export function SponsorForm({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading || !formData.logo }>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {initialData ? "Update" : "Create"} Sponsor
         </Button>

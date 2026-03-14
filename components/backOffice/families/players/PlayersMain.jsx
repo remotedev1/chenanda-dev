@@ -78,7 +78,7 @@ const PlayersMain = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-orange-500">
-            Players
+            Players ({players.length})
           </h1>
           <p className="text-muted-foreground">
             Manage tournament players and their information
@@ -92,6 +92,7 @@ const PlayersMain = () => {
           Add Player
         </Button>
       </div>
+
 
       {/* Content */}
       {

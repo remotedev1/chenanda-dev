@@ -18,7 +18,6 @@ import {
   useUpdateSponsor,
   useDeleteSponsor,
 } from "@/hooks/useSponsor";
-import { Skeleton } from "@/components/ui/skeleton";
 import { SponsorForm } from "./SponsorForm";
 import { SponsorTable } from "./SponsorTable";
 import { withPermission } from "@/components/auth/WithPerission";
@@ -65,31 +64,13 @@ const SponsorsMain = () => {
     refresh();
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-9 w-48 mb-2" />
-            <Skeleton className="h-5 w-64" />
-          </div>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-64" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-orange-500">
-            Sponsors
+            Sponsors ({sponsors.length})
           </h1>
           <p className="text-muted-foreground">
             Manage your tournament sponsors

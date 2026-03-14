@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Users } from "lucide-react";
+import { Badge, Plus, Users } from "lucide-react";
 import { EmptyState } from "@/components/common/EmptyState";
 import {
   useFamilies,
@@ -76,8 +76,8 @@ const FamiliesMain = () => {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-orange-500">
-            Families
+          <h1 className="flex items-center gap-2.5 text-3xl font-bold tracking-tight text-orange-500">
+            Families ({families.length})
           </h1>
           <p className="text-muted-foreground">
             Manage tournament families and their members

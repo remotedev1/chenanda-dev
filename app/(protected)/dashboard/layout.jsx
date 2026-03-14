@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }) {
   const defaultOpen = Cookies.get("sidebar_state") !== "false";
 
   return (
-    <div className="flex overflow-hidden ">
+    <div className="flex overflow-hidden">
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
 
@@ -62,7 +62,7 @@ export default function DashboardLayout({ children }) {
 const topNav = [
   {
     title: "Overview",
-    href: "dashboard/",
+    href: "/dashboard",
     isActive: true,
     disabled: false,
   },
