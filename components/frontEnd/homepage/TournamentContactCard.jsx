@@ -147,7 +147,7 @@ export default function TournamentContactCard() {
           </div>
 
           <div>
-            <p className="text-[10px] text-stone-400 font-medium uppercase tracking-widest mb-1">
+            <p className="text-[10px] text-black font-medium uppercase tracking-widest mb-1">
               For Registrations, Contact
             </p>
             <h2 className="text-2xl font-bold text-stone-900 tracking-tight">
