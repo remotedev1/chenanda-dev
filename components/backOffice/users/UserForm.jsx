@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -28,20 +28,22 @@ import { Upload, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 
-const userFormSchema = z.object({
+// ─── Schema ────────────────────────────────────────────────────────────────────
+
+const baseSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().optional(),
   email: z.string().email("Invalid email address"),
   phoneNumber: z
     .string()
     .min(10, "Phone number must be at least 10 digits")
+    .or(z.literal(""))   // allow empty string (field is optional)
     .optional(),
   alternateNumber: z.string().optional(),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .optional(),
-  role: z.enum(["USER", "MANAGER", "ADMIN", "SUPER_ADMIN"]),
+  // role enum now matches the three <SelectItem> values
+  role: z.enum(["USER", "SCORER", "ADMIN"], {
+    required_error: "Please select a role",
+  }),
   isActive: z.boolean().default(true),
   isBlocked: z.boolean().default(false),
   address: z
@@ -56,39 +58,62 @@ const userFormSchema = z.object({
   images: z.array(z.string()).optional(),
 });
 
+// Password is REQUIRED when creating, optional when editing
+const createSchema = baseSchema.extend({
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters"),
+});
+
+const editSchema = baseSchema.extend({
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .or(z.literal(""))   // allow blank → keep current password
+    .optional(),
+});
+
+
+
+// ─── Component ─────────────────────────────────────────────────────────────────
+
 export const UserForm = ({
   onSubmit,
   onCancel,
   loading = false,
   initialData = null,
 }) => {
+  const isEdit = !!initialData;
+
   const [imagePreview, setImagePreview] = useState(
-    initialData?.images?.[0] || null,
+    (initialData?.images?.[0]) ?? null,
   );
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const form = useForm({
-    resolver: zodResolver(userFormSchema),
+    resolver: zodResolver(isEdit ? editSchema : createSchema),
     defaultValues: {
-      firstName: initialData?.firstName || "",
-      lastName: initialData?.lastName || "",
-      email: initialData?.email || "",
-      phoneNumber: initialData?.phoneNumber || "",
-      alternateNumber: initialData?.alternateNumber || "",
+      firstName: initialData?.firstName ?? "",
+      lastName: initialData?.lastName ?? "",
+      email: initialData?.email ?? "",
+      phoneNumber: initialData?.phoneNumber ?? "",
+      alternateNumber: initialData?.alternateNumber ?? "",
       password: "",
-      role: initialData?.role || "USER",
+      role: initialData?.role ?? "USER",
       isActive: initialData?.isActive ?? true,
       isBlocked: initialData?.isBlocked ?? false,
       address: {
-        street: initialData?.address?.street || "",
-        city: initialData?.address?.city || "",
-        state: initialData?.address?.state || "",
-        zipCode: initialData?.address?.zipCode || "",
-        country: initialData?.address?.country || "",
+        street: initialData?.address?.street ?? "",
+        city: initialData?.address?.city ?? "",
+        state: initialData?.address?.state ?? "",
+        zipCode: initialData?.address?.zipCode ?? "",
+        country: initialData?.address?.country ?? "",
       },
-      images: initialData?.images || [],
+      images: initialData?.images ?? [],
     },
   });
+
+  // ── Image helpers ────────────────────────────────────────────────────────────
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -96,12 +121,11 @@ export const UserForm = ({
 
     setUploadingImage(true);
     try {
-      // Implement your image upload logic here
-      // For now, we'll create a preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
-        form.setValue("images", [reader.result]);
+        const result = reader.result ;
+        setImagePreview(result);
+        form.setValue("images", [result]);
       };
       reader.readAsDataURL(file);
     } catch (error) {
@@ -116,24 +140,30 @@ export const UserForm = ({
     form.setValue("images", []);
   };
 
+  // ── Submit ───────────────────────────────────────────────────────────────────
+
   const handleSubmit = (data) => {
-    // Remove password field if it's empty (for updates)
-    if (initialData && !data.password) {
-      delete data.password;
+    // Strip blank password on edit so the backend keeps the existing one
+    if (isEdit && !data.password) {
+      const { password, ...rest } = data ;
+      return onSubmit(rest);
     }
     onSubmit(data);
   };
 
+  // ─── Render ──────────────────────────────────────────────────────────────────
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        {/* Personal Information */}
+
+        {/* ── Personal Information ───────────────────────────────────────────── */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Personal Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Profile Image */}
+            {/* Profile image */}
             <div className="flex items-center gap-4">
               <div className="relative">
                 {imagePreview ? (
@@ -142,7 +172,7 @@ export const UserForm = ({
                       fill
                       src={imagePreview}
                       alt="Profile"
-                      className="w-full h-full object-cover"
+                      className="object-cover"
                     />
                     <button
                       type="button"
@@ -153,23 +183,22 @@ export const UserForm = ({
                     </button>
                   </div>
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                  <label className="w-24 h-24 rounded-full bg-gray-200 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
                     <Upload className="h-8 w-8 text-gray-400" />
-                  </div>
+                    <span className="text-xs text-gray-400 mt-1">Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                    />
+                  </label>
                 )}
               </div>
-              <div>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploadingImage}
-                  className="max-w-xs"
-                />
-                <p className="text-sm text-muted-foreground mt-1">
-                  Upload a profile picture (optional)
-                </p>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {uploadingImage ? "Uploading…" : "Profile picture (optional)"}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -180,9 +209,9 @@ export const UserForm = ({
                   <FormItem>
                     <FormLabel>First Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="John" {...field} />
+                      <Input {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage />   {/* ← shows Zod error */}
                   </FormItem>
                 )}
               />
@@ -194,7 +223,7 @@ export const UserForm = ({
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Doe" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -204,7 +233,7 @@ export const UserForm = ({
           </CardContent>
         </Card>
 
-        {/* Contact Information */}
+        {/* ── Contact Information ────────────────────────────────────────────── */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Contact Information</CardTitle>
@@ -217,11 +246,7 @@ export const UserForm = ({
                 <FormItem>
                   <FormLabel>Email Address *</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="john.doe@example.com"
-                      {...field}
-                    />
+                    <Input type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -236,7 +261,7 @@ export const UserForm = ({
                   <FormItem>
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="+1 234 567 8900" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -250,7 +275,7 @@ export const UserForm = ({
                   <FormItem>
                     <FormLabel>Alternate Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="+1 234 567 8901" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -260,113 +285,31 @@ export const UserForm = ({
           </CardContent>
         </Card>
 
-        {/* Address Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Address</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="address.street"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Street Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="123 Main St" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="address.city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="New York" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="address.state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State/Province</FormLabel>
-                    <FormControl>
-                      <Input placeholder="NY" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="address.zipCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ZIP/Postal Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder="10001" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="address.country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                      <Input placeholder="United States" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Account Security */}
+        {/* ── Account Security ───────────────────────────────────────────────── */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Account Security</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password {!initialData && "*"}</FormLabel>
+                  <FormLabel>Password {!isEdit && "*"}</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder={
-                        initialData
+                        isEdit
                           ? "Leave blank to keep current password"
-                          : "Enter password"
+                          : "Min. 8 characters"
                       }
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    {initialData
+                    {isEdit
                       ? "Leave blank to keep the current password"
                       : "Minimum 8 characters required"}
                   </FormDescription>
@@ -377,44 +320,40 @@ export const UserForm = ({
           </CardContent>
         </Card>
 
-        {/* Role & Permissions - Super Admin Only */}
+        {/* ── Role & Permissions ─────────────────────────────────────────────── */}
         <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <span className="text-orange-600">🔒</span>
-              Role & Permissions
+              Role &amp; Permissions
               <span className="text-xs font-normal text-orange-600">
                 (Super Admin Only)
               </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 w-fit">
             <FormField
               control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>User Role</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-slate-100">
                       <SelectItem value="USER">User</SelectItem>
-                      <SelectItem value="MANAGER">Manager</SelectItem>
+                      <SelectItem value="SCORER">Scorer</SelectItem>
                       <SelectItem value="ADMIN">Admin</SelectItem>
-                      <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
                     Defines the user&apos;s permissions and access level
                   </FormDescription>
-                  <FormMessage />
+                  <FormMessage />   {/* ← shows role error */}
                 </FormItem>
               )}
             />
@@ -428,9 +367,7 @@ export const UserForm = ({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Active Account
-                      </FormLabel>
+                      <FormLabel className="text-base">Active Account</FormLabel>
                       <FormDescription>
                         User can log in and access the system
                       </FormDescription>
@@ -462,7 +399,7 @@ export const UserForm = ({
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="data-[state=checked]:bg-red-600"
+                        className="data-[state=checked]:bg-red-600 data-[state=unchecked]:bg-blue-600"
                       />
                     </FormControl>
                   </FormItem>
@@ -472,14 +409,9 @@ export const UserForm = ({
           </CardContent>
         </Card>
 
-        {/* Form Actions */}
+        {/* ── Actions ────────────────────────────────────────────────────────── */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={loading}
-          >
+          <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
             Cancel
           </Button>
           <Button
@@ -487,11 +419,7 @@ export const UserForm = ({
             disabled={loading}
             className="bg-orange-500 hover:bg-orange-600"
           >
-            {loading
-              ? "Saving..."
-              : initialData
-                ? "Update User"
-                : "Create User"}
+            {loading ? "Saving…" : isEdit ? "Update User" : "Create User"}
           </Button>
         </div>
       </form>

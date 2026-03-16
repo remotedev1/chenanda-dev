@@ -187,8 +187,6 @@ async function handlePost(request) {
 
   const { user } = await auth();
 
-
-
   // Validate body
   const body = await request.json();
   const validated = createUserSchema.parse(body);
@@ -215,7 +213,7 @@ async function handlePost(request) {
 
   // Hash password
   const hashedPassword = await bcrypt.hash(validated.password, 10);
-
+  const now = new Date();
   // Create user
   const newUser = await db.user.create({
     data: {
@@ -229,14 +227,7 @@ async function handlePost(request) {
       isActive: validated.isActive,
       isBlocked: validated.isBlocked,
       images: validated.images || [],
-      address: validated.address
-        ? {
-            create: validated.address,
-          }
-        : undefined,
-      createdBy: {
-        connect: { id: setup.user.userId },
-      },
+      emailVerified: now,
     },
     select: {
       id: true,

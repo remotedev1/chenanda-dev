@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { getemailVerificationTokenByToken } from "@/lib/tokens";
-import { hashToken } from "@/helpers/token";
 
 // Rate limiting for verification attempts (use Redis in production)
 const verificationAttempts = new Map();
@@ -146,7 +145,6 @@ export async function GET(req) {
     });
 
     clearVerificationAttempts(ip);
-    console.info(`Email verified via GET: ${existingToken.email}, IP: ${ip}`);
 
     // Redirect to success page
     return NextResponse.redirect(
