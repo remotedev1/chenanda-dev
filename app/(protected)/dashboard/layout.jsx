@@ -6,13 +6,15 @@ import { ProfileDropdown } from "@/components/backOffice/navigation/profile-drop
 import { AppSidebar } from "@/components/backOffice/navigation/sidebar";
 import { ThemeSwitch } from "@/components/backOffice/navigation/theme-switch";
 import { TopNav } from "@/components/backOffice/navigation/top-nav";
+import { AbilityProvider } from "@/components/providers/AbilityContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import Cookies from "js-cookie";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function DashboardLayout({ children }) {
-  const { status } = useCurrentUser();
+  const { userData, status, update, isLoading } = useCurrentUser();
+  const hasRefreshed = useRef(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -27,18 +29,34 @@ export default function DashboardLayout({ children }) {
     }
   }, []);
 
-  if (status === "unauthenticated") return;
+  // Force session refresh if role is missing after login
+  useEffect(() => {
+    if (
+      status === "authenticated" &&
+      !userData?.user?.role &&
+      !hasRefreshed.current
+    ) {
+      hasRefreshed.current = true;
+      update();
+    }
+    if (status === "unauthenticated") {
+      hasRefreshed.current = false;
+    }
+  }, [status, userData?.user?.role]);
+
+  // Wait until session is fully resolved
+  if (isLoading)
+    return <div className="w-full text-center p-10">Loading...</div>;
+  if (status === "unauthenticated") return null; // or redirect
 
   const defaultOpen = Cookies.get("sidebar_state") !== "false";
+  const role = userData?.user?.role ?? "guest";
 
   return (
     <div className="flex overflow-hidden">
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
-
-        {/* Content area */}
         <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-          {/* ===== Top Heading ===== */}
           <Header>
             <TopNav links={topNav} />
             <div className="ml-auto flex items-center space-x-4">
@@ -47,10 +65,9 @@ export default function DashboardLayout({ children }) {
               <ProfileDropdown />
             </div>
           </Header>
-          {/* Main content */}
           <main>
-            <div className="w-full min-h-screen mx-auto p-6 bg-slate-200 ">
-              {children}
+            <div className="w-full min-h-screen mx-auto p-6 bg-slate-200">
+              <AbilityProvider role={role}>{children}</AbilityProvider>
             </div>
           </main>
         </div>

@@ -1,4 +1,3 @@
-// app/api/users/[id]/route.js
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
@@ -58,14 +57,7 @@ async function handleGet(request, { params }) {
   const setup = await setupApiHandler(request, "users:read");
   if (setup.error) return setup.error;
 
-  const { user } = await auth();
   const { id } = params;
-
-  // Ability check - users can view their own profile or admins can view any
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.READ, RESOURCES.USER) && user.userId !== id) {
-    return errorResponse("You don't have permission to view this user", 403);
-  }
 
   // Fetch user
   const targetUser = await db.user.findUnique({
@@ -115,7 +107,7 @@ async function handlePatch(request, { params }) {
 
   // Check if user exists
   const existingUser = await db.user.findUnique({
-    where: { id :userId},
+    where: { id: userId },
   });
 
   if (!existingUser) {
@@ -127,8 +119,7 @@ async function handlePatch(request, { params }) {
   const validated = updateUserSchema.parse(body);
 
   // Permission checks
-  const ability = defineAbilityFor(user);
-  const isOwnProfile = user.userId === id;
+  const isOwnProfile = user.userId === userId;
   const isSuperAdmin = user.role === "SUPER_ADMIN";
 
   // Only super admin can change these fields
@@ -145,9 +136,9 @@ async function handlePatch(request, { params }) {
   }
 
   // Users can only edit their own profile unless they have permission
-  if (!isOwnProfile && !ability.can(ACTIONS.UPDATE, RESOURCES.USER)) {
-    return errorResponse("You can only edit your own profile", 403);
-  }
+  // if (!isOwnProfile) {
+  //   return errorResponse("You can only edit your own profile", 403);
+  // }
 
   // Check for email uniqueness if email is being changed
   if (validated.email && validated.email !== existingUser.email) {
@@ -216,33 +207,16 @@ async function handlePatch(request, { params }) {
   }
 
   // Handle address update
-  if (validated.address) {
-    if (existingUser.address) {
-      updateData.address = {
-        update: validated.address,
-      };
-    } else {
-      updateData.address = {
-        create: validated.address,
-      };
-    }
+  if (existingUser.address) {
+    updateData.address = {
+      upsert: validated.address,
+    };
   }
 
   // Update user
   const updatedUser = await db.user.update({
-    where: { id },
+    where: { id: userId },
     data: updateData,
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      email: true,
-      phoneNumber: true,
-      role: true,
-      isActive: true,
-      isBlocked: true,
-      updatedAt: true,
-    },
   });
 
   // Log activity
@@ -266,8 +240,6 @@ async function handleDelete(request, { params }) {
 
   const { user } = await auth();
   const { userId } = params;
-
-
 
   // Check if user exists
   const targetUser = await db.user.findUnique({

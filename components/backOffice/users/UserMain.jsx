@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Users, UserCheck, UserX, Shield } from "lucide-react";
-import { EmptyState } from "@/components/common/EmptyState";
 import {
   useUsers,
   useCreateUser,
@@ -98,7 +97,7 @@ const UsersMain = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.total || 0}</div>
+            <div className="text-2xl font-bold">{users?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
               Registered in the system
             </p>
@@ -112,7 +111,7 @@ const UsersMain = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {stats?.active || 0}
+              {users?.filter((user) => user.isActive).length ?? 0}
             </div>
             <p className="text-xs text-muted-foreground">
               Currently active accounts
@@ -127,7 +126,7 @@ const UsersMain = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {stats?.blocked || 0}
+              {users?.filter((user) => user.isBlocked).length ?? 0}
             </div>
             <p className="text-xs text-muted-foreground">
               Blocked or suspended
@@ -142,7 +141,9 @@ const UsersMain = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {stats?.admins || 0}
+              {users?.filter((user) =>
+                ["ADMIN", "SUPER_ADMIN"].includes(user.role),
+              ).length ?? 0}
             </div>
             <p className="text-xs text-muted-foreground">
               Super admin & admin users

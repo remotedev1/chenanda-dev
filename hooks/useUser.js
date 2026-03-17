@@ -57,13 +57,13 @@ export const useUsers = () => {
       // Handle the new response structure
       setUsers(data.data || []);
       setPagination({
-        currentPage: result.currentPage || 1,
-        pageSize: result.pageSize || 10,
-        totalPages: result.totalPages || 1,
-        totalItems: result.totalItems || 0,
+        currentPage: data.currentPage || 1,
+        pageSize: data.pageSize || 10,
+        totalPages: data.totalPages || 1,
+        totalItems: data.totalItems || 0,
       });
       setStats(
-        result.stats || {
+        data.stats || {
           total: 0,
           active: 0,
           blocked: 0,

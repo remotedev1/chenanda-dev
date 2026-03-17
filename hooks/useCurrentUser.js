@@ -1,9 +1,12 @@
-import { data } from "autoprefixer";
 import { useSession } from "next-auth/react";
 
 export const useCurrentUser = () => {
-  const { data } = useSession();
+  const { data, status, update } = useSession();
   return {
-    userData: data ?? null,
+    userData: data,
+    status,
+    update,
+    isLoading: status === "loading",
+    isAuthenticated: status === "authenticated",
   };
 };

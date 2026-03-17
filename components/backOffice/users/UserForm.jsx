@@ -37,11 +37,11 @@ const baseSchema = z.object({
   phoneNumber: z
     .string()
     .min(10, "Phone number must be at least 10 digits")
-    .or(z.literal(""))   // allow empty string (field is optional)
+    .or(z.literal("")) // allow empty string (field is optional)
     .optional(),
   alternateNumber: z.string().optional(),
   // role enum now matches the three <SelectItem> values
-  role: z.enum(["USER", "SCORER", "ADMIN"], {
+  role: z.enum(["USER", "SCORER", "ADMIN", "SUPER_ADMIN"], {
     required_error: "Please select a role",
   }),
   isActive: z.boolean().default(true),
@@ -60,20 +60,16 @@ const baseSchema = z.object({
 
 // Password is REQUIRED when creating, optional when editing
 const createSchema = baseSchema.extend({
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 const editSchema = baseSchema.extend({
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
-    .or(z.literal(""))   // allow blank → keep current password
+    .or(z.literal("")) // allow blank → keep current password
     .optional(),
 });
-
-
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
@@ -86,13 +82,14 @@ export const UserForm = ({
   const isEdit = !!initialData;
 
   const [imagePreview, setImagePreview] = useState(
-    (initialData?.images?.[0]) ?? null,
+    initialData?.images?.[0] ?? null,
   );
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(isEdit ? editSchema : createSchema),
     defaultValues: {
+      id: initialData?.id ?? "",
       firstName: initialData?.firstName ?? "",
       lastName: initialData?.lastName ?? "",
       email: initialData?.email ?? "",
@@ -123,7 +120,7 @@ export const UserForm = ({
     try {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result ;
+        const result = reader.result;
         setImagePreview(result);
         form.setValue("images", [result]);
       };
@@ -145,7 +142,7 @@ export const UserForm = ({
   const handleSubmit = (data) => {
     // Strip blank password on edit so the backend keeps the existing one
     if (isEdit && !data.password) {
-      const { password, ...rest } = data ;
+      const { password, ...rest } = data;
       return onSubmit(rest);
     }
     onSubmit(data);
@@ -156,7 +153,6 @@ export const UserForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-
         {/* ── Personal Information ───────────────────────────────────────────── */}
         <Card>
           <CardHeader>
@@ -211,7 +207,7 @@ export const UserForm = ({
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
-                    <FormMessage />   {/* ← shows Zod error */}
+                    <FormMessage /> {/* ← shows Zod error */}
                   </FormItem>
                 )}
               />
@@ -348,12 +344,13 @@ export const UserForm = ({
                       <SelectItem value="USER">User</SelectItem>
                       <SelectItem value="SCORER">Scorer</SelectItem>
                       <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="SUPER_ADMIN">Super-Admin</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
                     Defines the user&apos;s permissions and access level
                   </FormDescription>
-                  <FormMessage />   {/* ← shows role error */}
+                  <FormMessage /> {/* ← shows role error */}
                 </FormItem>
               )}
             />
@@ -367,7 +364,9 @@ export const UserForm = ({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">Active Account</FormLabel>
+                      <FormLabel className="text-base">
+                        Active Account
+                      </FormLabel>
                       <FormDescription>
                         User can log in and access the system
                       </FormDescription>
@@ -411,7 +410,12 @@ export const UserForm = ({
 
         {/* ── Actions ────────────────────────────────────────────────────────── */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={loading}
+          >
             Cancel
           </Button>
           <Button

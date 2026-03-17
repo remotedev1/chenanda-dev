@@ -137,7 +137,7 @@ export const UserTable = ({
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All Roles" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-slate-50">
               <SelectItem value="all">All Roles</SelectItem>
               <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
               <SelectItem value="ADMIN">Admin</SelectItem>
@@ -155,7 +155,7 @@ export const UserTable = ({
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-slate-50">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
@@ -172,7 +172,7 @@ export const UserTable = ({
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Verification" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-slate-50">
               <SelectItem value="all">All Users</SelectItem>
               <SelectItem value="email">Email Verified</SelectItem>
               <SelectItem value="phone">Phone Verified</SelectItem>
@@ -314,15 +314,14 @@ export const UserTable = ({
 
                   {/* Actions */}
                   <TableCell className="text-right">
-                    <DropdownMenu>
+                    <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="bg-slate-50">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
 
                         <DropdownMenuItem onClick={() => onEdit(user)}>
                           <Eye className="mr-2 h-4 w-4" />
