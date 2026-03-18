@@ -21,7 +21,7 @@ export function DeleteConfirmationDialog({
   destructive = true,
 }) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange} model={false}>
+    <AlertDialog open={open} onOpenChange={onOpenChange} >
       <AlertDialogContent className="bg-white ">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-lg font-semibold text-black">

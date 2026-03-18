@@ -8,7 +8,6 @@ import {
   logActivity,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 
 /* ---------------- SCHEMAS ---------------- */
@@ -217,10 +216,7 @@ async function handlePatch(request, { params }) {
   const { user } = await auth();
   const { id: matchId } = params;
 
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.UPDATE, RESOURCES.MATCH)) {
-    return errorResponse("You don't have permission to update matches", 403);
-  }
+
 
   const body = await request.json();
 
@@ -430,10 +426,7 @@ async function handleDelete(request, { params }) {
   const { user } = await auth();
   const { id: matchId } = params;
 
-  const ability = defineAbilityFor(user);
-  if (!ability.can(ACTIONS.DELETE, RESOURCES.MATCH)) {
-    return errorResponse("You don't have permission to delete matches", 403);
-  }
+
 
   const match = await db.matches.findUnique({
     where: { id: matchId },

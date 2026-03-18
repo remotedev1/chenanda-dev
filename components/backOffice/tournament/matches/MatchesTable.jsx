@@ -30,9 +30,20 @@ import {
   Calendar,
   MapPin,
   Swords,
+  Loader2,
 } from "lucide-react";
-import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 /* ---- Constants ---- */
 
@@ -110,7 +121,6 @@ function MatchCardSkeleton() {
 
 // Match Card Component
 function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
-
   const sport = SPORT_ICONS[match.sport] || "🏆";
   const participants = match.participants || [];
   const team1 = participants[0];
@@ -166,8 +176,6 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
 
       {/* Content */}
       <div className="p-5 space-y-4">
-       
-
         {/* Teams VS Display */}
         <div className="flex items-center gap-3 py-2">
           <div className="flex-1 text-right min-w-0">
@@ -255,7 +263,7 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
             <div></div>
           )}
 
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -279,21 +287,21 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
                   <DropdownMenuSeparator />
                 </>
               )}
-                <DropdownMenuItem
-                  onClick={() => onEdit(match)}
-                  className="cursor-pointer"
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-red-600 cursor-pointer"
-                  onClick={() => onDelete(match)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onEdit(match)}
+                className="cursor-pointer"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-red-600 cursor-pointer"
+                onClick={() => onDelete(match)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -538,17 +546,30 @@ export function MatchTable({
       )}
 
       {/* Delete Dialog */}
-      <DeleteConfirmationDialog
+      <AlertDialog
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog({ open, match: null })}
-        onConfirm={handleDelete}
-        title="Delete Match"
-        description="Are you sure you want to delete this match? This cannot be undone."
-        itemName={
-          deleteDialog.match?.name || `Match #${deleteDialog.match?.matchNo}`
-        }
-        loading={deleting}
-      />
+      >
+        <AlertDialogContent className="bg-white  ">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Tournament?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to Delete this Match?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={loading}
+              className="bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+            >
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

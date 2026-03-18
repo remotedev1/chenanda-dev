@@ -1,22 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Plus, Swords } from "lucide-react";
-import { EmptyState } from "@/components/common/EmptyState";
 import {
   useMatches,
   useCreateMatch,
@@ -49,6 +43,12 @@ const MatchesMain = ({ games = [] }) => {
   const { createMatch, creating } = useCreateMatch({ tournamentId });
   const { updateMatch, updating } = useUpdateMatch({ tournamentId });
   const { deleteMatch } = useDeleteMatch();
+
+  useEffect(() => {
+    if (!createDialogOpen && !editDialogOpen && !liveSheetOpen) {
+      document.body.style.pointerEvents = "";
+    }
+  }, [createDialogOpen, editDialogOpen, liveSheetOpen]);
 
   const handleCreate = async (data) => {
     await createMatch(data);
@@ -115,7 +115,6 @@ const MatchesMain = ({ games = [] }) => {
     );
   }
 
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -137,78 +136,76 @@ const MatchesMain = ({ games = [] }) => {
         </Button>
       </div>
 
-      {/* Content */}
-      {matches.length === 0 && !filters.search ? (
-        <EmptyState
-          icon={Swords}
-          title="No matches scheduled"
-          description="Start scheduling matches for this tournament"
-          actionLabel="Schedule Match"
-          onAction={() => setCreateDialogOpen(true)}
-          showAction={true}
-        />
-      ) : (
-        <MatchTable
-          matches={matches}
-          pagination={pagination}
-          filters={filters}
-          onFilterChange={updateFilters}
-          onPageChange={setPage}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onLiveControl={handleLiveControl}
-        />
-      )}
+      <MatchTable
+        matches={matches}
+        pagination={pagination}
+        filters={filters}
+        onFilterChange={updateFilters}
+        onPageChange={setPage}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onLiveControl={handleLiveControl}
+      />
 
-      {/* Create Dialog */}
-      <Dialog
-        open={createDialogOpen}
-        onOpenChange={(isOpen) => handleDialogClose(isOpen, "create")}
-      >
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800">
+      {/* Create Sheet */}
+      <Sheet open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-2xl overflow-y-auto bg-white"
+        >
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">
               Schedule New Match
-            </DialogTitle>
-            <DialogDescription className="text-slate-600">
+            </SheetTitle>
+            <SheetDescription className="text-slate-600">
               Fill in the match details below
-            </DialogDescription>
-          </DialogHeader>
-          <MatchForm
-            onSubmit={handleCreate}
-            onCancel={() => setCreateDialogOpen(false)}
-            loading={creating}
-            tournamentId={tournamentId}
-            games={games}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-4">
+            <MatchForm
+              onSubmit={handleCreate}
+              onCancel={() => setCreateDialogOpen(false)}
+              loading={creating}
+              tournamentId={tournamentId}
+              games={games}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
-      {/* Edit Dialog */}
-      <Dialog
+      {/* Edit Sheet */}
+      <Sheet
         open={editDialogOpen}
-        onOpenChange={(isOpen) => handleDialogClose(isOpen, "edit")}
+        onOpenChange={(open) => {
+          setEditDialogOpen(open);
+          if (!open) setSelectedMatch(null);
+        }}
       >
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800">Edit Match</DialogTitle>
-            <DialogDescription className="text-slate-600">
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-2xl overflow-y-auto bg-white"
+        >
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">Edit Match</SheetTitle>
+            <SheetDescription className="text-slate-600">
               Update the match details below
-            </DialogDescription>
-          </DialogHeader>
-          <MatchForm
-            onSubmit={handleUpdate}
-            onCancel={() => {
-              setEditDialogOpen(false);
-              setSelectedMatch(null);
-            }}
-            loading={updating}
-            initialData={selectedMatch}
-            tournamentId={tournamentId}
-            games={games}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-4">
+            <MatchForm
+              onSubmit={handleUpdate}
+              onCancel={() => {
+                setEditDialogOpen(false);
+                setSelectedMatch(null);
+              }}
+              loading={updating}
+              initialData={selectedMatch}
+              tournamentId={tournamentId}
+              games={games}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Live Control Sheet — slides in from right, stays open while managing */}
       <Sheet open={liveSheetOpen} onOpenChange={setLiveSheetOpen}>
