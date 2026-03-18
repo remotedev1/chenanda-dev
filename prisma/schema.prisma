@@ -70,7 +70,7 @@ model Account {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerAccountId])
 }
@@ -127,7 +127,7 @@ model Tournament {
   placements TournamentPlacement[]
 
   createdById String @db.ObjectId
-  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdBy   User   @relation(fields: [createdById], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,7 +144,7 @@ model Sponsor {
   status       Boolean      @default(false)
   logo         ImageStore[]
   createdById  String       @db.ObjectId
-  createdBy    User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdBy    User         @relation(fields: [createdById], references: [id])
   Tournament   Tournament?  @relation(fields: [tournamentId], references: [id])
   tournamentId String?      @db.ObjectId
   createdAt    DateTime     @default(now())
@@ -161,7 +161,7 @@ type ImageStore {
 model TournamentGame {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
   tournamentId String     @db.ObjectId
-  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
 
   // Game Details
   sportType SportType // FIELD_HOCKEY, CRICKET, FOOTBALL, etc.
@@ -208,12 +208,12 @@ enum TournamentStatus {
 model GameRegistration {
   id              String                  @id @default(auto()) @map("_id") @db.ObjectId
   gameId          String                  @db.ObjectId
-  game            TournamentGame          @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  game            TournamentGame          @relation(fields: [gameId], references: [id])
   participationId String                  @db.ObjectId
-  participation   TournamentParticipation @relation(fields: [participationId], references: [id], onDelete: Cascade)
+  participation   TournamentParticipation @relation(fields: [participationId], references: [id])
 
   paymentId String  @db.ObjectId
-  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  payment   Payment @relation(fields: [paymentId], references: [id])
 
   // Team/Player Details for this specific game
   familyId String   @db.ObjectId
@@ -284,13 +284,16 @@ model TournamentParticipation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   tournamentId String     @db.ObjectId
-  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
 
   familyId String   @db.ObjectId
-  family   Families @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  family   Families @relation(fields: [familyId], references: [id])
 
   // Game-specific registrations for this family in this tournament
   gameRegistrations GameRegistration[]
+
+  matchId String?  @db.ObjectId
+  matches Matches? @relation(fields: [matchId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -341,7 +344,7 @@ model TournamentPlacement {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   tournamentId String     @db.ObjectId
-  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
 
   familyId String   @db.ObjectId
   family   Families @relation(fields: [familyId], references: [id])
@@ -388,7 +391,7 @@ model Player {
 
   // Families this player belongs to
   familyId String   @db.ObjectId // Single ID (not an array)
-  family   Families @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  family   Families @relation(fields: [familyId], references: [id])
 
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -410,7 +413,7 @@ model Matches {
 
   // Tournament and Sport link
   tournamentId String     @db.ObjectId
-  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
   sport        SportType // Sport for this match
 
   // Link to specific game/event (optional - for tournaments with multiple game types)
@@ -452,8 +455,9 @@ model Matches {
   notes   String?
   images  String[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  TournamentParticipation TournamentParticipation[]
 
   @@unique([tournamentId, sport, matchNo])
   @@index([tournamentId, sport, status])
@@ -728,7 +732,7 @@ model Payment {
 
   // Family making the payment
   familyId String   @db.ObjectId
-  family   Families @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  family   Families @relation(fields: [familyId], references: [id])
 
   // Payment details
   amount      Float

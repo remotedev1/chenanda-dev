@@ -1,6 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, isPast, isToday, differenceInDays } from "date-fns";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -40,44 +40,34 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { isPast, isToday, isFuture, differenceInDays } from "date-fns";
 
-// Constants (imported from GameForm)
+// Constants
 import { SPORT_TYPES, GAME_CATEGORIES } from "./GamesForm";
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   HELPER FUNCTIONS
+   HELPERS
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function getDeadlineStatus(deadline) {
   if (!deadline) return null;
+  const d = new Date(deadline);
 
-  const deadlineDate = new Date(deadline);
-  const now = new Date();
-
-  if (isPast(deadlineDate) && !isToday(deadlineDate)) {
+  if (isPast(d) && !isToday(d))
     return { label: "Closed", variant: "destructive", urgent: false };
-  }
-
-  if (isToday(deadlineDate)) {
+  if (isToday(d))
     return { label: "Today", variant: "destructive", urgent: true };
-  }
 
-  const daysLeft = differenceInDays(deadlineDate, now);
-
-  if (daysLeft <= 3) {
-    return { label: `${daysLeft}d left`, variant: "destructive", urgent: true };
-  }
-
-  if (daysLeft <= 7) {
-    return { label: `${daysLeft}d left`, variant: "warning", urgent: false };
-  }
+  const days = differenceInDays(d, new Date());
+  if (days <= 3)
+    return { label: `${days}d left`, variant: "destructive", urgent: true };
+  if (days <= 7)
+    return { label: `${days}d left`, variant: "warning", urgent: false };
 
   return { label: "Open", variant: "success", urgent: false };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   GAME CARD COMPONENT
+   GAME CARD
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export function GameCard({ game, onEdit, onDelete, onToggleActive }) {
@@ -99,79 +89,75 @@ export function GameCard({ game, onEdit, onDelete, onToggleActive }) {
   return (
     <Card
       className={cn(
-        "group relative overflow-hidden transition-all hover:shadow-lg",
+        "group relative overflow-hidden border-slate-100 bg-white transition-all hover:shadow-md hover:border-slate-200",
         !game.isActive && "opacity-60",
       )}
     >
-      {/* Top color bar */}
-      <div
-        className={cn("absolute top-0 left-0 right-0 h-1", sportConfig.color)}
-      />
+      {/* Sport colour bar */}
+      <div className={cn("absolute inset-x-0 top-0 h-0.5", sportConfig.color)} />
 
-      {/* Urgent deadline indicator */}
+      {/* Urgent badge */}
       {deadlineStatus?.urgent && game.isActive && (
-        <div className="absolute top-2 right-2">
-          <Badge variant="destructive" className="text-xs animate-pulse">
+        <div className="absolute top-3 right-3">
+          <Badge variant="destructive" className="animate-pulse text-xs">
             <AlertCircle className="mr-1 h-3 w-3" />
             Urgent
           </Badge>
         </div>
       )}
 
-      <CardHeader className="pb-3">
+      {/* Header */}
+      <CardHeader className="pb-3 pt-5">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div
-              className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-lg text-2xl",
-                sportConfig.color,
-                "bg-opacity-10",
-              )}
-            >
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {/* Sport icon pill */}
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-xl border border-slate-100">
               {game.icon || sportConfig.icon}
             </div>
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg line-clamp-1">
+            <div className="min-w-0 flex-1">
+              <CardTitle className="line-clamp-1 text-base text-slate-800">
                 {game.name}
               </CardTitle>
-              <CardDescription className="flex items-center gap-2 mt-1">
+              <CardDescription className="mt-0.5 flex items-center gap-1.5 text-xs">
                 <span className={categoryConfig.color}>
                   {categoryConfig.icon} {categoryConfig.label}
                 </span>
                 {game.format && (
                   <>
-                    <span>•</span>
-                    <span>{game.format}</span>
+                    <span className="text-slate-300">·</span>
+                    <span className="text-slate-500">{game.format}</span>
                   </>
                 )}
               </CardDescription>
             </div>
           </div>
 
-          {/* Actions dropdown */}
+          {/* Actions */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-8 w-8 p-0 opacity-0 transition-opacity group-hover:opacity-100 text-slate-500 hover:text-slate-700 hover:bg-slate-100"
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-slate-50">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
+            <DropdownMenuContent align="end" className="bg-white border-slate-100 shadow-lg">
+              <DropdownMenuLabel className="text-xs text-slate-400 font-medium">
+                Actions
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-slate-100" />
               <DropdownMenuItem
                 onClick={() => onEdit(game)}
-                className="cursor-pointer hover:bg-blue-300"
+                className="cursor-pointer text-slate-600 hover:text-slate-800 hover:bg-slate-50 focus:bg-slate-50"
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Game
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => onToggleActive(game)}
-                className="cursor-pointer hover:bg-blue-300"
+                className="cursor-pointer text-slate-600 hover:text-slate-800 hover:bg-slate-50 focus:bg-slate-50"
               >
                 {game.isActive ? (
                   <>
@@ -185,10 +171,10 @@ export function GameCard({ game, onEdit, onDelete, onToggleActive }) {
                   </>
                 )}
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="bg-slate-100" />
               <DropdownMenuItem
                 onClick={() => onDelete(game)}
-                className="text-red-600 focus:text-red-600 cursor-pointer hover:bg-blue-300"
+                className="cursor-pointer text-red-500 hover:text-red-600 hover:bg-red-50 focus:bg-red-50 focus:text-red-600"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete Game
@@ -199,27 +185,26 @@ export function GameCard({ game, onEdit, onDelete, onToggleActive }) {
       </CardHeader>
 
       <CardContent className="space-y-3 pb-3">
-        {/* Date */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="h-4 w-4" />
+        {/* Game date */}
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <Calendar className="h-3.5 w-3.5 text-slate-400" />
           <span>{format(new Date(game.date), "PPP")}</span>
         </div>
 
-        {/* Registration Info */}
-        <div className="space-y-2 pt-2 border-t">
-          {/* Registration Deadline */}
+        {/* Registration info */}
+        <div className="rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-2">
           {game.registrationDeadline && (
-            <div className="flex items-center justify-between gap-2 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>Registration:</span>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <Clock className="h-3.5 w-3.5 text-slate-400" />
+                <span>Deadline</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-medium">
+                <span className="font-medium text-slate-700">
                   {format(new Date(game.registrationDeadline), "MMM d, yyyy")}
                 </span>
                 {deadlineStatus && (
-                  <Badge variant={deadlineStatus.variant} className="text-xs">
+                  <Badge variant={deadlineStatus.variant} className="text-xs py-0">
                     {deadlineStatus.label}
                   </Badge>
                 )}
@@ -227,55 +212,63 @@ export function GameCard({ game, onEdit, onDelete, onToggleActive }) {
             </div>
           )}
 
-          {/* Registration Fee */}
-          {game.registrationFee !== null &&
-            game.registrationFee !== undefined && (
-              <div className="flex items-center justify-between gap-2 text-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <IndianRupee className="h-4 w-4" />
-                  <span>Fee:</span>
-                </div>
-                <span className="font-semibold text-green-600">
-                  {game.registrationFee === 0 ? (
-                    <Badge variant="outline" className="text-green-600">
-                      Free
-                    </Badge>
-                  ) : (
-                    `₹${game.registrationFee.toLocaleString("en-IN")}`
-                  )}
-                </span>
+          {game.registrationFee !== null && game.registrationFee !== undefined && (
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <IndianRupee className="h-3.5 w-3.5 text-slate-400" />
+                <span>Fee</span>
               </div>
-            )}
+              <span className="font-semibold text-green-600">
+                {game.registrationFee === 0 ? (
+                  <Badge
+                    variant="outline"
+                    className="text-green-600 border-green-200 bg-green-50 text-xs py-0"
+                  >
+                    Free
+                  </Badge>
+                ) : (
+                  `₹${game.registrationFee.toLocaleString("en-IN")}`
+                )}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-4 text-sm pt-2 border-t">
-          <div className="flex items-center gap-1.5">
-            <Users className="h-4 w-4 text-blue-500" />
-            <span className="font-medium">
+        {/* Stats row */}
+        <div className="flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <Users className="h-3.5 w-3.5 text-blue-400" />
+            <span className="font-semibold text-slate-700">
               {game._count?.registrations || 0}
             </span>
-            <span className="text-muted-foreground">teams</span>
+            <span>teams</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Trophy className="h-4 w-4 text-orange-500" />
-            <span className="font-medium">{game._count?.matches || 0}</span>
-            <span className="text-muted-foreground">matches</span>
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <Trophy className="h-3.5 w-3.5 text-orange-400" />
+            <span className="font-semibold text-slate-700">
+              {game._count?.matches || 0}
+            </span>
+            <span>matches</span>
           </div>
         </div>
 
         {/* Description */}
         {game.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="line-clamp-2 text-xs text-slate-400">
             {game.description}
           </p>
         )}
 
         {/* Status badges */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           <Badge
             variant={game.isActive ? "default" : "secondary"}
-            className="text-xs"
+            className={cn(
+              "text-xs",
+              game.isActive
+                ? "bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-100"
+                : "bg-slate-100 text-slate-500",
+            )}
           >
             {game.isActive ? (
               <>
@@ -289,16 +282,19 @@ export function GameCard({ game, onEdit, onDelete, onToggleActive }) {
               </>
             )}
           </Badge>
-          <Badge variant="outline" className="text-xs">
+          <Badge
+            variant="outline"
+            className="text-xs border-slate-200 text-slate-500"
+          >
             {sportConfig.label}
           </Badge>
         </div>
       </CardContent>
 
       {game.rules && (
-        <CardFooter className="pt-3 border-t">
-          <div className="flex items-start gap-2 text-sm text-muted-foreground w-full">
-            <FileText className="h-4 w-4 mt-0.5 flex-shrink-0" />
+        <CardFooter className="border-t border-slate-100 pt-3">
+          <div className="flex items-start gap-2 text-xs text-slate-400 w-full">
+            <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <p className="line-clamp-2 flex-1">{game.rules}</p>
           </div>
         </CardFooter>

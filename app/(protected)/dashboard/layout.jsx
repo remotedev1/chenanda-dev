@@ -10,11 +10,13 @@ import { AbilityProvider } from "@/components/providers/AbilityContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 export default function DashboardLayout({ children }) {
   const { userData, status, update, isLoading } = useCurrentUser();
   const hasRefreshed = useRef(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -47,7 +49,7 @@ export default function DashboardLayout({ children }) {
   // Wait until session is fully resolved
   if (isLoading)
     return <div className="w-full text-center p-10">Loading...</div>;
-  if (status === "unauthenticated") return null; // or redirect
+  if (status === "unauthenticated") router.refresh(); // or redirect
 
   const defaultOpen = Cookies.get("sidebar_state") !== "false";
   const role = userData?.user?.role ?? "guest";

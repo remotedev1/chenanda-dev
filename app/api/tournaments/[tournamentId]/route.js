@@ -7,7 +7,6 @@ import {
   logActivity,
   withErrorHandling,
 } from "@/lib/api/helpers";
-import { ACTIONS, defineAbilityFor, RESOURCES } from "@/lib/ability";
 import { auth } from "@/auth";
 
 /* ---------------- ENUMS ---------------- */
@@ -108,7 +107,6 @@ async function handlePatch(request, { params }) {
   if (setup.error) return setup.error;
 
   const user = auth();
-  console.log(user);
 
   const { tournamentId } = params;
 
@@ -204,14 +202,6 @@ async function handlePatch(request, { params }) {
 async function handleDelete(request, { params }) {
   const setup = await setupApiHandler(request, "tournaments:delete");
   if (setup.error) return setup.error;
-
-  const ability = defineAbilityFor(setup.user);
-  if (!ability.can(ACTIONS.DELETE, RESOURCES.TOURNAMENT)) {
-    return errorResponse(
-      "You don't have permission to delete tournaments",
-      403,
-    );
-  }
 
   const { id } = params;
 
