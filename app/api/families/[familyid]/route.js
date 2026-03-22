@@ -178,20 +178,11 @@ async function handlePut(request, { params }) {
     }),
     updatedAt: new Date(),
   };
-
+console.log(updateData)
   // Update family
   const family = await db.families.update({
     where: { id: familyId },
     data: updateData,
-    include: {
-      _count: {
-        select: {
-          players: true,
-          participations: true,
-          placements: true,
-        },
-      },
-    },
   });
 
   // Log activity
