@@ -14,7 +14,10 @@ import { Badge } from "@/components/ui/badge";
 
 // Validation schema
 const createFamilySchema = z.object({
-  familyName: z.string().min(1, "Family name is required").max(100, "Family name is too long"),
+  familyName: z
+    .string()
+    .min(1, "Family name is required")
+    .max(100, "Family name is too long"),
   description: z.string().optional(),
   colors: z.string().optional(),
   info: z.array(z.record(z.any())).optional().default([]),
@@ -70,7 +73,7 @@ export function FamilyForm({
     // Assuming imageUrl contains the fileId or we track it separately
     const updatedImages = formData.images.filter((img) => img !== imageUrl);
     handleChange("images", updatedImages);
-    
+
     // Mark for deletion if it's an existing image
     if (initialData?.images?.includes(imageUrl)) {
       // Extract fileId from URL if needed
@@ -81,7 +84,7 @@ export function FamilyForm({
   // Color management
   const handleAddColor = () => {
     if (!colorInput.trim()) return;
-    
+
     const newColor = colorInput.trim();
     if (!colorArray.includes(newColor)) {
       const updatedColors = [...colorArray, newColor];
@@ -123,18 +126,6 @@ export function FamilyForm({
 
       // Submit the form
       await onSubmit(validated);
-
-      // After successful submission, delete old images
-      if (imagesToDelete.length > 0) {
-        try {
-          await Promise.allSettled(
-            imagesToDelete.map((fileId) => deleteImageKitFile(fileId))
-          );
-        } catch (error) {
-          console.error("Failed to delete old images:", error);
-          // Don't show error to user as the main operation succeeded
-        }
-      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors = {};
@@ -216,7 +207,7 @@ export function FamilyForm({
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            
+
             {colorArray.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {colorArray.map((color, idx) => (
@@ -327,7 +318,8 @@ export function FamilyForm({
           <p className="text-sm text-red-500">{errors.images}</p>
         )}
         <p className="text-xs text-muted-foreground">
-          Upload multiple images to showcase the family. Recommended size: 800x600px
+          Upload multiple images to showcase the family. Recommended size:
+          800x600px
         </p>
       </div>
 
