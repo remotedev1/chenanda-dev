@@ -147,29 +147,6 @@ async function handlePut(request, { params }) {
     return errorResponse("Family not found", 404);
   }
 
-  // Handle image deletion if images have changed
-  if (validated.images !== undefined) {
-    const oldImages = existing.images || [];
-    const newImages = validated.images || [];
-
-    // Find images that were removed
-    const removedImages = oldImages.filter((img) => !newImages.includes(img));
-
-    // Extract fileIds and delete from ImageKit (async, don't wait)
-    if (removedImages.length > 0) {
-      removedImages.forEach((imageUrl) => {
-        // Extract fileId from URL if possible
-        // Example: https://ik.imagekit.io/xxx/families/fileId.jpg
-        const fileIdMatch = imageUrl.match(/\/([^\/]+)\.[^.]+$/);
-        if (fileIdMatch && fileIdMatch[1]) {
-          deleteImageKitFile(fileIdMatch[1]).catch((err) => {
-            console.error("Failed to delete image from ImageKit:", err);
-          });
-        }
-      });
-    }
-  }
-
   // Check for duplicate name (if name is being changed)
   if (validated.familyName && validated.familyName !== existing.familyName) {
     const duplicate = await db.families.findFirst({
