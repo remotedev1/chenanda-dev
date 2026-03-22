@@ -242,7 +242,7 @@ function PaymentCard({ payment, onEdit, onDelete }) {
             {format(new Date(payment.createdAt), "dd MMM yyyy, hh:mm a")}
           </div>
 
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"

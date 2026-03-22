@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 import { Plus, DollarSign } from "lucide-react";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -24,8 +24,8 @@ import { withPermission } from "@/components/auth/WithPerission";
 import { Can } from "@/components/providers/AbilityContext";
 
 const SponsorsMain = () => {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createSheetOpen, setCreateSheetOpen] = useState(false);
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [selectedSponsor, setSelectedSponsor] = useState(null);
 
   const {
@@ -43,18 +43,18 @@ const SponsorsMain = () => {
 
   const handleCreate = async (data) => {
     await createSponsor(data);
-    setCreateDialogOpen(false);
+    setCreateSheetOpen(false);
     refresh();
   };
 
   const handleEdit = (sponsor) => {
     setSelectedSponsor(sponsor);
-    setEditDialogOpen(true);
+    setEditSheetOpen(true);
   };
 
   const handleUpdate = async (data) => {
     await updateSponsor(selectedSponsor.id, data);
-    setEditDialogOpen(false);
+    setEditSheetOpen(false);
     setSelectedSponsor(null);
     refresh();
   };
@@ -78,7 +78,7 @@ const SponsorsMain = () => {
         </div>
         <Can I="create" a="Sponsor">
           <Button
-            onClick={() => setCreateDialogOpen(true)}
+            onClick={() => setCreateSheetOpen(true)}
             className="bg-orange-500 hover:bg-orange-600 text-white"
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -94,7 +94,7 @@ const SponsorsMain = () => {
           title="No sponsors yet"
           description="Start adding sponsors to support your tournaments"
           actionLabel="Add Sponsor"
-          onAction={() => setCreateDialogOpen(true)}
+          onAction={() => setCreateSheetOpen(true)}
           showAction={true}
         />
       ) : (
@@ -109,45 +109,53 @@ const SponsorsMain = () => {
         />
       )}
 
-      {/* Create Dialog */}
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800 ">
-              Add New Sponsor
-            </DialogTitle>
-            <DialogDescription className="text-slate-600 ml-0">
+      {/* Create Sheet */}
+      <Sheet open={createSheetOpen} onOpenChange={setCreateSheetOpen}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">Add New Sponsor</SheetTitle>
+            <SheetDescription className="text-slate-600">
               Fill in the sponsor details below
-            </DialogDescription>
-          </DialogHeader>
-          <SponsorForm
-            onSubmit={handleCreate}
-            onCancel={() => setCreateDialogOpen(false)}
-            loading={creating}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <SponsorForm
+              onSubmit={handleCreate}
+              onCancel={() => setCreateSheetOpen(false)}
+              loading={creating}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
-      {/* Edit Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto  p-6 rounded-lg text-slate-600 dark:text-slate-300">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800 ">Edit Sponsor</DialogTitle>
-            <DialogDescription className="text-slate-600 ">
+      {/* Edit Sheet */}
+      <Sheet
+        open={editSheetOpen}
+        onOpenChange={(isOpen) => {
+          setEditSheetOpen(isOpen);
+          if (!isOpen) setSelectedSponsor(null);
+        }}
+      >
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">Edit Sponsor</SheetTitle>
+            <SheetDescription className="text-slate-600">
               Update the sponsor details below
-            </DialogDescription>
-          </DialogHeader>
-          <SponsorForm
-            onSubmit={handleUpdate}
-            onCancel={() => {
-              setEditDialogOpen(false);
-              setSelectedSponsor(null);
-            }}
-            loading={updating}
-            initialData={selectedSponsor}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <SponsorForm
+              onSubmit={handleUpdate}
+              onCancel={() => {
+                setEditSheetOpen(false);
+                setSelectedSponsor(null);
+              }}
+              loading={updating}
+              initialData={selectedSponsor}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

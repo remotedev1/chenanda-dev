@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Badge, Plus, Users } from "lucide-react";
 import { EmptyState } from "@/components/common/EmptyState";
 import {
@@ -23,8 +23,8 @@ import { FamilyTable } from "./FamiliesTable";
 import { withPermission } from "@/components/auth/WithPerission";
 
 const FamiliesMain = () => {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createSheetOpen, setCreateSheetOpen] = useState(false);
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [selectedFamily, setSelectedFamily] = useState(null);
 
   const {
@@ -39,20 +39,21 @@ const FamiliesMain = () => {
   const { createFamily, creating } = useCreateFamily();
   const { updateFamily, updating } = useUpdateFamily();
   const { deleteFamily } = useDeleteFamily();
+
   const handleCreate = async (data) => {
     await createFamily(data);
-    setCreateDialogOpen(false);
+    setCreateSheetOpen(false);
     refresh();
   };
 
   const handleEdit = (family) => {
     setSelectedFamily(family);
-    setEditDialogOpen(true);
+    setEditSheetOpen(true);
   };
 
   const handleUpdate = async (data) => {
     await updateFamily(selectedFamily.id, data);
-    setEditDialogOpen(false);
+    setEditSheetOpen(false);
     setSelectedFamily(null);
     refresh();
   };
@@ -62,11 +63,11 @@ const FamiliesMain = () => {
     refresh();
   };
 
-  const handleDialogClose = (isOpen, dialogType) => {
-    if (dialogType === "create") {
-      setCreateDialogOpen(isOpen);
+  const handleSheetClose = (isOpen, sheetType) => {
+    if (sheetType === "create") {
+      setCreateSheetOpen(isOpen);
     } else {
-      setEditDialogOpen(isOpen);
+      setEditSheetOpen(isOpen);
       if (!isOpen) setSelectedFamily(null);
     }
   };
@@ -84,7 +85,7 @@ const FamiliesMain = () => {
           </p>
         </div>
         <Button
-          onClick={() => setCreateDialogOpen(true)}
+          onClick={() => setCreateSheetOpen(true)}
           className="bg-orange-500 hover:bg-orange-600 text-white"
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -99,7 +100,7 @@ const FamiliesMain = () => {
           title="No families yet"
           description="Start adding families to organize your tournament participants"
           actionLabel="Add Family"
-          onAction={() => setCreateDialogOpen(true)}
+          onAction={() => setCreateSheetOpen(true)}
           showAction={true}
         />
       ) : (
@@ -114,51 +115,53 @@ const FamiliesMain = () => {
         />
       )}
 
-      {/* Create Dialog */}
-      <Dialog
-        open={createDialogOpen}
-        onOpenChange={(isOpen) => handleDialogClose(isOpen, "create")}
-        model={false}
+      {/* Create Sheet */}
+      <Sheet
+        open={createSheetOpen}
+        onOpenChange={(isOpen) => handleSheetClose(isOpen, "create")}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800">Add New Family</DialogTitle>
-            <DialogDescription className="text-slate-600">
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">Add New Family</SheetTitle>
+            <SheetDescription className="text-slate-600">
               Fill in the family details below
-            </DialogDescription>
-          </DialogHeader>
-          <FamilyForm
-            onSubmit={handleCreate}
-            onCancel={() => setCreateDialogOpen(false)}
-            loading={creating}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <FamilyForm
+              onSubmit={handleCreate}
+              onCancel={() => setCreateSheetOpen(false)}
+              loading={creating}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
-      {/* Edit Dialog */}
-      <Dialog
-        open={editDialogOpen}
-        onOpenChange={(isOpen) => handleDialogClose(isOpen, "edit")}
-        model={false}
+      {/* Edit Sheet */}
+      <Sheet
+        open={editSheetOpen}
+        onOpenChange={(isOpen) => handleSheetClose(isOpen, "edit")}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800">Edit Family</DialogTitle>
-            <DialogDescription className="text-slate-600">
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">Edit Family</SheetTitle>
+            <SheetDescription className="text-slate-600">
               Update the family details below
-            </DialogDescription>
-          </DialogHeader>
-          <FamilyForm
-            onSubmit={handleUpdate}
-            onCancel={() => {
-              setEditDialogOpen(false);
-              setSelectedFamily(null);
-            }}
-            loading={updating}
-            initialData={selectedFamily}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <FamilyForm
+              onSubmit={handleUpdate}
+              onCancel={() => {
+                setEditSheetOpen(false);
+                setSelectedFamily(null);
+              }}
+              loading={updating}
+              initialData={selectedFamily}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

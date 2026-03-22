@@ -15,7 +15,7 @@ export function AppSidebar({ ...props }) {
 
   return (
     <Sidebar collapsible="icon" variant="floating" {...props}>
-      <div className="bg-white">
+      <div className="bg-white min-h-screen ">
         <SidebarHeader>
           <div className="flex justify-between">
             <h1 className="text-lg font-semibold relative left-2 overflow-hidden">

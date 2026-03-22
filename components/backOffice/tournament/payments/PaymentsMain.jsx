@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Plus, Wallet } from "lucide-react";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,8 +24,8 @@ import {
 import { withPermission } from "@/components/auth/WithPerission";
 
 const PaymentsMain = ({ tournaments = [], games = [] }) => {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createSheetOpen, setCreateSheetOpen] = useState(false);
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
 
   const {
@@ -44,18 +44,18 @@ const PaymentsMain = ({ tournaments = [], games = [] }) => {
 
   const handleCreate = async (data) => {
     await createPayment(data);
-    setCreateDialogOpen(false);
+    setCreateSheetOpen(false);
     refresh();
   };
 
   const handleEdit = (payment) => {
     setSelectedPayment(payment);
-    setEditDialogOpen(true);
+    setEditSheetOpen(true);
   };
 
   const handleUpdate = async (data) => {
     await updatePayment(selectedPayment.id, data);
-    setEditDialogOpen(false);
+    setEditSheetOpen(false);
     setSelectedPayment(null);
     refresh();
   };
@@ -65,15 +65,14 @@ const PaymentsMain = ({ tournaments = [], games = [] }) => {
     refresh();
   };
 
-  const handleDialogClose = (isOpen, type) => {
+  const handleSheetClose = (isOpen, type) => {
     if (type === "create") {
-      setCreateDialogOpen(isOpen);
+      setCreateSheetOpen(isOpen);
     } else {
-      setEditDialogOpen(isOpen);
+      setEditSheetOpen(isOpen);
       if (!isOpen) setSelectedPayment(null);
     }
   };
-
 
   return (
     <div className="space-y-6">
@@ -88,7 +87,7 @@ const PaymentsMain = ({ tournaments = [], games = [] }) => {
           </p>
         </div>
         <Button
-          onClick={() => setCreateDialogOpen(true)}
+          onClick={() => setCreateSheetOpen(true)}
           className="bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -115,58 +114,61 @@ const PaymentsMain = ({ tournaments = [], games = [] }) => {
         />
       )}
 
-      {/* Create Dialog */}
-      <Dialog
-        open={createDialogOpen}
-        onOpenChange={(isOpen) => handleDialogClose(isOpen, "create")}
+      {/* Create Sheet */}
+      <Sheet
+        open={createSheetOpen}
+        onOpenChange={(isOpen) => handleSheetClose(isOpen, "create")}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800">
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">
               Record New Payment
-            </DialogTitle>
-            <DialogDescription className="text-slate-600">
+            </SheetTitle>
+            <SheetDescription className="text-slate-600">
               Record a payment transaction for a family
-            </DialogDescription>
-          </DialogHeader>
-          <PaymentForm
-            onSubmit={handleCreate}
-            onCancel={() => setCreateDialogOpen(false)}
-            loading={creating}
-            tournaments={tournaments}
-            games={games}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <PaymentForm
+              onSubmit={handleCreate}
+              onCancel={() => setCreateSheetOpen(false)}
+              loading={creating}
+              tournaments={tournaments}
+              games={games}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
-      {/* Edit Dialog */}
-      <Dialog
-        open={editDialogOpen}
-        onOpenChange={(isOpen) => handleDialogClose(isOpen, "edit")}
+      {/* Edit Sheet */}
+      <Sheet
+        open={editSheetOpen}
+        onOpenChange={(isOpen) => handleSheetClose(isOpen, "edit")}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800">Edit Payment</DialogTitle>
-            <DialogDescription className="text-slate-600">
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">Edit Payment</SheetTitle>
+            <SheetDescription className="text-slate-600">
               Update payment transaction details
-            </DialogDescription>
-          </DialogHeader>
-          <PaymentForm
-            onSubmit={handleUpdate}
-            onCancel={() => {
-              setEditDialogOpen(false);
-              setSelectedPayment(null);
-            }}
-            loading={updating}
-            initialData={selectedPayment}
-            tournaments={tournaments}
-            games={games}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <PaymentForm
+              onSubmit={handleUpdate}
+              onCancel={() => {
+                setEditSheetOpen(false);
+                setSelectedPayment(null);
+              }}
+              loading={updating}
+              initialData={selectedPayment}
+              tournaments={tournaments}
+              games={games}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
 
 export default withPermission("view", "PaymentManagement")(PaymentsMain);
-

@@ -1,616 +1,378 @@
 "use client";
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
+
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useTransform,
-  animate,
-} from "framer-motion";
-import { Zap, ChevronLeft, ChevronRight, Share } from "lucide-react";
-import { toPng } from "html-to-image";
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+  MapPin,
+  Calendar,
+  Clock,
+  ArrowRight,
+  Trophy,
+  Radio,
+} from "lucide-react";
+import Link from "next/link";
+import { useMatches } from "@/hooks/useMatch";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import MatchDetailPage from "./MatchDetails";
 
-// Animated Score Component with optimized animations
-const AnimatedScore = React.memo(({ score, color }) => {
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, (latest) => Math.round(latest));
-  const hasAnimated = useRef(false);
+/* ─── Sport icon map ─── */
+const SPORT_ICONS = {
+  FIELD_HOCKEY: "🏑", FOOTBALL: "⚽", CRICKET: "🏏",
+  BASKETBALL: "🏀", VOLLEYBALL: "🏐", BADMINTON: "🏸",
+  TENNIS: "🎾", TABLE_TENNIS: "🏓", KABADDI: "🤼", OTHER: "🏆",
+};
 
-  useEffect(() => {
-    if (!hasAnimated.current) {
-      const controls = animate(count, score, { duration: 1, ease: "easeOut" });
-      hasAnimated.current = true;
-      return controls.stop;
-    } else {
-      count.set(score);
-    }
-  }, [score, count]);
+const STATUS_META = {
+  LIVE:      { label: "● LIVE",     cls: "bg-red-500 text-white animate-pulse" },
+  SCHEDULED: { label: "Scheduled",  cls: "bg-slate-700 text-slate-200" },
+  COMPLETED: { label: "Full Time",  cls: "bg-emerald-700 text-emerald-100" },
+  DELAYED:   { label: "Delayed",    cls: "bg-amber-600 text-white" },
+  SUSPENDED: { label: "Suspended",  cls: "bg-orange-600 text-white" },
+  POSTPONED: { label: "Postponed",  cls: "bg-slate-600 text-slate-200" },
+  CANCELLED: { label: "Cancelled",  cls: "bg-red-900 text-red-300 line-through" },
+  ABANDONED: { label: "Abandoned",  cls: "bg-gray-700 text-gray-300" },
+};
+
+const VENUE_LABELS = {
+  GROUND_1: "Ground 1", GROUND_2: "Ground 2", GROUND_3: "Ground 3",
+  GROUND_4: "Ground 4", GROUND_5: "Ground 5", MAIN_STADIUM: "Main Stadium",
+};
+
+const ROUND_LABELS = {
+  POOL_STAGE: "Pool Stage", ROUND_OF_16: "R16", PRE_QUARTER: "Pre-QF",
+  QUARTER_FINAL: "Quarter Final", SEMI_FINAL: "Semi Final",
+  THIRD_PLACE: "3rd Place", FINAL: "Grand Final",
+};
+
+/* ─── Extract score from TeamMatchData based on sport ─── */
+function getScore(participant, sport) {
+  if (!participant) return "-";
+  const d = participant.hockeyData || participant.footballData || participant.cricketData;
+  if (!d) return "-";
+  if (sport === "CRICKET") return `${d.runs ?? 0}/${d.wickets ?? 0}`;
+  return d.goals ?? 0;
+}
+
+/* ─── Scorecard ─── */
+function ScoreCard({ match, isActive, onViewDetails }) {
+  const team1 = match.participants?.[0];
+  const team2 = match.participants?.[1];
+  const score1 = getScore(team1, match.sport);
+  const score2 = getScore(team2, match.sport);
+  const statusMeta = STATUS_META[match.status] || STATUS_META.SCHEDULED;
+  const isLive = match.status === "LIVE";
 
   return (
-    <motion.span
-      className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black drop-shadow-lg"
-      style={{ color }}
+    <motion.div
+      className="relative w-full max-w-md mx-auto"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: isActive ? 1 : 0.5, y: 0, scale: isActive ? 1 : 0.93 }}
+      transition={{ duration: 0.4 }}
     >
-      {rounded}
-    </motion.span>
-  );
-});
+      {/* Card */}
+      <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-b from-slate-800 to-slate-900">
 
-AnimatedScore.displayName = "AnimatedScore";
+        {/* Top stripe */}
+        <div className="h-1 w-full bg-gradient-to-r from-orange-500 via-red-500 to-orange-400" />
 
-// Individual Score Card Component - Optimized
-const ScoreCard = React.memo(
-  ({ match, index, isActive, isPaused, onHoverChange }) => {
-    const [isHovered, setIsHovered] = useState(false);
-    const scorecardRef = useRef();
-    const [showOptions, setShowOptions] = useState(false);
-    // Reference for the scorecard
-    const handleDownload = async () => {
-      setShowOptions((prev) => !prev);
-      if (scorecardRef.current) {
-        try {
-          const dataUrl = await toPng(scorecardRef.current);
-          const link = document.createElement("a");
-          link.href = dataUrl;
-          link.download = `${match.team1} vs ${match.team2}.png`;
-          link.click();
-        } catch (error) {
-          console.error("Error capturing the scorecard:", error);
-        }
-      }
-    };
-
-    const handleShare = async () => {
-      setShowOptions((prev) => !prev);
-      if (scorecardRef.current && navigator.share) {
-        try {
-          const dataUrl = await toPng(scorecardRef.current);
-          const response = await fetch(dataUrl);
-          const blob = await response.blob();
-
-          await navigator.share({
-            files: [new File([blob], "scorecard.png", { type: "image/png" })],
-            title: "Scorecard",
-            text: "Check out this match scorecard!",
-          });
-        } catch (error) {
-          console.error("Error sharing the scorecard:", error);
-        }
-      } else {
-        alert("Sharing is not supported on this device.");
-      }
-    };
-    const isShareSupported =
-      typeof navigator !== "undefined" && navigator.share;
-
-    const handleHoverStart = useCallback(() => {
-      setIsHovered(true);
-      onHoverChange(true);
-    }, [onHoverChange]);
-
-    const handleHoverEnd = useCallback(() => {
-      setIsHovered(false);
-      onHoverChange(false);
-    }, [onHoverChange]);
-
-    return (
-      <motion.div
-        ref={scorecardRef}
-        className="relative min-w-[280px] xs:min-w-[320px] sm:min-w-[380px] md:min-w-[420px] snap-center "
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{
-          opacity: isActive ? 1 : 0.7,
-          scale: isActive ? 1 : 0.95,
-        }}
-        transition={{ duration: 0.3 }}
-        onHoverStart={handleHoverStart}
-        onHoverEnd={handleHoverEnd}
-      >
-        {/* Dropdown Options */}
-        <div className="absolute top-4 right-4 z-10">
-          <div className="relative">
-            <button
-              onClick={() => setShowOptions((prev) => !prev)}
-              className="p-2 bg-slate-900 rounded-full shadow hover:bg-gray-600"
-            >
-              <Share size={20} />
-            </button>
-            {showOptions && (
-              <div className="absolute right-0 mt-2 w-fit bg-slate-600 p-2 shadow-lg rounded-lg border z-20 flex flex-col items-center gap-2">
-                <button
-                  onClick={handleDownload}
-                  className="block w-full px-4 py-2  bg-blue-500 text-sm text-white rounded-sm  hover:bg-blue-400"
-                >
-                  Download
-                </button>
-                {isShareSupported && (
-                  <button
-                    onClick={handleShare}
-                    className="w-full px-4 py-2 bg-green-500 text-sm text-white rounded-sm  hover:bg-green-400"
-                  >
-                    Share
-                  </button>
-                )}
+        {/* Header row */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{SPORT_ICONS[match.sport] || "🏆"}</span>
+            <div>
+              <div className="text-xs text-slate-400 font-semibold tracking-widest uppercase">
+                {ROUND_LABELS[match.round] || match.round}
+                {match.pool ? ` · Pool ${match.pool}` : ""}
               </div>
-            )}
+              <div className="text-xs text-slate-500">Match #{match.matchNo}</div>
+            </div>
           </div>
+          <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusMeta.cls}`}>
+            {statusMeta.label}
+          </span>
         </div>
-        {/* Glow Effect - Only render when hovered */}
-        {isHovered && (
-          <motion.div
-            className="absolute inset-0 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            style={{
-              background: `linear-gradient(135deg, ${match.color1}, ${match.color2})`,
-            }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
 
-        {/* Card Content */}
-        <motion.div
-          className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 rounded-2xl sm:rounded-3xl p-4 xs:p-5 sm:p-6 md:p-8 border-2 border-cyan-500/40 shadow-2xl overflow-hidden"
-          whileHover={{
-            borderColor: "rgba(6, 182, 212, 0.8)",
-            y: -8,
-          }}
-          transition={{ duration: 0.3 }}
-        >
-          {/* Static Field Lines Background */}
-          <div className="football-field-contrast w-full "></div>
-
-          {/* Live Indicator & Time */}
-          <div className="relative flex items-center mb-[3.2rem] justify-between">
-            <motion.div
-              className="relative px-3 xs:px-4 sm:px-5 py-2 xs:py-2.5 sm:py-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full border-2 border-white/30 shadow-lg"
-              animate={!isPaused ? { scale: [1, 1.05, 1] } : {}}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              <span className="text-white text-xs xs:text-sm font-black flex items-center gap-1.5 xs:gap-2">
-                <Zap className="w-3 h-3 xs:w-4 xs:h-4 z-10" />
-                LIVE
-              </span>
-            </motion.div>
-          </div>
-
+        {/* Teams & Score */}
+        <div className="px-5 py-5 space-y-4">
           {/* Team 1 */}
-          <div className="relative flex items-center justify-between mb-4 xs:mb-5 sm:mb-6">
-            <div className="flex items-center gap-2 xs:gap-3 sm:gap-4 md:gap-5 flex-1">
-              {/* Team Logo */}
-              <div className="relative">
-                <div
-                  className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl border-3 border-white/30 shadow-xl flex items-center justify-center font-black text-base xs:text-lg sm:text-xl md:text-2xl text-white"
-                  style={{ backgroundColor: match.color1 }}
-                >
-                  {match.team1.substring(0, 2).toUpperCase()}
-                </div>
-                <div
-                  className="absolute inset-0 rounded-xl sm:rounded-2xl -z-10"
-                  style={{
-                    backgroundColor: match.color1,
-                    filter: "blur(15px)",
-                    opacity: 0.5,
-                  }}
-                />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-sm font-black text-orange-300 shrink-0">
+                {(team1?.family || "T1").substring(0, 2).toUpperCase()}
               </div>
-
-              {/* Team Name */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-black text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-1 truncate">
-                  {match.team1}
-                </h3>
-              </div>
+              <span className="font-bold text-white text-base truncate">
+                {team1?.family || "TBD"}
+              </span>
+              {match.winnerId && match.winnerId === team1?.familyId && (
+                <Trophy className="h-4 w-4 text-amber-400 shrink-0" />
+              )}
             </div>
-
-            {/* Score */}
-            <AnimatedScore score={match.score1} color="#FBBF24" />
+            <span className={`text-4xl font-black tabular-nums ${
+              match.winnerId === team1?.familyId ? "text-amber-400" : "text-white"
+            }`}>
+              {score1}
+            </span>
           </div>
 
-          {/* VS Divider */}
-          <div className="relative flex items-center justify-center my-2 xs:my-4 sm:my-5 md:my-6">
-            <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
-            <div className="relative bg-gradient-to-r from-cyan-500 to-blue-600 px-4 xs:px-5 sm:px-6 py-1.5 xs:py-2 rounded-full text-white font-black text-xs xs:text-sm shadow-lg">
-              VS
-            </div>
+          {/* VS divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-xs font-black text-slate-500 tracking-widest">VS</span>
+            <div className="flex-1 h-px bg-white/10" />
           </div>
 
           {/* Team 2 */}
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-2 xs:gap-3 sm:gap-4 md:gap-5 flex-1">
-              {/* Team Logo */}
-              <div className="relative">
-                <div
-                  className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl sm:rounded-2xl border-3 border-white/30 shadow-xl flex items-center justify-center font-black text-base xs:text-lg sm:text-xl md:text-2xl text-white"
-                  style={{ backgroundColor: match.color2 }}
-                >
-                  {match.team2.substring(0, 2).toUpperCase()}
-                </div>
-                <div
-                  className="absolute inset-0 rounded-xl sm:rounded-2xl -z-10"
-                  style={{
-                    backgroundColor: match.color2,
-                    filter: "blur(15px)",
-                    opacity: 0.5,
-                  }}
-                />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-sm font-black text-blue-300 shrink-0">
+                {(team2?.family || "T2").substring(0, 2).toUpperCase()}
               </div>
-
-              {/* Team Name */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-black text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-1 truncate">
-                  {match.team2}
-                </h3>
-              </div>
-            </div>
-
-            {/* Score */}
-            <AnimatedScore score={match.score2} color="#FBBF24" />
-          </div>
-
-          {/* Match Status Footer */}
-          <div className="mt-4 xs:mt-5 sm:mt-6 pt-4 xs:pt-5 sm:pt-6 border-t border-gray-700/50 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 xs:gap-0">
-            <div className="flex items-center gap-2 text-gray-400 text-xs xs:text-sm">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="font-bold">{match.period}</span>
-            </div>
-
-            <div className="flex items-center gap-2 xs:gap-3">
-              <span className="text-gray-500 text-[10px] xs:text-xs font-semibold uppercase tracking-wider">
-                Powered by
+              <span className="font-bold text-white text-base truncate">
+                {team2?.family || "TBD"}
               </span>
-              <div className="bg-white/10 backdrop-blur-sm px-2 xs:px-3 py-1 xs:py-1.5 rounded-lg border border-white/20">
-                <div className="flex items-center gap-1.5 xs:gap-2">
-                  <svg className="w-4 h-4 xs:w-5 xs:h-5" viewBox="0 0 100 100">
-                    <defs>
-                      <linearGradient
-                        id={`sponsorGrad-${index}`}
-                        x1="0%"
-                        y1="0%"
-                        x2="100%"
-                        y2="100%"
-                      >
-                        <stop offset="0%" stopColor="#06B6D4" />
-                        <stop offset="100%" stopColor="#3B82F6" />
-                      </linearGradient>
-                    </defs>
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      fill={`url(#sponsorGrad-${index})`}
-                    />
-                    <path
-                      d="M30,50 L50,30 L70,50 L50,70 Z"
-                      fill="white"
-                      opacity="0.9"
-                    />
-                  </svg>
-                  <span className="text-white font-black text-xs xs:text-sm">
-                    SPORTEX
-                  </span>
-                </div>
-              </div>
+              {match.winnerId && match.winnerId === team2?.familyId && (
+                <Trophy className="h-4 w-4 text-amber-400 shrink-0" />
+              )}
             </div>
+            <span className={`text-4xl font-black tabular-nums ${
+              match.winnerId === team2?.familyId ? "text-amber-400" : "text-white"
+            }`}>
+              {score2}
+            </span>
           </div>
-        </motion.div>
-      </motion.div>
-    );
-  }
-);
 
-ScoreCard.displayName = "ScoreCard";
-
-const NoLiveMatchesCard = ({
-  isActive,
-  isHovered,
-  isPaused,
-  handleHoverStart,
-  handleHoverEnd,
-  match,
-}) => {
-  return (
-    <motion.div
-      className="relative min-w-[420px] snap-center"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{
-        opacity: isActive ? 1 : 0.7,
-        scale: isActive ? 1 : 0.95,
-      }}
-      transition={{ duration: 0.4 }}
-      onHoverStart={handleHoverStart}
-      onHoverEnd={handleHoverEnd}
-    >
-      {/* Glow Effect */}
-      {isHovered && (
-        <motion.div
-          className="absolute inset-0 rounded-3xl blur-2xl"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.4 }}
-          exit={{ opacity: 0 }}
-          style={{
-            background: `linear-gradient(135deg, ${match.color1}, ${match.color2})`,
-          }}
-          transition={{ duration: 0.3 }}
-        />
-      )}
-
-      {/* Card Content */}
-      <motion.div
-        className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl p-8 border-2 border-cyan-500/40 shadow-2xl overflow-hidden"
-        whileHover={{
-          borderColor: "rgba(6, 182, 212, 0.8)",
-          y: -8,
-        }}
-        transition={{ duration: 0.3 }}
-      >
-        {/* Static Field Lines */}
-        <div className="absolute inset-0 opacity-5">
-          <div
-            className="w-full h-full"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(0deg, transparent, transparent 30px, white 30px, white 32px), repeating-linear-gradient(90deg, transparent, transparent 30px, white 30px, white 32px)",
-            }}
-          />
+          {match.isDraw && (
+            <div className="text-center">
+              <span className="text-xs font-bold bg-slate-700 text-slate-300 px-3 py-1 rounded-full">
+                DRAW
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* No Live Matches Message */}
-        <motion.div
-          className="flex flex-col items-center justify-center py-20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+        {/* Footer meta */}
+        <div className="px-5 py-3 border-t border-white/5 bg-black/20 flex items-center justify-between gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-3">
+            {match.venue && (
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-orange-400" />
+                {VENUE_LABELS[match.venue] || match.venue}
+              </span>
+            )}
+            {match.currentPeriod && isLive && (
+              <span className="flex items-center gap-1 text-red-400 font-semibold">
+                <Radio className="h-3 w-3" />
+                {match.currentPeriod.replace(/_/g, " ")}
+              </span>
+            )}
+          </div>
+          {match.scheduledOn && (
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {new Date(match.scheduledOn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+        </div>
+
+        {/* View details button */}
+        <button
+          onClick={() => onViewDetails(match)}
+          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-orange-400 hover:text-orange-300 hover:bg-orange-500/5 transition-colors border-t border-white/5"
         >
-          <p className="rounded-2xl border-3 border-white/30 shadow-xl flex items-center justify-center font-black text-2xl text-white">
-            No matches in play right now. Action returns soon!
-          </p>
-        </motion.div>
-      </motion.div>
+          View Full Details
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
     </motion.div>
   );
-};
+}
 
-NoLiveMatchesCard.displayName = "NoLiveMatchesCard";
+/* ─── Main Carousel ─── */
+export default function LiveScoreCarousel({ tournamentId }) {
+  const { matches, loading } = useMatches({ tournamentId });
 
-// Main Carousel Component - Optimized
-const LiveScoreCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState(null);
   const intervalRef = useRef(null);
 
-  // Memoized matches data
-  const matches = useMemo(
-    () => [
-      {
-        team1: "Thunder Hawks",
-        team2: "Storm Riders",
-        score1: 3,
-        score2: 2,
-        time: "35:20",
-        period: "2nd Quarter",
-        stats1: 12,
-        stats2: 8,
-        color1: "#3B82F6",
-        color2: "#EF4444",
-      },
-      {
-        team1: "Green Wolves",
-        team2: "Golden Eagles",
-        score1: 1,
-        score2: 1,
-        time: "42:15",
-        period: "3rd Quarter",
-        stats1: 7,
-        stats2: 9,
-        color1: "#10B981",
-        color2: "#F59E0B",
-      },
-      {
-        team1: "Midnight Strikers",
-        team2: "Silver Sharks",
-        score1: 4,
-        score2: 3,
-        time: "28:45",
-        period: "2nd Quarter",
-        stats1: 15,
-        stats2: 11,
-        color1: "#1F2937",
-        color2: "#6B7280",
-      },
-      {
-        team1: "Phoenix Fire",
-        team2: "Ice Dragons",
-        score1: 2,
-        score2: 0,
-        time: "50:30",
-        period: "4th Quarter",
-        stats1: 10,
-        stats2: 5,
-        color1: "#DC2626",
-        color2: "#06B6D4",
-      },
-    ],
-    []
-  );
+  const handleViewDetails = (match) => {
+    setSelectedMatch(match);
+    setSheetOpen(true);
+  };
 
-  const paginate = useCallback(
-    (newDirection) => {
-      setDirection(newDirection);
-      setActiveIndex((prev) => {
-        const next = prev + newDirection;
-        if (next < 0) return matches.length - 1;
-        if (next >= matches.length) return 0;
-        return next;
-      });
-    },
-    [matches.length]
-  );
+  // Filter to LIVE matches client-side (hook already fetches with status=LIVE)
+  const liveMatches = matches.filter((m) => m.status === "LIVE");
+  const total = liveMatches.length;
 
-  const goToSlide = useCallback(
-    (index) => {
-      setDirection(index > activeIndex ? 1 : -1);
-      setActiveIndex(index);
-    },
-    [activeIndex]
-  );
+  const paginate = useCallback((dir) => {
+    setDirection(dir);
+    setActiveIndex((prev) => (prev + dir + total) % total);
+  }, [total]);
 
-  // Optimized auto-rotate with pause on hover
   useEffect(() => {
-    if (!isPaused) {
-      intervalRef.current = setInterval(() => {
-        paginate(1);
-      }, 9000);
-    }
+    if (total <= 1 || isPaused) return;
+    intervalRef.current = setInterval(() => paginate(1), 6000);
+    return () => clearInterval(intervalRef.current);
+  }, [isPaused, paginate, total]);
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isPaused, paginate]);
+  if (loading) {
+    return (
+      <section className="py-16 px-4" style={{ background: "linear-gradient(180deg, #0a0a0f 0%, #0f172a 100%)" }}>
+        <div className="max-w-md mx-auto animate-pulse space-y-4">
+          <div className="h-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full" />
+          <div className="rounded-2xl border border-white/10 bg-slate-800/50 p-8 space-y-5">
+            <div className="flex justify-between">
+              <div className="h-4 w-32 bg-slate-700 rounded" />
+              <div className="h-6 w-16 bg-slate-700 rounded-full" />
+            </div>
+            <div className="h-10 w-24 bg-slate-700 rounded" />
+            <div className="h-px bg-slate-700" />
+            <div className="h-10 w-24 bg-slate-700 rounded" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
-  const handleMouseEnter = useCallback(() => {
-    setIsPaused(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsPaused(false);
-  }, []);
-
-  const handleCardHover = useCallback((isHovering) => {
-    setIsPaused(isHovering);
-  }, []);
+  if (total === 0) {
+    return (
+      <section className="py-16 px-4" style={{ background: "linear-gradient(180deg, #0a0a0f 0%, #0f172a 100%)" }}>
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="text-5xl mb-4">🏆</div>
+          <h2 className="text-2xl font-black text-white mb-2">No Live Matches</h2>
+          <p className="text-slate-400">Action returns soon. Stay tuned!</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
-      id="live-scores"
-      className="relative py-12 px-4 bg-slate-300 overflow-hidden scroll-mt-24"
+      className="relative py-14 px-4 overflow-hidden"
+      style={{ background: "linear-gradient(180deg, #0a0a0f 0%, #0f172a 100%)" }}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
     >
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-5"
-        >
-          <div className="inline-flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-3 md:gap-4 flex-wrap px-2 sm:px-4">
-            <motion.div
-              animate={!isPaused ? { scale: [1, 1.2, 1] } : {}}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="relative flex-shrink-0"
-            >
-              <div className="w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 bg-red-500 rounded-full" />
-              <div className="absolute inset-0 w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 bg-red-500 rounded-full animate-ping" />
-            </motion.div>
+      {/* Background glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-orange-500/5 blur-3xl rounded-full pointer-events-none" />
 
-            <h2 className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-black text-center leading-tight tracking-tight">
-              <span className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent whitespace-nowrap">
-                LIVE MATCHES
+      <div className="max-w-5xl mx-auto relative z-10">
+
+        {/* Section header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
               </span>
+              <span className="text-xs font-black tracking-[0.2em] text-red-400 uppercase">
+                {liveMatches.length > 0 ? `${liveMatches.length} Live Now` : "Latest Scores"}
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Match <span className="text-orange-500">Centre</span>
             </h2>
-
-            <motion.div
-              animate={!isPaused ? { scale: [1, 1.2, 1] } : {}}
-              transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
-              className="relative flex-shrink-0"
-            >
-              <div className="w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 bg-red-500 rounded-full" />
-              <div className="absolute inset-0 w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 bg-red-500 rounded-full animate-ping" />
-            </motion.div>
           </div>
+          <Link
+            href="/matches"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-orange-400 hover:text-orange-300 transition-colors"
+          >
+            All Matches <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
-          <p className="text-gray-800 text-xl font-semibold">
-            {isPaused
-              ? "Paused - Hover to explore"
-              : "Catch all the action as it happens"}
-          </p>
-        </motion.div>
-
-        {/* Carousel Container */}
+        {/* Carousel */}
         <div className="relative">
-          {/* Navigation Buttons */}
-          <motion.button
-            onClick={() => paginate(-1)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-14 h-14 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center shadow-2xl"
-            aria-label="Previous match"
-          >
-            <ChevronLeft className="w-7 h-7 text-white" />
-          </motion.button>
+          {/* Nav buttons */}
+          {total > 1 && (
+            <>
+              <button
+                onClick={() => paginate(-1)}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-white hover:bg-orange-500 hover:border-orange-500 transition-colors shadow-lg"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => paginate(1)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-white hover:bg-orange-500 hover:border-orange-500 transition-colors shadow-lg"
+                aria-label="Next"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
+          )}
 
-          <motion.button
-            onClick={() => paginate(1)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-14 h-14 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center shadow-2xl"
-            aria-label="Next match"
-          >
-            <ChevronRight className="w-7 h-7 text-white" />
-          </motion.button>
-
-          {/* Cards Display */}
-          <div className="flex gap-6 overflow-hidden py-5 px-4">
-            <AnimatePresence initial={false} mode="wait">
+          {/* Card area */}
+          <div className="overflow-hidden px-6 py-2">
+            <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={activeIndex}
-                initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
+                initial={{ x: direction > 0 ? 200 : -200, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                exit={{ x: direction > 0 ? -300 : 300, opacity: 0 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
-                  opacity: { duration: 0.2 },
-                }}
-                className="flex gap-6 min-w-full justify-center"
+                exit={{ x: direction > 0 ? -200 : 200, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 320, damping: 32 }}
               >
-                <ScoreCard
-                  match={matches[activeIndex]}
-                  index={activeIndex}
-                  isActive={true}
-                  isPaused={isPaused}
-                  onHoverChange={handleCardHover}
-                />
-                {/* <NoLiveMatchesCard
-                  isActive={true}
-                  isPaused={isPaused}
-                  onHoverChange={handleCardHover}
-                /> */}
+                <ScoreCard match={liveMatches[activeIndex]} isActive={true} onViewDetails={handleViewDetails} />
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Pagination Dots */}
-          <div className="flex justify-center gap-3 mt-8">
-            {matches.map((_, index) => (
-              <motion.button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className="relative focus:outline-none"
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label={`Go to match ${index + 1}`}
-              >
-                <div
-                  className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                    index === activeIndex ? "bg-cyan-400" : "bg-gray-600"
+          {/* Dots */}
+          {total > 1 && (
+            <div className="flex justify-center gap-2 mt-6">
+              {liveMatches.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setDirection(i > activeIndex ? 1 : -1); setActiveIndex(i); }}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === activeIndex ? "w-6 bg-orange-500" : "w-1.5 bg-slate-600 hover:bg-slate-400"
                   }`}
+                  aria-label={`Match ${i + 1}`}
                 />
-              </motion.button>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* CTA */}
+        <div className="text-center mt-10">
+          <Link
+            href="/matches"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm transition-colors shadow-lg shadow-orange-500/20"
+          >
+            <Zap className="h-4 w-4" />
+            View All Matches
+          </Link>
         </div>
       </div>
+
+      {/* Match Detail Sheet */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-2xl p-0 overflow-y-auto bg-slate-950 border-white/10"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Match Details</SheetTitle>
+          </SheetHeader>
+          {selectedMatch && (
+            <MatchDetailPage match={selectedMatch} />
+          )}
+        </SheetContent>
+      </Sheet>
     </section>
   );
-};
-
-export default LiveScoreCarousel;
+}

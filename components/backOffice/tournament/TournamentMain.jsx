@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Plus, Trophy } from "lucide-react";
 import { TournamentTable } from "./TournamentTable";
 import { TournamentForm } from "./TournamentForm";
@@ -24,7 +24,7 @@ import { withPermission } from "@/components/auth/WithPerission";
 
 const TournamentsPage = () => {
   const router = useRouter();
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createSheetOpen, setCreateSheetOpen] = useState(false);
 
   const {
     tournaments,
@@ -42,7 +42,7 @@ const TournamentsPage = () => {
   const handleCreate = async (data) => {
     try {
       const newTournament = await createTournament(data);
-      setCreateDialogOpen(false);
+      setCreateSheetOpen(false);
       refresh();
       router.push(`/dashboard/tournaments/${newTournament.id}`);
     } catch (error) {
@@ -55,13 +55,12 @@ const TournamentsPage = () => {
     refresh();
   };
 
-  // ✅ No early return — header and layout stay mounted always
   const isFirstLoad =
     loading && tournaments.length === 0 && !filters.search && !filters.status;
 
   return (
     <div className="space-y-6">
-      {/* Header — always visible, never unmounts */}
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-orange-500">
@@ -72,7 +71,7 @@ const TournamentsPage = () => {
           </p>
         </div>
         <Button
-          onClick={() => setCreateDialogOpen(true)}
+          onClick={() => setCreateSheetOpen(true)}
           className="bg-orange-500 hover:bg-orange-600 text-white"
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -82,49 +81,48 @@ const TournamentsPage = () => {
 
       {/* Content */}
       {isFirstLoad ? (
-        // ✅ Only show full skeleton on true first load (empty page, no filters)
         <TournamentTableSkeleton />
       ) : tournaments.length === 0 &&
         !filters.search &&
         !filters.status &&
         !loading ? (
-        // ✅ Empty state only when genuinely no data exists
         <EmptyState
           icon={Trophy}
           title="No tournaments yet"
           description="Create your first tournament to get started with organizing sports events"
           actionLabel="Create Tournament"
-          onAction={() => setCreateDialogOpen(true)}
+          onAction={() => setCreateSheetOpen(true)}
           showAction={true}
         />
       ) : (
-        // ✅ Table stays mounted — handles its own loading/skeleton/empty states
-          <TournamentTable
-            tournaments={tournaments}
-            pagination={pagination}
-            filters={filters}
-            onFilterChange={updateFilters}
-            onPageChange={setPage}
-            onDelete={handleDelete}
-            loading={loading}
-          />
+        <TournamentTable
+          tournaments={tournaments}
+          pagination={pagination}
+          filters={filters}
+          onFilterChange={updateFilters}
+          onPageChange={setPage}
+          onDelete={handleDelete}
+          loading={loading}
+        />
       )}
 
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle>Create New Tournament</DialogTitle>
-            <DialogDescription>
+      <Sheet open={createSheetOpen} onOpenChange={setCreateSheetOpen}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle>Create New Tournament</SheetTitle>
+            <SheetDescription>
               Fill in the details to create a new tournament
-            </DialogDescription>
-          </DialogHeader>
-          <TournamentForm
-            onSubmit={handleCreate}
-            onCancel={() => setCreateDialogOpen(false)}
-            loading={creating}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <TournamentForm
+              onSubmit={handleCreate}
+              onCancel={() => setCreateSheetOpen(false)}
+              loading={creating}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

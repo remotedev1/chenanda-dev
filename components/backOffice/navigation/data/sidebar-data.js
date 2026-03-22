@@ -23,11 +23,11 @@ export const baseSidebarData = {
       title: "Management",
       items: [
         {
-          title: "Tournament settings",
+          title: "Tournaments",
           icon: Settings,
           items: [
             {
-              title: "Tournament List",
+              title: "Tournaments List",
               url: "/dashboard/tournaments",
               icon: UserCog,
             },
@@ -48,7 +48,7 @@ export const baseSidebarData = {
               icon: UserCog,
             },
             {
-              title: "Sponsor List",
+              title: "Sponsors List",
               url: "/dashboard/tournaments/sponsors",
               icon: UserCog,
             },

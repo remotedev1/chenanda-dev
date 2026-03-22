@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Plus, Users2 } from "lucide-react";
 import { EmptyState } from "@/components/common/EmptyState";
 import {
@@ -23,8 +23,8 @@ import { withPermission } from "@/components/auth/WithPerission";
 import { Can } from "@/components/providers/AbilityContext";
 
 const PlayersMain = () => {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createSheetOpen, setCreateSheetOpen] = useState(false);
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   const {
@@ -42,18 +42,18 @@ const PlayersMain = () => {
 
   const handleCreate = async (data) => {
     await createPlayer(data);
-    setCreateDialogOpen(false);
+    setCreateSheetOpen(false);
     refresh();
   };
 
   const handleEdit = (player) => {
     setSelectedPlayer(player);
-    setEditDialogOpen(true);
+    setEditSheetOpen(true);
   };
 
   const handleUpdate = async (data) => {
     await updatePlayer(selectedPlayer.id, data);
-    setEditDialogOpen(false);
+    setEditSheetOpen(false);
     setSelectedPlayer(null);
     refresh();
   };
@@ -63,11 +63,11 @@ const PlayersMain = () => {
     refresh();
   };
 
-  const handleDialogClose = (isOpen, dialogType) => {
-    if (dialogType === "create") {
-      setCreateDialogOpen(isOpen);
+  const handleSheetClose = (isOpen, sheetType) => {
+    if (sheetType === "create") {
+      setCreateSheetOpen(isOpen);
     } else {
-      setEditDialogOpen(isOpen);
+      setEditSheetOpen(isOpen);
       if (!isOpen) setSelectedPlayer(null);
     }
   };
@@ -85,14 +85,13 @@ const PlayersMain = () => {
           </p>
         </div>
         <Button
-          onClick={() => setCreateDialogOpen(true)}
+          onClick={() => setCreateSheetOpen(true)}
           className="bg-orange-500 hover:bg-orange-600 text-white"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Player
         </Button>
       </div>
-
 
       {/* Content */}
       {
@@ -107,49 +106,53 @@ const PlayersMain = () => {
         />
       }
 
-      {/* Create Dialog */}
-      <Dialog
-        open={createDialogOpen}
-        onOpenChange={(isOpen) => handleDialogClose(isOpen, "create")}
+      {/* Create Sheet */}
+      <Sheet
+        open={createSheetOpen}
+        onOpenChange={(isOpen) => handleSheetClose(isOpen, "create")}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800">Add New Player</DialogTitle>
-            <DialogDescription className="text-slate-600">
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">Add New Player</SheetTitle>
+            <SheetDescription className="text-slate-600">
               Fill in the player details below
-            </DialogDescription>
-          </DialogHeader>
-          <PlayerForm
-            onSubmit={handleCreate}
-            onCancel={() => setCreateDialogOpen(false)}
-            loading={creating}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <PlayerForm
+              onSubmit={handleCreate}
+              onCancel={() => setCreateSheetOpen(false)}
+              loading={creating}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
-      {/* Edit Dialog */}
-      <Dialog
-        open={editDialogOpen}
-        onOpenChange={(isOpen) => handleDialogClose(isOpen, "edit")}
+      {/* Edit Sheet */}
+      <Sheet
+        open={editSheetOpen}
+        onOpenChange={(isOpen) => handleSheetClose(isOpen, "edit")}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-slate-800">Edit Player</DialogTitle>
-            <DialogDescription className="text-slate-600">
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-white">
+          <SheetHeader>
+            <SheetTitle className="text-slate-800">Edit Player</SheetTitle>
+            <SheetDescription className="text-slate-600">
               Update the player details below
-            </DialogDescription>
-          </DialogHeader>
-          <PlayerForm
-            onSubmit={handleUpdate}
-            onCancel={() => {
-              setEditDialogOpen(false);
-              setSelectedPlayer(null);
-            }}
-            loading={updating}
-            initialData={selectedPlayer}
-          />
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <PlayerForm
+              onSubmit={handleUpdate}
+              onCancel={() => {
+                setEditSheetOpen(false);
+                setSelectedPlayer(null);
+              }}
+              loading={updating}
+              initialData={selectedPlayer}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
