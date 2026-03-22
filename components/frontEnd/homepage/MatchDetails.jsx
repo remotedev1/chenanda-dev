@@ -528,7 +528,7 @@ function TeamsTab({ match }) {
                 (g, i) => (
                   <div key={i} className="flex items-center gap-3 text-sm">
                     <div className="w-10 h-10 rounded-lg bg-orange-500/15 flex items-center justify-center text-orange-400 font-black text-xs">
-                      {g.minute}'
+                      {g.minute}
                     </div>
                     <div>
                       <div className="font-semibold text-white">
