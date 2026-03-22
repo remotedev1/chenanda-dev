@@ -11,7 +11,7 @@ export function usePayments({
   sport,
   status,
   paymentType,
-  initialLimit = 10,
+  initialLimit = 1000,
 } = {}) {
   const [payments, setPayments] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -43,7 +43,7 @@ export function usePayments({
         ...(filters.paymentType && { paymentType: filters.paymentType }),
       });
 
-      const response = await fetch(`/api/tournaments/payment?${params}`);
+      const response = await fetch(`/api/tournaments/payments?${params}`);
       const { data } = await response.json();
 
       if (!response.ok) {
@@ -140,7 +140,7 @@ export function useCreatePayment() {
     setError(null);
 
     try {
-      const response = await fetch("/api/tournaments/payment", {
+      const response = await fetch("/api/tournaments/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -185,8 +185,8 @@ export function useUpdatePayment() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/payments/${id}`, {
-        method: "PATCH",
+      const response = await fetch(`/api/tournaments/payments/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });

@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/sheet";
 import { Plus, Wallet } from "lucide-react";
 import { EmptyState } from "@/components/common/EmptyState";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useParams } from "next/navigation";
 import { PaymentTable } from "./PaymentsTable";
 import { PaymentForm } from "./PaymentsForm";
 import {
@@ -52,6 +50,7 @@ const PaymentsMain = ({ tournaments = [], games = [] }) => {
     setSelectedPayment(payment);
     setEditSheetOpen(true);
   };
+
 
   const handleUpdate = async (data) => {
     await updatePayment(selectedPayment.id, data);

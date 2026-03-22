@@ -25,7 +25,7 @@ export function useGameRegistrations() {
     // sortBy: "date",
     // sortOrder: "asc",
     page: 1,
-    limit: 40,
+    limit: 1000,
   });
 
   const fetchRegistrations = useCallback(async () => {

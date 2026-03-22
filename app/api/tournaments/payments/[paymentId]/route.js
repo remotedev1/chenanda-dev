@@ -17,7 +17,7 @@ import { auth } from "@/auth";
 
 const querySchema = z.object({
   page: z.string().default("1"),
-  limit: z.string().default("10"),
+  limit: z.string().default("1000"),
   search: z.string().optional(),
   familyId: z.string().optional(),
   tournamentId: z.string().optional(),
@@ -62,14 +62,14 @@ export const createPaymentSchema = z.object({
   tournamentId: z.string().optional().nullable(),
   tournamentName: z.string().optional().nullable(),
   sport: z.string().optional().nullable(),
-  gameIds: z.array(z.string()).default([]),
+  gameId: z.string().optional().nullable(),
   payerName: z.string().min(1, "Payer name is required"),
   payerEmail: z.string().email("Invalid email").optional().nullable(),
   payerPhone: z.string().min(10, "Phone must be at least 10 digits"),
   payerAltPhone: z.string().optional().nullable(),
   transactionId: z.string().optional().nullable(),
   orderId: z.string().optional().nullable(),
-  receiptNumber: z.string(),
+  receiptNumber: z.string().optional().nullable(),
   paymentDate: z
     .string()
     .datetime()
@@ -79,6 +79,15 @@ export const createPaymentSchema = z.object({
     .nullable(),
   feeAmount: z.number().optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
+});
+
+const updatePaymentSchema = createPaymentSchema.partial();
+
+const bulkPaymentSchema = z.object({
+  bulk: z.literal(true),
+  payments: z
+    .array(createPaymentSchema)
+    .min(1, "At least one payment required"),
 });
 
 /* ---------------- HANDLERS ---------------- */
@@ -153,6 +162,13 @@ async function handleGet(request) {
             contacts: true,
           },
         },
+        game: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+          },
+        },
       },
     }),
     db.payment.count({ where }),
@@ -164,59 +180,52 @@ async function handleGet(request) {
   });
 }
 
-async function handlePost(request) {
-  const setup = await setupApiHandler(request, "payments:create");
+async function handlePut(request, { params }) {
+  const setup = await setupApiHandler(request, "payments:update");
   if (setup.error) return setup.error;
 
   const { user } = await auth();
+  const { paymentId } = params;
   const body = await request.json();
 
-  // ✅ Detect batch mode: gameIds[] sent from the multi-select form
-  const isBatch = Array.isArray(body.gameIds) && body.gameIds.length > 0;
+  // Validate body
+  const validated = updatePaymentSchema.parse(body);
 
-  const validated = createPaymentSchema.parse({
-    ...body,
-    gameIds: isBatch ? body.gameIds : body.gameId ? [body.gameId] : [],
-  });
-
-  /* ── 1. Verify family ── */
-  const family = await db.families.findUnique({
-    where: { id: validated.familyId },
-    select: { id: true, familyName: true },
-  });
-  if (!family) return errorResponse("Selected family does not exist", 400);
-
-  /* ── 2. Verify tournament (if provided) ── */
+  // If tournamentId provided, verify it exists
   if (validated.tournamentId) {
     const tournament = await db.tournament.findUnique({
       where: { id: validated.tournamentId },
-      select: { id: true, name: true },
+      select: { id: true },
     });
-    if (!tournament)
+    if (!tournament) {
       return errorResponse("Selected tournament does not exist", 400);
-  }
-
-  /* ── 3. Verify ALL game IDs upfront ── */
-  if (validated.gameIds?.length) {
-    const games = await db.tournamentGame.findMany({
-      where: { id: { in: validated.gameIds } },
-      select: { id: true, name: true },
-    });
-
-    if (games.length !== validated.gameIds.length) {
-      const foundIds = new Set(games.map((g) => g.id));
-      const missing = validated.gameIds.filter((id) => !foundIds.has(id));
-      return errorResponse(
-        `The following game IDs do not exist: ${missing.join(", ")}`,
-        400,
-      );
     }
   }
 
-  /* ── 4. Create a single Payment record for all games ── */
-  const payment = await db.payment.create({
+  // If gameId provided, verify it exists
+  if (validated.gameId) {
+    const game = await db.tournamentGame.findUnique({
+      where: { id: validated.gameId },
+      select: { id: true },
+    });
+    if (!game) {
+      return errorResponse("Selected game does not exist", 400);
+    }
+  }
+
+  // Check payment exists for this family
+  const existingPayment = await db.payment.findFirst({
+    where: { id: paymentId },
+    select: { family: true },
+  });
+
+  if (!existingPayment) {
+    return errorResponse("No payment found for this family", 404);
+  }
+
+  const payment = await db.payment.update({
+    where: { id: existingPayment.id },
     data: {
-      familyId: validated.familyId,
       amount: validated.amount,
       currency: validated.currency,
       paymentType: validated.paymentType || null,
@@ -225,8 +234,7 @@ async function handlePost(request) {
       tournamentId: validated.tournamentId || null,
       tournamentName: validated.tournamentName || null,
       sport: validated.sport || null,
-      // Store all gameIds on the payment for reference
-      gameIds: validated.gameIds ?? [],
+      gameId: validated.gameId || null,
       payerName: validated.payerName,
       payerEmail: validated.payerEmail || null,
       payerPhone: validated.payerPhone,
@@ -237,94 +245,24 @@ async function handlePost(request) {
       paymentDate: validated.paymentDate || new Date(),
       feeAmount: validated.feeAmount || null,
       notes: validated.notes || null,
+      updatedAt: new Date(),
     },
   });
 
-  /* ── 5. Batch-create GameRegistration for each gameId ── */
-  if (validated.tournamentId && validated.gameIds?.length) {
-    // Find or create a single TournamentParticipation for this family + tournament
-    let participation = await db.tournamentParticipation.findUnique({
-      where: {
-        tournamentId_familyId: {
-          tournamentId: validated.tournamentId,
-          familyId: validated.familyId,
-        },
-      },
-    });
-
-    if (!participation) {
-      participation = await db.tournamentParticipation.create({
-        data: {
-          tournamentId: validated.tournamentId,
-          familyId: validated.familyId,
-        },
-      });
-    }
-
-    // Upsert a GameRegistration for EACH game — all share the same paymentId
-    await Promise.all(
-      validated.gameIds.map((gameId) =>
-        db.gameRegistration.upsert({
-          where: {
-            gameId_participationId_familyId: {
-              gameId,
-              participationId: participation.id,
-              familyId: validated.familyId,
-            },
-          },
-          update: {
-            paymentStatus: "CONFIRMED",
-            paymentId: payment.id,
-            confirmedAt: new Date(),
-          },
-          create: {
-            gameId,
-            participationId: participation.id,
-            paymentId: payment.id,
-            familyId: validated.familyId,
-            paymentStatus: "CONFIRMED",
-            confirmedAt: new Date(),
-          },
-        }),
-      ),
-    );
-  }
-
-  /* ── 6. Update family record ── */
-  await db.families.update({
-    where: { id: validated.familyId },
-    data: {
-      contacts: {
-        push: {
-          name: validated.payerName,
-          email: validated.payerEmail,
-          phone: validated.payerPhone,
-        },
-      },
-      payments: {
-        connect: { id: payment.id },
-      },
-    },
-  });
-
-  /* ── 7. Activity log ── */
-  const gameCount = validated.gameIds?.length ?? 0;
   await logActivity({
     userId: user.id,
-    action: "created",
+    action: "updated",
     entity: "payment",
     entityId: payment.id,
     entityName: `${payment.currency} ${payment.amount.toFixed(2)}`,
-    description: `Created payment of ${payment.currency} ${payment.amount.toFixed(2)} for family "${family.familyName}"${
-      gameCount > 1 ? ` across ${gameCount} games` : ""
-    }`,
+    description: `Updated payment of ${payment.currency} ${payment.amount.toFixed(2)} for family "${existingPayment.family.familyName}"`,
     request,
   });
 
-  return successResponse(payment, "Payment created successfully", 201);
+  return successResponse(payment, "Payment updated successfully");
 }
 
 /* ---------------- EXPORTS ---------------- */
 
 export const GET = withErrorHandling(handleGet, "payments");
-export const POST = withErrorHandling(handlePost, "payment");
+export const PUT = withErrorHandling(handlePut, "payments");
