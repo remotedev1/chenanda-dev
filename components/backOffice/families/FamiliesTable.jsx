@@ -181,7 +181,7 @@ function FamilyCard({ family, onEdit, onDelete }) {
         </div>
 
         {/* Avatar floated at bottom-left */}
-        <div className="absolute -bottom-7 left-5">
+        <div className="absolute top-10 left-5">
           <FamilyImages family={family} />
         </div>
 
