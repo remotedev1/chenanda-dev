@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-const API_BASE = "/api/families/players";
+const API_BASE = "/api/players";
 
 /**
  * Hook to fetch players with pagination, search, and filters
