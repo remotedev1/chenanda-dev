@@ -131,8 +131,6 @@ async function handlePatch(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { familyId } = params;
-  console.log(familyId);
 
   // Validate body
   const body = await request.json();
@@ -152,7 +150,7 @@ async function handlePatch(request, { params }) {
     const duplicate = await db.families.findFirst({
       where: {
         familyName: validated.familyName,
-        id: { not: familyId },
+        id: { not: existing.id },
       },
     });
 
