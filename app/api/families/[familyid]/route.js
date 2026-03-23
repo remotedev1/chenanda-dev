@@ -178,7 +178,7 @@ async function handlePut(request, { params }) {
     }),
     updatedAt: new Date(),
   };
-console.log(updateData)
+
   // Update family
   const family = await db.families.update({
     where: { id: familyId },
