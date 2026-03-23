@@ -1,4 +1,3 @@
-// app/api/families/[id]/route.js
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
@@ -126,13 +125,14 @@ async function handleGet(request, { params }) {
   return successResponse(family);
 }
 
-async function handlePut(request, { params }) {
+async function handlePatch(request, { params }) {
   // Setup (auth + rate limit)
   const setup = await setupApiHandler(request, "families:update");
   if (setup.error) return setup.error;
 
   const { user } = await auth();
   const { familyId } = params;
+  console.log(familyId);
 
   // Validate body
   const body = await request.json();
@@ -181,7 +181,7 @@ async function handlePut(request, { params }) {
 
   // Update family
   const family = await db.families.update({
-    where: { id: familyId },
+    where: { id: existing.id },
     data: updateData,
   });
 
@@ -279,5 +279,5 @@ async function handleDelete(request, { params }) {
 /* ---------------- EXPORTS ---------------- */
 
 export const GET = withErrorHandling(handleGet, "family");
-export const PUT = withErrorHandling(handlePut, "family");
+export const PATCH = withErrorHandling(handlePatch, "family");
 export const DELETE = withErrorHandling(handleDelete, "family");

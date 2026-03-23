@@ -272,7 +272,9 @@ export function useCreateFamily() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || result.message || "Failed to create family");
+        throw new Error(
+          result.error || result.message || "Failed to create family",
+        );
       }
 
       // New family → invalidate all list caches
@@ -305,7 +307,7 @@ export function useUpdateFamily() {
 
     try {
       const response = await fetch(`/api/families/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
@@ -313,7 +315,9 @@ export function useUpdateFamily() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || result.message || "Failed to update family");
+        throw new Error(
+          result.error || result.message || "Failed to update family",
+        );
       }
 
       // Invalidate cached entries for this family and all list views
@@ -352,7 +356,9 @@ export function useDeleteFamily() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || result.message || "Failed to delete family");
+        throw new Error(
+          result.error || result.message || "Failed to delete family",
+        );
       }
 
       // Remove specific family cache + all list caches
