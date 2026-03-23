@@ -131,14 +131,15 @@ async function handlePut(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { familyId } = params;
+  //TODO
+  // const { familyId } = params;
   // Validate body
   const body = await request.json();
   const validated = updateFamilySchema.parse(body);
 
   // Check if family exists
   const existing = await db.families.findUnique({
-    where: { id: familyId },
+    where: { familyName: validated.familyName },
   });
 
   if (!existing) {
