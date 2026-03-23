@@ -307,7 +307,7 @@ export function useUpdateFamily() {
 
     try {
       const response = await fetch(`/api/families/${id}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });

@@ -125,20 +125,20 @@ async function handleGet(request, { params }) {
   return successResponse(family);
 }
 
-async function handlePatch(request, { params }) {
+async function handlePut(request, { params }) {
   // Setup (auth + rate limit)
   const setup = await setupApiHandler(request, "families:update");
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-
+  const { familyId } = params;
   // Validate body
   const body = await request.json();
   const validated = updateFamilySchema.parse(body);
 
   // Check if family exists
   const existing = await db.families.findUnique({
-    where: { familyName: validated.familyName },
+    where: { id: familyId },
   });
 
   if (!existing) {
@@ -277,5 +277,5 @@ async function handleDelete(request, { params }) {
 /* ---------------- EXPORTS ---------------- */
 
 export const GET = withErrorHandling(handleGet, "family");
-export const PATCH = withErrorHandling(handlePatch, "family");
+export const PUT = withErrorHandling(handlePut, "family");
 export const DELETE = withErrorHandling(handleDelete, "family");
