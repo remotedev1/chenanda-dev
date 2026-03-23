@@ -140,7 +140,7 @@ async function handlePut(request, { params }) {
 
   // Check if family exists
   const existing = await db.families.findUnique({
-    where: { id: familyId },
+    where: { familyName: validated.familyName },
   });
 
   if (!existing) {

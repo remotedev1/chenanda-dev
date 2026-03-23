@@ -101,7 +101,7 @@ async function handleGet(request) {
       skip,
       take: validated.limit,
       orderBy: { [validated.sortBy]: validated.sortOrder },
-      select: {
+      include: {
         User: true,
       },
     }),

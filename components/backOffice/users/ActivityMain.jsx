@@ -28,7 +28,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -123,13 +122,19 @@ const SORTABLE_COLUMNS = [
 
 function SortButton({ columnKey, label, currentSort, currentOrder, onSort }) {
   const isActive = currentSort === columnKey;
-  const Icon = !isActive ? ArrowUpDown : currentOrder === "asc" ? ArrowUp : ArrowDown;
+  const Icon = !isActive
+    ? ArrowUpDown
+    : currentOrder === "asc"
+      ? ArrowUp
+      : ArrowDown;
 
   return (
     <button
       onClick={() => onSort(columnKey)}
       className={`flex items-center gap-1 text-xs font-semibold tracking-wide uppercase transition-colors ${
-        isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+        isActive
+          ? "text-foreground"
+          : "text-muted-foreground hover:text-foreground"
       }`}
     >
       {label}
@@ -154,17 +159,10 @@ function UserCell({ user }) {
   if (!user) {
     return <span className="text-muted-foreground text-sm">—</span>;
   }
-  const initials = user.name
-    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : user.email?.[0]?.toUpperCase() ?? "?";
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar className="w-6 h-6">
-        <AvatarImage src={user.image} alt={user.name} />
-        <AvatarFallback className="text-[10px] font-bold">{initials}</AvatarFallback>
-      </Avatar>
-      <span className="text-sm truncate max-w-[120px]">{user.name ?? user.email}</span>
+      <span className="text-sm truncate max-w-[120px]">{user.firstName}</span>
     </div>
   );
 }
@@ -172,12 +170,24 @@ function UserCell({ user }) {
 function TableSkeleton({ rows = 8 }) {
   return Array.from({ length: rows }).map((_, i) => (
     <TableRow key={i} className="animate-pulse">
-      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-      <TableCell><Skeleton className="h-5 w-16 rounded-md" /></TableCell>
-      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-      <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-28" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-5 w-16 rounded-md" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-24" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-40" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-4 w-28" />
+      </TableCell>
     </TableRow>
   ));
 }
@@ -189,19 +199,28 @@ function PaginationBar({ page, totalPages, total, limit, onPage }) {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t">
       <p className="text-sm text-muted-foreground">
-        Showing <span className="font-medium text-foreground">{from}–{to}</span>{" "}
+        Showing{" "}
+        <span className="font-medium text-foreground">
+          {from}–{to}
+        </span>{" "}
         of <span className="font-medium text-foreground">{total}</span> entries
       </p>
       <div className="flex items-center gap-1">
         <Button
-          variant="ghost" size="icon" className="h-8 w-8"
-          onClick={() => onPage(1)} disabled={page <= 1}
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onPage(1)}
+          disabled={page <= 1}
         >
           <ChevronsLeft className="w-4 h-4" />
         </Button>
         <Button
-          variant="ghost" size="icon" className="h-8 w-8"
-          onClick={() => onPage(page - 1)} disabled={page <= 1}
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onPage(page - 1)}
+          disabled={page <= 1}
         >
           <ChevronLeft className="w-4 h-4" />
         </Button>
@@ -228,14 +247,20 @@ function PaginationBar({ page, totalPages, total, limit, onPage }) {
         })}
 
         <Button
-          variant="ghost" size="icon" className="h-8 w-8"
-          onClick={() => onPage(page + 1)} disabled={page >= totalPages}
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onPage(page + 1)}
+          disabled={page >= totalPages}
         >
           <ChevronRight className="w-4 h-4" />
         </Button>
         <Button
-          variant="ghost" size="icon" className="h-8 w-8"
-          onClick={() => onPage(totalPages)} disabled={page >= totalPages}
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onPage(totalPages)}
+          disabled={page >= totalPages}
         >
           <ChevronsRight className="w-4 h-4" />
         </Button>
@@ -313,7 +338,10 @@ export default function ActivityMain() {
   // Debounced search to avoid firing on every keystroke
   const [debouncedSearch, setDebouncedSearch] = useState("");
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(watchedValues.search ?? ""), 350);
+    const t = setTimeout(
+      () => setDebouncedSearch(watchedValues.search ?? ""),
+      350,
+    );
     return () => clearTimeout(t);
   }, [watchedValues.search]);
 
@@ -377,7 +405,6 @@ export default function ActivityMain() {
   return (
     <TooltipProvider>
       <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
-
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -391,7 +418,12 @@ export default function ActivityMain() {
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={refetch} className="self-start sm:self-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refetch}
+            className="self-start sm:self-auto"
+          >
             <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
             Refresh
           </Button>
@@ -408,7 +440,6 @@ export default function ActivityMain() {
         {/* ── Filter Bar ── */}
         <Form {...form}>
           <div className="flex flex-wrap items-end gap-3 bg-muted/40 rounded-xl p-4 border">
-
             {/* Search */}
             <FormField
               control={form.control}
@@ -464,7 +495,12 @@ export default function ActivityMain() {
                   <FormLabel className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     <Layers className="w-3 h-3" /> Type
                   </FormLabel>
-                  <Select value={field.value || "__all__"} onValueChange={(v) => field.onChange(v === "__all__" ? "" : v)}>
+                  <Select
+                    value={field.value || "__all__"}
+                    onValueChange={(v) =>
+                      field.onChange(v === "__all__" ? "" : v)
+                    }
+                  >
                     <FormControl>
                       <SelectTrigger className="h-9 bg-background">
                         <SelectValue placeholder="All Types" />
@@ -498,7 +534,10 @@ export default function ActivityMain() {
                   <Calendar className="w-3.5 h-3.5" />
                   Date Range
                   {(watchedValues.dateFrom || watchedValues.dateTo) && (
-                    <Badge variant="secondary" className="ml-0.5 px-1 text-[10px]">
+                    <Badge
+                      variant="secondary"
+                      className="ml-0.5 px-1 text-[10px]"
+                    >
                       active
                     </Badge>
                   )}
@@ -512,7 +551,9 @@ export default function ActivityMain() {
                   name="dateFrom"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-muted-foreground">From</FormLabel>
+                      <FormLabel className="text-xs text-muted-foreground">
+                        From
+                      </FormLabel>
                       <FormControl>
                         <Input type="date" className="h-9" {...field} />
                       </FormControl>
@@ -524,7 +565,9 @@ export default function ActivityMain() {
                   name="dateTo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-muted-foreground">To</FormLabel>
+                      <FormLabel className="text-xs text-muted-foreground">
+                        To
+                      </FormLabel>
                       <FormControl>
                         <Input type="date" className="h-9" {...field} />
                       </FormControl>
@@ -594,24 +637,44 @@ export default function ActivityMain() {
         {(isFiltered || total > 0) && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm text-muted-foreground">
-              {loading ? "Loading…" : `${total.toLocaleString()} result${total !== 1 ? "s" : ""}`}
+              {loading
+                ? "Loading…"
+                : `${total.toLocaleString()} result${total !== 1 ? "s" : ""}`}
             </span>
             {watchedValues.action !== "all" && (
               <Badge variant="secondary" className="gap-1">
                 Action: {watchedValues.action}
-                <button onClick={() => form.setValue("action", "all")} className="ml-1 hover:text-destructive">×</button>
+                <button
+                  onClick={() => form.setValue("action", "all")}
+                  className="ml-1 hover:text-destructive"
+                >
+                  ×
+                </button>
               </Badge>
             )}
             {watchedValues.entity && (
               <Badge variant="secondary" className="gap-1">
                 Type: {watchedValues.entity}
-                <button onClick={() => form.setValue("entity", "")} className="ml-1 hover:text-destructive">×</button>
+                <button
+                  onClick={() => form.setValue("entity", "")}
+                  className="ml-1 hover:text-destructive"
+                >
+                  ×
+                </button>
               </Badge>
             )}
             {(watchedValues.dateFrom || watchedValues.dateTo) && (
               <Badge variant="secondary" className="gap-1">
                 Date range active
-                <button onClick={() => { form.setValue("dateFrom", ""); form.setValue("dateTo", ""); }} className="ml-1 hover:text-destructive">×</button>
+                <button
+                  onClick={() => {
+                    form.setValue("dateFrom", "");
+                    form.setValue("dateTo", "");
+                  }}
+                  className="ml-1 hover:text-destructive"
+                >
+                  ×
+                </button>
               </Badge>
             )}
           </div>
@@ -649,7 +712,7 @@ export default function ActivityMain() {
                     onSort={handleSort}
                   />
                 </TableHead>
-                <TableHead>
+                <TableHead className="w-[110px]">
                   <SortButton
                     columnKey="entityName"
                     label="Name"
@@ -658,8 +721,8 @@ export default function ActivityMain() {
                     onSort={handleSort}
                   />
                 </TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="w-[160px]">
+                <TableHead className="w-[110px]">Description</TableHead>
+                <TableHead className="w-[100px]">
                   <span className="flex items-center gap-1 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                     <User className="w-3 h-3" /> User
                   </span>
@@ -722,7 +785,9 @@ export default function ActivityMain() {
                         <TooltipTrigger asChild>
                           <span className="cursor-default truncate block">
                             {log.entityName ?? (
-                              <span className="text-muted-foreground italic">—</span>
+                              <span className="text-muted-foreground italic">
+                                —
+                              </span>
                             )}
                           </span>
                         </TooltipTrigger>
