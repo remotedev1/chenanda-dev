@@ -88,14 +88,14 @@ model OtpVerification {
 
 model ActivityLog {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  action      String // What they did (created, updated, deleted, etc.)
-  entity      String // What they acted on (tournament, match, family, etc.)
-  entityId    String? // ID of the item
-  entityName  String? // Name of the item
-  description String // Human-readable text
-  timestamp   DateTime // When it happened
-  ipAddress   String? // Where from (optional)
-  userAgent   String? // Device info (optional)
+  action      String 
+  entity      String 
+  entityId    String? 
+  entityName  String?
+  description String 
+  timestamp   DateTime 
+  ipAddress   String? 
+  userAgent   String?
   userId      String   @db.ObjectId
 
   User User @relation(fields: [userId], references: [id])

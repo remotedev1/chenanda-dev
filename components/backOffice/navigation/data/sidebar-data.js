@@ -16,6 +16,11 @@ export const baseSidebarData = {
           url: "/dashboard/users",
           icon: LayoutDashboard,
         },
+        {
+          title: "Logs",
+          url: "/dashboard/users/logs",
+          icon: LayoutDashboard,
+        },
       ],
     },
 
