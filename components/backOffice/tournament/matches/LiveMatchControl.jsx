@@ -471,7 +471,7 @@ function PlayerCombobox({
           {showCreate && (
             <div className="border-t border-slate-800 p-2 space-y-2">
               <p className="text-slate-500 text-[10px] uppercase tracking-wider px-1">
-                Create "{query.trim()}"
+                Create {query.trim()}
               </p>
               <div className="flex gap-2">
                 <input
