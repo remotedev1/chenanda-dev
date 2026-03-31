@@ -9,7 +9,6 @@ import { Loader2, Plus, X } from "lucide-react";
 import { ImageUploader } from "@/components/common/ImageUploader";
 import { z } from "zod";
 import { toast } from "sonner";
-import { deleteImageKitFile } from "@/lib/imageKit";
 import { Badge } from "@/components/ui/badge";
 
 // Validation schema
@@ -25,6 +24,7 @@ const createFamilySchema = z.object({
 });
 
 export function FamilyForm({
+  id,
   onSubmit,
   onCancel,
   loading,
@@ -39,7 +39,6 @@ export function FamilyForm({
   });
 
   const [errors, setErrors] = useState({});
-  const [imagesToDelete, setImagesToDelete] = useState([]);
   const [colorInput, setColorInput] = useState("");
   const [colorArray, setColorArray] = useState([]);
   const [infoInput, setInfoInput] = useState({ key: "", value: "" });
@@ -125,7 +124,7 @@ export function FamilyForm({
       const validated = createFamilySchema.parse(formData);
 
       // Submit the form
-      await onSubmit(validated);
+      await onSubmit(id, validated);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors = {};

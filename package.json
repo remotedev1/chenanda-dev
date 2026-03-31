@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "set APP_ENV=development && node server.js",
     "build": "next build",
-    "lint": "next lint",
-    "start": "next start"
+    "start": "set APP_ENV=production node server.js",
+    "start:win": "set APP_ENV=production && node server.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
@@ -70,6 +70,7 @@
     "resend": "^3.2.0",
     "sha256": "^0.2.0",
     "slugify": "^1.6.6",
+    "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
     "sweetalert2": "^11.6.13",

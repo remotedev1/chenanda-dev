@@ -160,6 +160,8 @@ async function handlePost(request) {
 
   // Validate body
   const body = await request.json();
+  console.log(body);
+
   const validated = createPlayerSchema.parse(body);
 
   // Verify family exists

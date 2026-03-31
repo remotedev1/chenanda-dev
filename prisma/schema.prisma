@@ -88,13 +88,13 @@ model OtpVerification {
 
 model ActivityLog {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  action      String 
-  entity      String 
-  entityId    String? 
+  action      String
+  entity      String
+  entityId    String?
   entityName  String?
-  description String 
-  timestamp   DateTime 
-  ipAddress   String? 
+  description String
+  timestamp   DateTime
+  ipAddress   String?
   userAgent   String?
   userId      String   @db.ObjectId
 
@@ -586,11 +586,9 @@ type HockeyMatchRecord {
 }
 
 type HockeyGoal {
-  minute Int
-  period MatchPeriod    @default(FIRST_HALF)
-  type   HockeyGoalType @default(FIELD_GOAL)
-
-  playerId     String @db.ObjectId
+  minute       Int
+  type         HockeyGoalType @default(FIELD_GOAL)
+  playerId     String         @db.ObjectId
   playerName   String
   jerseyNumber Int?
 }
@@ -599,7 +597,6 @@ enum HockeyGoalType {
   FIELD_GOAL
   PENALTY_CORNER
   PENALTY_STROKE
-  OWN_GOAL
 }
 
 // ============================================================

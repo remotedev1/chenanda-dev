@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { useLiveMatchControl } from "@/hooks/useLiveMatches";
 
@@ -50,6 +51,7 @@ import {
   Shield,
   Swords,
   Target,
+  Timer,
   Trash2,
   Trophy,
   Users,
@@ -68,6 +70,7 @@ const HOCKEY_GOAL_TYPES = [
   { value: "FIELD_GOAL", label: "Field Goal", icon: "⛳" },
   { value: "PENALTY_CORNER", label: "Penalty Corner", icon: "🔶" },
   { value: "PENALTY_STROKE", label: "Penalty Stroke", icon: "🎯" },
+  { value: "OWN_GOAL", label: "Own Goal", icon: "😬" },
 ];
 
 const HOCKEY_PERIODS = [
@@ -75,19 +78,23 @@ const HOCKEY_PERIODS = [
   { value: "FIRST_HALF", label: "1st Half" },
   { value: "HALF_TIME", label: "Half Time" },
   { value: "SECOND_HALF", label: "2nd Half" },
-  { value: "FIRST_QUARTER", label: "1st Quarter" },
-  { value: "SECOND_QUARTER", label: "2nd Quarter" },
-  { value: "THIRD_QUARTER", label: "3rd Quarter" },
-  { value: "FOURTH_QUARTER", label: "4th Quarter" },
+  { value: "EXTRA_TIME_FIRST", label: "ET 1st" },
+  { value: "EXTRA_TIME_SECOND", label: "ET 2nd" },
   { value: "PENALTY_SHOOTOUT", label: "Shootout" },
+  { value: "FULL_TIME", label: "Full Time" },
 ];
 
 const MATCH_STATUSES = [
+  { value: "SCHEDULED", label: "Scheduled", color: "bg-slate-500" },
   { value: "DELAYED", label: "Delayed", color: "bg-yellow-500" },
   { value: "LIVE", label: "Live", color: "bg-emerald-500" },
+  { value: "SUSPENDED", label: "Suspended", color: "bg-orange-500" },
   { value: "COMPLETED", label: "Completed", color: "bg-blue-500" },
   { value: "POSTPONED", label: "Postponed", color: "bg-purple-500" },
+  { value: "CANCELLED", label: "Cancelled", color: "bg-red-500" },
+  { value: "ABANDONED", label: "Abandoned", color: "bg-red-700" },
   { value: "WALKOVER", label: "Walkover", color: "bg-amber-500" },
+  { value: "NO_RESULT", label: "No Result", color: "bg-slate-400" },
 ];
 
 /* ─────────────────────────────────────────────
@@ -116,6 +123,30 @@ function useConfirm() {
     handleConfirm,
     setOpen: (open) => setState((s) => ({ ...s, open })),
   };
+}
+
+function useMatchTimer(match) {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (match?.status !== "LIVE" || !match?.actualStartTime) return;
+    const tick = () => {
+      const start = new Date(match.actualStartTime).getTime();
+      setElapsed(Math.floor((Date.now() - start) / 1000));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [match?.status, match?.actualStartTime]);
+
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function getStatusColor(status) {
+  return (
+    MATCH_STATUSES.find((s) => s.value === status)?.color || "bg-slate-500"
+  );
 }
 
 function removeUnderscore(str) {
@@ -166,7 +197,7 @@ function ConnectionBadge({ isConnected, activeUsers }) {
   );
 }
 
-function ScoreBoard({ match }) {
+function ScoreBoard({ match, timer }) {
   const t1 = match.participants[0];
   const t2 = match.participants[1];
   const score1 = getGoalCount(t1);
@@ -184,6 +215,17 @@ function ScoreBoard({ match }) {
       {/* Match meta */}
       <div className="relative flex items-center justify-between px-6 pt-5 pb-3">
         <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-white ${getStatusColor(match.status)}`}
+          >
+            {match.status === "LIVE" && (
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+              </span>
+            )}
+            {status?.label || match.status}
+          </span>
           <span className="text-slate-500 text-xs">
             {removeUnderscore(match.round)}
             {match.pool ? ` · Pool ${match.pool}` : ""}
@@ -193,6 +235,12 @@ function ScoreBoard({ match }) {
           </span>
         </div>
 
+        {match.status === "LIVE" && (
+          <div className="flex items-center gap-1.5 font-mono text-sm font-semibold text-cyan-400">
+            <Timer className="h-4 w-4" />
+            {timer}
+          </div>
+        )}
         {match.currentPeriod && (
           <span className="text-xs text-slate-400 font-medium">
             {removeUnderscore(match.currentPeriod)}
@@ -364,161 +412,6 @@ function SectionHeader({ icon: Icon, title, count }) {
   );
 }
 
-function PlayerCombobox({
-  players,
-  loading,
-  value,
-  onSelect,
-  onCreateAndSelect,
-  isCreating,
-  accentColor = "cyan",
-}) {
-  const [query, setQuery] = useState("");
-  const [jerseyNumber, setJerseyNumber] = useState("");
-  const [open, setOpen] = useState(false);
-  const inputRef = useRef(null);
-
-  const filtered = players.filter((p) =>
-    p.playerName.toLowerCase().includes(query.toLowerCase()),
-  );
-
-  const selected = players.find((p) => p.id === value);
-  const showCreate =
-    query.trim() &&
-    !filtered.some(
-      (p) => p.playerName.toLowerCase() === query.trim().toLowerCase(),
-    );
-
-  const accentBtn =
-    accentColor === "cyan"
-      ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30"
-      : "bg-violet-500/20 border-violet-500/40 text-violet-300 hover:bg-violet-500/30";
-
-  return (
-    <div className="relative">
-      {/* Trigger */}
-      <button
-        type="button"
-        onClick={() => {
-          setOpen((v) => !v);
-          setTimeout(() => inputRef.current?.focus(), 50);
-        }}
-        className="w-full h-10 flex items-center justify-between px-3 rounded-lg bg-slate-900/50 border border-slate-700 text-sm text-white hover:border-slate-500 transition-colors"
-      >
-        <span className={selected ? "text-white" : "text-slate-500"}>
-          {selected
-            ? `${selected.playerName}${selected.jerseyNumber ? ` · #${selected.jerseyNumber}` : ""}`
-            : loading
-              ? "Loading players…"
-              : "Search or add player…"}
-        </span>
-        <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-      </button>
-
-      {/* Dropdown */}
-      {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden">
-          {/* Search input */}
-          <div className="p-2 border-b border-slate-800">
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Type name to search or create…"
-              className="w-full h-8 px-3 rounded-lg bg-slate-800 border border-slate-700 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
-            />
-          </div>
-
-          {/* Player list */}
-          <div className="max-h-40 overflow-y-auto">
-            {filtered.length === 0 && !showCreate && (
-              <p className="px-3 py-4 text-center text-slate-500 text-sm">
-                {loading ? "Loading…" : "No players found"}
-              </p>
-            )}
-            {filtered.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => {
-                  onSelect(p.id, p.playerName);
-                  setOpen(false);
-                  setQuery("");
-                }}
-                className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors hover:bg-slate-800 ${
-                  value === p.id
-                    ? "bg-slate-800/70 text-white"
-                    : "text-slate-300"
-                }`}
-              >
-                {value === p.id ? (
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                ) : (
-                  <span className="h-3.5 w-3.5 shrink-0" />
-                )}
-                <span>{p.playerName}</span>
-                {p.jerseyNumber && (
-                  <span className="ml-auto text-slate-500 text-xs font-mono">
-                    #{p.jerseyNumber}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Create new player row */}
-          {showCreate && (
-            <div className="border-t border-slate-800 p-2 space-y-2">
-              <p className="text-slate-500 text-[10px] uppercase tracking-wider px-1">
-                Create "{query.trim()}"
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Jersey # (optional)"
-                  value={jerseyNumber}
-                  onChange={(e) => setJerseyNumber(Number(e.target.value))}
-                  className="w-36 h-8 px-3 rounded-lg bg-slate-800 border border-slate-700 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
-                />
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await onCreateAndSelect(query.trim(), jerseyNumber || null);
-                    setOpen(false);
-                    setQuery("");
-                    setJerseyNumber();
-                  }}
-                  disabled={isCreating}
-                  className={`flex-1 flex items-center justify-center gap-2 h-8 px-3 rounded-lg text-xs font-semibold border transition-all ${accentBtn}`}
-                >
-                  {isCreating ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Plus className="h-3.5 w-3.5" />
-                  )}
-                  {isCreating ? "Creating…" : "Add Player"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Backdrop */}
-      {open && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => {
-            setOpen(false);
-            setQuery("");
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
 function TeamPanel({
   team,
   isHome,
@@ -527,7 +420,6 @@ function TeamPanel({
   actions,
   isAnyPending,
   confirm,
-  tournamentId,
 }) {
   const isCompleted = matchStatus === "COMPLETED" || matchStatus === "WALKOVER";
   const goalDetails = getGoalDetails(team);
@@ -537,19 +429,14 @@ function TeamPanel({
   const [goalForm, setGoalForm] = useState({
     playerId: "",
     playerName: "",
-    jerseyNumber: null,
-    minute: null,
+    minute: "",
+    period: "FIRST_HALF",
     type: "FIELD_GOAL",
   });
+  const [newPlayerName, setNewPlayerName] = useState("");
   const [addingPlayer, setAddingPlayer] = useState(false);
   const [showGoalForm, setShowGoalForm] = useState(false);
-  const {
-    family,
-    loading: familyLoading,
-    refresh: invalidate,
-  } = useFamily(team.familyId);
-  const players = family?.data?.players ?? [];
-
+  const { family, loading, refresh } = useFamily(team.familyId);
   const handleAddGoal = async () => {
     if (!goalForm.playerId) return toast.error("Select a player");
     if (!goalForm.minute) return toast.error("Enter goal time");
@@ -557,11 +444,34 @@ function TeamPanel({
     setGoalForm({
       playerId: "",
       playerName: "",
-      minute: null,
-      jerseyNumber: null,
+      minute: "",
+      period: "FIRST_HALF",
       type: "FIELD_GOAL",
     });
     setShowGoalForm(false);
+  };
+
+  const handleAddPlayer = async () => {
+    if (!newPlayerName.trim()) return;
+    setAddingPlayer(true);
+    try {
+      const res = await fetch(
+        `/api/tournaments/${tournamentId}/families/${team.familyId}/players`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ playerName: newPlayerName.trim() }),
+        },
+      );
+      if (!res.ok) throw new Error("Failed");
+      setNewPlayerName("");
+      toast.success("Player added");
+      invalidate(); // ← re-fetch the dropdown immediately
+    } catch {
+      toast.error("Failed to add player");
+    } finally {
+      setAddingPlayer(false);
+    }
   };
 
   return (
@@ -628,56 +538,67 @@ function TeamPanel({
 
             {showGoalForm && (
               <div className="space-y-3 p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
-                {/* Player combobox */}
+                {/* Player select */}
                 <div className="space-y-1.5">
                   <Label className="text-slate-400 text-xs uppercase tracking-wider">
                     Player
                   </Label>
-                  <PlayerCombobox
-                    players={players}
-                    loading={familyLoading}
+                  <Select
                     value={goalForm.playerId}
-                    onSelect={(id, name) =>
+                    onValueChange={(v) => {
+                      const player = players?.find((p) => p.id === v);
                       setGoalForm((f) => ({
                         ...f,
-                        playerId: id,
-                        playerName: name,
-                        jerseyNumber:
-                          players.find((p) => p.id === id)?.jerseyNumber ||
-                          null,
-                      }))
-                    }
-                    onCreateAndSelect={async (name, jersey) => {
-                      setAddingPlayer(true);
-                      try {
-                        const res = await fetch(`/api/players`, {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            playerName: name,
-                            familyId: team.familyId,
-                            ...(jersey ? { jerseyNumber: jersey } : {}),
-                          }),
-                        });
-                        if (!res.ok) throw new Error("Failed");
-                        const data = await res.json();
-                        toast.success("Player added");
-                        invalidate();
-                        const created = data?.data ?? data;
-                        setGoalForm((f) => ({
-                          ...f,
-                          playerId: created.id,
-                          playerName: created.playerName,
-                        }));
-                      } catch {
-                        toast.error("Failed to add player");
-                      } finally {
-                        setAddingPlayer(false);
-                      }
+                        playerId: v,
+                        playerName: player?.playerName || "",
+                      }));
                     }}
-                    isCreating={addingPlayer}
-                    accentColor={isHome ? "cyan" : "violet"}
+                  >
+                    <SelectTrigger className="h-10 bg-slate-900/50 border-slate-700 text-white">
+                      <SelectValue
+                        placeholder={
+                          loading ? "Loading players…" : "Select player…"
+                        }
+                      />
+                    </SelectTrigger>
+
+                    <SelectContent className="bg-slate-900 border-slate-700">
+                      {(family.data.players || []).map((p) => (
+                        <SelectItem
+                          key={p.id}
+                          value={p.id}
+                          className="text-white focus:bg-slate-800"
+                        >
+                          {p.playerName}
+                          {p.jerseyNumber ? ` · #${p.jerseyNumber}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Add new player inline */}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="New player name…"
+                    value={newPlayerName}
+                    onChange={(e) => setNewPlayerName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddPlayer()}
+                    className="h-9 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600 text-sm"
                   />
+                  <Button
+                    onClick={handleAddPlayer}
+                    disabled={!newPlayerName.trim() || addingPlayer}
+                    size="sm"
+                    variant="outline"
+                    className="border-slate-700 text-slate-300 hover:bg-slate-800 shrink-0"
+                  >
+                    {addingPlayer ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Plus className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
                 </div>
 
                 {/* Minute + Period */}
@@ -689,17 +610,40 @@ function TeamPanel({
                     <Input
                       type="number"
                       min={0}
-                      max={60}
-                      placeholder="0–60"
+                      max={120}
+                      placeholder="0–120"
                       value={goalForm.minute}
                       onChange={(e) =>
-                        setGoalForm((f) => ({
-                          ...f,
-                          minute: Number(e.target.value),
-                        }))
+                        setGoalForm((f) => ({ ...f, minute: e.target.value }))
                       }
                       className="h-10 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600"
                     />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-slate-400 text-xs uppercase tracking-wider">
+                      Period
+                    </Label>
+                    <Select
+                      value={goalForm.period}
+                      onValueChange={(v) =>
+                        setGoalForm((f) => ({ ...f, period: v }))
+                      }
+                    >
+                      <SelectTrigger className="h-10 bg-slate-900/50 border-slate-700 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-900 border-slate-700">
+                        {HOCKEY_PERIODS.map((p) => (
+                          <SelectItem
+                            key={p.value}
+                            value={p.value}
+                            className="text-white focus:bg-slate-800"
+                          >
+                            {p.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -730,7 +674,6 @@ function TeamPanel({
                   </div>
                 </div>
 
-                {/* Submit */}
                 <Button
                   onClick={handleAddGoal}
                   disabled={
@@ -835,7 +778,7 @@ function TeamPanel({
                             )
                           }
                           disabled={isAnyPending}
-                          className=" p-1 rounded text-red-400 hover:bg-red-500/10 transition-all"
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded text-red-400 hover:bg-red-500/10 transition-all"
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>
@@ -920,23 +863,26 @@ function StatusSelector({ currentStatus, onSelect, disabled }) {
 }
 
 /* Result panel */
-function ResultPanel({ match, onSetManOfMatch, disabled }) {
+function ResultPanel({
+  match,
+  onSetWinner,
+  onSetDraw,
+  onSetManOfMatch,
+  disabled,
+}) {
   const [manId, setManId] = useState(match?.manOfTheMatchId || "");
   const t1 = match?.participants?.[0];
   const t2 = match?.participants?.[1];
 
-  // Load players from both teams via useFamily
-  const { family: family1 } = useFamily(t1?.familyId);
-  const { family: family2 } = useFamily(t2?.familyId);
-
+  // Collect all players from both teams
   const allPlayers = [
-    ...(family1?.data?.players || []).map((p) => ({
+    ...(t1?.familyData?.players || []).map((p) => ({
       ...p,
-      family: t1?.family,
+      family: t1.family,
     })),
-    ...(family2?.data?.players || []).map((p) => ({
+    ...(t2?.familyData?.players || []).map((p) => ({
       ...p,
-      family: t2?.family,
+      family: t2.family,
     })),
   ];
 
@@ -944,20 +890,21 @@ function ResultPanel({ match, onSetManOfMatch, disabled }) {
     <div className="rounded-2xl bg-slate-900/60 border border-slate-700/40 p-5 space-y-5">
       <SectionHeader icon={Trophy} title="Match Result" />
 
-      {/* Winner — display only, auto-calculated by backend */}
+      {/* Winner */}
       <div className="space-y-2">
         <Label className="text-slate-400 text-xs uppercase tracking-wider">
           Declare Winner
         </Label>
         <div className="grid grid-cols-3 gap-2">
           <Button
-            disabled={true}
+            onClick={() => onSetWinner(t1?.familyId, t1?.family)}
+            disabled={disabled || match?.winnerId === t1?.familyId}
             size="sm"
             variant="outline"
             className={`border-slate-700 text-xs h-10 font-semibold ${
               match?.winnerId === t1?.familyId
                 ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-400"
-                : "text-slate-300"
+                : "text-slate-300 hover:bg-slate-800"
             }`}
           >
             {match?.winnerId === t1?.familyId && (
@@ -967,13 +914,14 @@ function ResultPanel({ match, onSetManOfMatch, disabled }) {
           </Button>
 
           <Button
-            disabled={true}
+            onClick={onSetDraw}
+            disabled={disabled || match?.isDraw}
             size="sm"
             variant="outline"
             className={`border-slate-700 text-xs h-10 font-semibold ${
               match?.isDraw
                 ? "border-slate-500/50 bg-slate-700/50 text-slate-300"
-                : "text-slate-400"
+                : "text-slate-400 hover:bg-slate-800"
             }`}
           >
             <Minus className="h-3 w-3 mr-1.5" />
@@ -981,13 +929,14 @@ function ResultPanel({ match, onSetManOfMatch, disabled }) {
           </Button>
 
           <Button
-            disabled={true}
+            onClick={() => onSetWinner(t2?.familyId, t2?.family)}
+            disabled={disabled || match?.winnerId === t2?.familyId}
             size="sm"
             variant="outline"
             className={`border-slate-700 text-xs h-10 font-semibold ${
               match?.winnerId === t2?.familyId
                 ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-400"
-                : "text-slate-300"
+                : "text-slate-300 hover:bg-slate-800"
             }`}
           >
             {match?.winnerId === t2?.familyId && (
@@ -996,9 +945,6 @@ function ResultPanel({ match, onSetManOfMatch, disabled }) {
             {t2?.family}
           </Button>
         </div>
-        <p className="text-slate-600 text-[10px] font-mono uppercase tracking-wider">
-          Winner is calculated automatically by the backend
-        </p>
       </div>
 
       {/* Man of the match */}
@@ -1045,6 +991,37 @@ function ResultPanel({ match, onSetManOfMatch, disabled }) {
   );
 }
 
+/* Notes panel */
+function NotesPanel({ currentNotes, onSave, disabled }) {
+  const [notes, setNotes] = useState(currentNotes || "");
+
+  useEffect(() => {
+    setNotes(currentNotes || "");
+  }, [currentNotes]);
+
+  return (
+    <div className="rounded-2xl bg-slate-900/60 border border-slate-700/40 p-5 space-y-3">
+      <SectionHeader icon={Activity} title="Match Notes" />
+      <textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Add match notes, comments, incident reports…"
+        rows={3}
+        className="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 text-sm text-slate-200 placeholder:text-slate-600 resize-none focus:outline-none focus:border-slate-500 transition-colors"
+      />
+      <Button
+        onClick={() => onSave(notes)}
+        disabled={disabled || notes === (currentNotes || "")}
+        size="sm"
+        variant="outline"
+        className="border-slate-700 text-slate-300 hover:bg-slate-800 text-xs"
+      >
+        Save Notes
+      </Button>
+    </div>
+  );
+}
+
 /* ─────────────────────────────────────────────
    Main LiveScore component
 ───────────────────────────────────────────── */
@@ -1084,9 +1061,12 @@ export function LiveMatchControl({ matchId, tournamentId }) {
     addShootout,
     deleteShootout,
     setWalkover,
+    addNote,
     addPlayer,
     refetch,
   } = useLiveMatchControl(matchId, tournamentId, initialMatch);
+
+  const timer = useMatchTimer(match);
 
   const actions = {
     addHockeyGoal,
@@ -1203,7 +1183,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
 
         <main className="container mx-auto max-w-7xl px-4 py-6 space-y-6">
           {/* Scoreboard */}
-          <ScoreBoard match={match} />
+          <ScoreBoard match={match} timer={timer} />
 
           {/* Quick actions */}
           {!isCompleted && (
@@ -1305,7 +1285,6 @@ export function LiveMatchControl({ matchId, tournamentId }) {
                 actions={actions}
                 isAnyPending={loading}
                 confirm={confirmDialog.confirm}
-                tournamentId={tournamentId}
               />
             ))}
           </div>
@@ -1313,7 +1292,28 @@ export function LiveMatchControl({ matchId, tournamentId }) {
           {/* Result + Man of the match */}
           <ResultPanel
             match={match}
+            onSetWinner={(id, name) =>
+              confirmDialog.confirm(
+                `Declare ${name} as winner?`,
+                "This will set the match result.",
+                () => setWinner(id, name),
+              )
+            }
+            onSetDraw={() =>
+              confirmDialog.confirm(
+                "Declare Draw?",
+                "Set the match as a draw.",
+                setDraw,
+              )
+            }
             onSetManOfMatch={setManOfMatch}
+            disabled={loading}
+          />
+
+          {/* Notes */}
+          <NotesPanel
+            currentNotes={match.notes}
+            onSave={addNote}
             disabled={loading}
           />
 

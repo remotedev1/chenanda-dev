@@ -41,72 +41,19 @@ async function handleGet(request, { params }) {
   });
   if (setup.error) return setup.error;
 
-  const { id } = params;
+  const { familyId } = params;
 
   // Fetch family with related data
   const family = await db.families.findUnique({
-    where: { id },
+    where: { id: familyId },
     include: {
       players: {
         select: {
           id: true,
-          name: true,
-          dateOfBirth: true,
-          gender: true,
-        },
-        orderBy: {
-          name: "asc",
+          playerName: true,
         },
       },
-      participations: {
-        select: {
-          id: true,
-          tournament: {
-            select: {
-              id: true,
-              name: true,
-              year: true,
-              status: true,
-            },
-          },
-          sport: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-      placements: {
-        select: {
-          id: true,
-          position: true,
-          tournament: {
-            select: {
-              id: true,
-              name: true,
-              year: true,
-            },
-          },
-        },
-        orderBy: {
-          position: "asc",
-        },
-      },
-      allTimeAchievements: {
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          date: true,
-        },
-        orderBy: {
-          date: "desc",
-        },
-      },
+
       _count: {
         select: {
           players: true,
@@ -125,21 +72,21 @@ async function handleGet(request, { params }) {
   return successResponse(family);
 }
 
-async function handlePut(request, { params }) {
+async function handlePatch(request, { params }) {
   // Setup (auth + rate limit)
   const setup = await setupApiHandler(request, "families:update");
   if (setup.error) return setup.error;
 
   const { user } = await auth();
   //TODO
-  // const { familyId } = params;
+  const { familyId } = params;
   // Validate body
   const body = await request.json();
   const validated = updateFamilySchema.parse(body);
 
   // Check if family exists
   const existing = await db.families.findUnique({
-    where: { familyName: validated.familyName },
+    where: { id: familyId },
   });
 
   if (!existing) {
@@ -277,6 +224,6 @@ async function handleDelete(request, { params }) {
 
 /* ---------------- EXPORTS ---------------- */
 
+export const PATCH = withErrorHandling(handlePatch, "family");
 export const GET = withErrorHandling(handleGet, "family");
-export const PUT = withErrorHandling(handlePut, "family");
 export const DELETE = withErrorHandling(handleDelete, "family");

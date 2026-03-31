@@ -16,7 +16,7 @@ export default function Page() {
       <EventCountdown />
       {/* <PaymentBanner /> */}
       <TournamentContactCard />
-      {/* <LiveScoreCarousel /> */}
+      <LiveScoreCarousel />
       {/* <MatchSchedule /> */}
       {/* <VenueDetails /> */}
       <SponsorsList />

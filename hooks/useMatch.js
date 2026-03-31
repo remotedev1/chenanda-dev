@@ -18,7 +18,7 @@ export function useMatches({ tournamentId, gameId } = {}) {
     sortBy: "scheduledOn",
     sortOrder: "asc",
     page: 1,
-    limit: 10,
+    limit: 1000,
   });
 
   const fetchMatches = useCallback(async () => {
@@ -102,7 +102,6 @@ export function useCreateMatch(tournamentId) {
       toast.success("Match created successfully");
       return result;
     } catch (error) {
-
       toast.error(error.message || "Failed to create match");
       throw error;
     } finally {
@@ -140,61 +139,6 @@ export function useUpdateMatch() {
   };
 
   return { updateMatch, updating };
-}
-
-export function useLiveMatchControl(matchId) {
-  const [loading, setLoading] = useState(false);
-
-  const sendAction = useCallback(
-    async (action, payload = {}) => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `/api/tournaments/${tournamentId}/matches/${matchId}`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action, ...payload }),
-          },
-        );
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || "Action failed");
-        }
-        const result = await response.json();
-        return result.data;
-      } catch (error) {
-        toast.error(error.message || "Action failed");
-        throw error;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [matchId],
-  );
-
-  const startMatch = () => sendAction("START_MATCH");
-  const endMatch = () => sendAction("END_MATCH");
-  const setPeriod = (period) => sendAction("SET_PERIOD", { period });
-  const setStatus = (status) => sendAction("SET_STATUS", { status });
-  const setWinner = (winnerId, winnerName) =>
-    sendAction("SET_WINNER", { winnerId, winnerName, isDraw: false });
-  const setDraw = () => sendAction("SET_DRAW");
-  const setManOfMatch = (manOfTheMatchId) =>
-    sendAction("SET_MAN_OF_MATCH", { manOfTheMatchId });
-  const addNote = (note) => sendAction("ADD_NOTE", { note });
-
-  return {
-    loading,
-    startMatch,
-    endMatch,
-    setPeriod,
-    setStatus,
-    setWinner,
-    setDraw,
-    setManOfMatch,
-    addNote,
-  };
 }
 
 export function useDeleteMatch() {
@@ -255,4 +199,33 @@ export function useMatch({ tournamentId, id }) {
   }, [fetchMatch]);
 
   return { match, loading, error, refresh: fetchMatch };
+}
+
+export function useLiveMatches() {
+  const [matches, setMatches] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchMatches = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/tournaments/live`);
+      if (!response.ok) throw new Error("Failed to fetch match");
+      const data = await response.json();
+      console.log(data);
+      setMatches(data.data.data || data);
+    } catch (err) {
+      setError(err.message);
+      toast.error("Failed to load match details");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMatches();
+  }, [fetchMatches]);
+
+  return { matches, loading, error, refresh: fetchMatches };
 }

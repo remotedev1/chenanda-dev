@@ -181,7 +181,6 @@ export function useFamilies(initialFilters = {}) {
   const refresh = useCallback(() => {
     fetchFamilies({ bustCache: true });
   }, [fetchFamilies]);
-
   return {
     families,
     pagination,
@@ -223,12 +222,11 @@ export function useFamily(id, options = {}) {
       try {
         const response = await fetch(`/api/families/${id}`);
         const data = await response.json();
-
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch family");
         }
 
-        setFamily(data);
+        setFamily(data.data);
         cacheSet(cacheKey, data);
       } catch (err) {
         setError(err.message);
@@ -307,7 +305,7 @@ export function useUpdateFamily() {
 
     try {
       const response = await fetch(`/api/families/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });

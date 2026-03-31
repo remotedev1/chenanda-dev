@@ -45,10 +45,11 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en" className={`${mundial.variable}` + " scroll-smooth"}>
+    
       <body className="font-mundial  transition-colors duration-500 ease-in-out">
         <SessionProvider session={session} refetchInterval={5 * 60}>
-          <Providers>{children}</Providers>
           <PageLoader />
+          <Providers>{children}</Providers>
         </SessionProvider>
       </body>
     </html>

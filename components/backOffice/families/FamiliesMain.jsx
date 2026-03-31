@@ -51,8 +51,8 @@ const FamiliesMain = () => {
     setEditSheetOpen(true);
   };
 
-  const handleUpdate = async (data) => {
-    await updateFamily(selectedFamily.id, data);
+  const handleUpdate = async (id, data) => {
+    await updateFamily(id, data);
     setEditSheetOpen(false);
     setSelectedFamily(null);
     refresh();
@@ -151,6 +151,7 @@ const FamiliesMain = () => {
           </SheetHeader>
           <div className="mt-6">
             <FamilyForm
+              id={selectedFamily?.id}
               onSubmit={handleUpdate}
               onCancel={() => {
                 setEditSheetOpen(false);

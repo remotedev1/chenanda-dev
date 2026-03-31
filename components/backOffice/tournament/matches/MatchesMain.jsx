@@ -18,10 +18,10 @@ import {
   useDeleteMatch,
 } from "@/hooks/useMatch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LiveMatchControl } from "./LiveMatchControl";
 import { useParams } from "next/navigation";
 import { MatchTable } from "./MatchesTable";
 import { MatchForm } from "./MatchesForm";
+import { LiveMatchControl } from "./LiveMatchControl";
 
 const MatchesMain = ({ games = [] }) => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -80,15 +80,6 @@ const MatchesMain = ({ games = [] }) => {
 
   const handleMatchUpdate = () => {
     refresh();
-  };
-
-  const handleDialogClose = (isOpen, type) => {
-    if (type === "create") {
-      setCreateDialogOpen(isOpen);
-    } else {
-      setEditDialogOpen(isOpen);
-      if (!isOpen) setSelectedMatch(null);
-    }
   };
 
   if (loading) {
@@ -211,7 +202,7 @@ const MatchesMain = ({ games = [] }) => {
       <Sheet open={liveSheetOpen} onOpenChange={setLiveSheetOpen}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-xl p-0 overflow-scroll bg-white"
+          className="w-full sm:max-w-2xl p-0 overflow-y-auto "
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Live Match Control</SheetTitle>
