@@ -33,11 +33,12 @@ const SponsorCard = ({ sponsor }) => (
 const SponsorsList = () => {
   const { sponsors, loading } = useSponsors({ status: true, limit: 50 });
 
-  const displaySponsors = useMemo(() => {
-    if (!sponsors.length) return [];
-    const shuffled = shuffleArray(sponsors);
-    return [...shuffled, ...shuffled];
-  }, [sponsors]);
+const displaySponsors = (() => {
+  if (!sponsors.length) return [];
+  const shuffled = shuffleArray(sponsors);
+  return [...shuffled, ...shuffled];
+})();
+
 
   if (loading)
     return (
@@ -60,7 +61,7 @@ const SponsorsList = () => {
       {/* Header */}
       <div className="text-center mb-10 px-4">
         <p className="text-white text-xl lg:text-2xl uppercase tracking-widest font-semibold">
-          Proudly supported by
+          Our Proud Sponsors
         </p>
       </div>
 
@@ -73,7 +74,7 @@ const SponsorsList = () => {
         <div className="flex overflow-hidden">
           <div className="overflow-hidden w-full">
             <div className="flex animate-marquee gap-6 w-max ">
-              {[...displaySponsors, ...displaySponsors].map((sponsor, i) => (
+              {displaySponsors.map((sponsor, i) => (
                 <SponsorCard
                   key={`${sponsor.id ?? sponsor.name}-${i}`}
                   sponsor={sponsor}

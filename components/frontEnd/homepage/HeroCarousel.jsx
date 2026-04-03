@@ -18,7 +18,7 @@ const SLIDES = [
   },
   {
     id: 3,
-    title: ["Champions", "Are Forged", "Here"],
+    title: ["Champions", "Are Forged Here"],
 
     image: "/slides/slide-3.jpg",
   },
@@ -162,8 +162,8 @@ export default function HeroCarousel() {
       aria-label="Kodava Hockey Festival hero carousel"
       aria-roledescription="carousel"
     >
-      <div className="relative w-full h-full flex items-center justify-center z-30 -translate-y-6">
-        <div className="relative w-[280px] h-full sm:w-[100px] md:w-[450px]  lg:w-[550px] ">
+      <div className="relative w-full h-full flex items-start   justify-center md:justify-start z-30 translate-y-6  translate-x-0 md:translate-x-[7.5rem]">
+        <div className="relative w-[280px] h-full sm:w-[100px] md:w-[600px]  lg:w-[700px] ">
           <Image
             src="/logo-title.png"
             alt=""
@@ -230,7 +230,7 @@ export default function HeroCarousel() {
 
       {/* ── Stats + Controls bar ── */}
       <div
-        className="absolute bottom-0 left-0 right-0 z-30  py-[18px]"
+        className="absolute bottom-0 left-0 right-0 z-30 md:px-11 py-[18px]"
         style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }}
       >
         <div className="max-w-7xl px-6 md:px-0 mx-auto flex">
@@ -251,7 +251,7 @@ export default function HeroCarousel() {
           <div className="flex-1" />
 
           {/* Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ">
             {/* Segmented Progress Bars — hidden on small screens */}
             <div
               className="hidden sm:flex items-center gap-[5px]"
