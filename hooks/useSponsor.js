@@ -12,7 +12,7 @@ export function useSponsors(initialFilters = {}) {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     search: "",
-    status: "all",
+    status: true,
     ...initialFilters,
   });
   const fetchSponsors = useCallback(async () => {
@@ -28,7 +28,7 @@ export function useSponsors(initialFilters = {}) {
         params.append("search", filters.search);
       }
 
-      if (filters.status && filters.status !== "all") {
+      if (filters.status) {
         params.append("status", filters.status);
       }
 

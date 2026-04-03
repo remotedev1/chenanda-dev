@@ -16,9 +16,6 @@ async function handleGet() {
       tournament: {
         select: { id: true, name: true },
       },
-      game: {
-        select: { id: true, name: true, icon: true },
-      },
     },
   });
 

@@ -20,7 +20,6 @@ const querySchema = z.object({
   limit: z.string().default("10"),
   search: z.string().optional(),
   tournamentId: z.string().optional(),
-  gameId: z.string().optional(),
   sport: z.string().optional(),
   status: z
     .enum([
@@ -48,8 +47,6 @@ const querySchema = z.object({
 export const createMatchSchema = z.object({
   tournamentId: z.string().min(1, "Tournament is required"),
   sport: z.string().min(1, "Sport is required"),
-  gameId: z.string().optional().nullable(),
-  matchNo: z.number().int().min(1, "Match number must be at least 1"),
   name: z.string().max(200).optional().nullable(),
   venue: z.enum([
     "GROUND_1",
@@ -142,7 +139,6 @@ async function handleGet(request) {
     limit: searchParams.get("limit"),
     search: searchParams.get("search") || undefined,
     tournamentId: searchParams.get("tournamentId") || undefined,
-    gameId: searchParams.get("gameId") || undefined,
     sport: searchParams.get("sport") || undefined,
     status: searchParams.get("status") || undefined,
     round: searchParams.get("round") || undefined,
@@ -157,7 +153,6 @@ async function handleGet(request) {
   const where = {
     ...buildSearchWhere(validated.search, ["name", "notes", "winnerName"]),
     ...(validated.tournamentId && { tournamentId: validated.tournamentId }),
-    ...(validated.gameId && { gameId: validated.gameId }),
     ...(validated.sport && { sport: validated.sport }),
     ...(validated.status && { status: validated.status }),
     ...(validated.round && { round: validated.round }),
@@ -189,7 +184,6 @@ async function handleGet(request) {
       orderBy,
       include: {
         tournament: { select: { id: true, name: true } },
-        game: { select: { id: true, name: true, icon: true } },
       },
     }),
     db.matches.count({ where }),
@@ -219,40 +213,10 @@ async function handlePost(request) {
     return errorResponse("Selected tournament does not exist", 400);
   }
 
-  // If gameId provided, verify it exists and belongs to same tournament
-  if (validated.gameId) {
-    const game = await db.tournamentGame.findFirst({
-      where: { id: validated.gameId, tournamentId: validated.tournamentId },
-    });
-    if (!game) {
-      return errorResponse(
-        "Selected game does not exist or does not belong to this tournament",
-        400,
-      );
-    }
-  }
-
-  // Check unique constraint: tournamentId + sport + matchNo
-  const existing = await db.matches.findFirst({
-    where: {
-      tournamentId: validated.tournamentId,
-      sport: validated.sport,
-      matchNo: validated.matchNo,
-    },
-  });
-  if (existing) {
-    return errorResponse(
-      `Match #${validated.matchNo} already exists for ${validated.sport} in this tournament`,
-      409,
-    );
-  }
-
   const match = await db.matches.create({
     data: {
       tournamentId: validated.tournamentId,
       sport: validated.sport,
-      gameId: validated.gameId || null,
-      matchNo: validated.matchNo,
       name: validated.name || null,
       venue: validated.venue,
       scheduledOn: validated.scheduledOn,
@@ -281,6 +245,27 @@ async function handlePost(request) {
       ],
     },
   });
+
+  // Update tournamentParticipation for both participants
+  const participantIds = validated.participants
+    ?.map((p) => p.teamId)
+    .filter(Boolean);
+
+  if (participantIds?.length) {
+    await Promise.all(
+      participantIds.map((familyId) =>
+        db.tournamentParticipation.updateMany({
+          where: {
+            familyId,
+            tournamentId: validated.tournamentId,
+          },
+          data: {
+            matchIds: { push: match.id },
+          },
+        }),
+      ),
+    );
+  }
 
   await logActivity({
     userId: user.id,

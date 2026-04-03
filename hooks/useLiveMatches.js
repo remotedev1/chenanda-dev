@@ -5,17 +5,8 @@ import { io } from "socket.io-client";
 import { toast } from "sonner";
 
 const SOCKET_URL = typeof window !== "undefined" && window.location.origin;
-// const SOCKET_URL =
-//   typeof window !== "undefined"
-//     ? process.env.NEXT_PUBLIC_SOCKET_URL
-//     : window.location.origin;
 
 // ── Singleton socket ──────────────────────────────────────────────────────────
-// Created ONCE per page load. Never recreated — Socket.IO handles reconnection
-// internally. Recreating on _socket.disconnected was the root cause: the
-// lifecycle effect registered onConnect on socket-A, then joinRoom called
-// getSocket() and got a new socket-B. onConnect fired on A (empty rooms),
-// joinRoom emitted on B (not connected yet) → nothing was ever joined.
 let _socket = null;
 function getSocket() {
   if (typeof window === "undefined") return null;
@@ -29,7 +20,6 @@ function getSocket() {
       autoConnect: true,
     });
 
-    // Log every connection state change so we can see exactly what happens
     _socket.on("connect", () =>
       console.log("[socket] ✅ connected, id:", _socket.id),
     );
@@ -46,99 +36,62 @@ function getSocket() {
 // ─────────────────────────────────────────────────────────────────────────────
 export function useLiveMatches(apiUrl = "/api/tournaments/live") {
   const wantedRooms = useRef(new Set());
-  const [matches, setMatches] = useState(null);
+  const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-
-  // ── patchMatch ────────────────────────────────────────────────────────────
-  const patchMatch = useCallback((matchId, data) => {
-    setMatches((prev) => {
-      if (!prev?.data) return prev;
-      return {
-        ...prev,
-        data: prev.data.map((m) =>
-          String(m.id) === String(matchId) ? { ...m, ...data, id: m.id } : m,
-        ),
-      };
-    });
-  }, []);
 
   // ── joinRoom ──────────────────────────────────────────────────────────────
   const joinRoom = useCallback((rawId) => {
     if (!rawId) return;
     const matchId = String(rawId);
     wantedRooms.current.add(matchId);
-    const s = getSocket(); // always the same instance now
+    const s = getSocket();
     if (s?.connected) {
-      console.log("[useLiveMatches] joinRoom: emitting joinMatch", matchId);
       s.emit("joinMatch", matchId);
-    } else {
-      console.log(
-        "[useLiveMatches] joinRoom: queued (not connected yet)",
-        matchId,
-      );
     }
   }, []);
 
-  // ── 1. Fetch ──────────────────────────────────────────────────────────────
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        if (cancelled) return;
+  // ── load ──────────────────────────────────────────────────────────────────
+  const load = useCallback(async () => {
+    setError(null);
+    try {
+      const res = await fetch(apiUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
 
-        const list = Array.isArray(json)
-          ? json
-          : Array.isArray(json.data)
-            ? json.data
-            : Array.isArray(json.data?.data)
-              ? json.data.data
-              : [];
+      const list = Array.isArray(json)
+        ? json
+        : Array.isArray(json.data)
+          ? json.data
+          : Array.isArray(json.data?.data)
+            ? json.data.data
+            : [];
 
-        console.log(
-          "[useLiveMatches] fetched",
-          list.length,
-          "matches:",
-          list.map((m) => m.id),
-        );
-        setMatches({ data: list });
-        list.forEach((m) => joinRoom(m.id));
-      } catch (err) {
-        if (!cancelled) setError(err.message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
+      setMatches({ data: list });
+      list.forEach((m) => joinRoom(m.id));
+    } catch (err) {
+      setError(err.message);
+    }
   }, [apiUrl, joinRoom]);
 
-  // ── 2. Socket lifecycle ───────────────────────────────────────────────────
+  // ── Initial load ──────────────────────────────────────────────────────────
   useEffect(() => {
-    const s = getSocket(); // same instance as joinRoom uses
+    setLoading(true);
+    load().finally(() => setLoading(false));
+  }, [load]);
+
+  // ── Socket lifecycle ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const s = getSocket();
     if (!s) return;
 
     const syncRooms = () => {
-      console.log("[useLiveMatches] syncRooms:", [...wantedRooms.current]);
       wantedRooms.current.forEach((id) => s.emit("joinMatch", id));
     };
 
     const onConnect = () => {
-      console.log("[useLiveMatches] connected, wantedRooms:", [
-        ...wantedRooms.current,
-      ]);
       setIsConnected(true);
-      // Defer by one tick so the fetch effect's joinRoom calls have time to
-      // populate wantedRooms before we drain it. Fixes the race where
-      // onConnect fires between fetch-start and fetch-complete.
       setTimeout(syncRooms, 0);
     };
 
@@ -148,15 +101,31 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     };
 
     const onMatchData = ({ matchId, data }) => {
-      if (matchId && data) patchMatch(matchId, data);
+      if (!matchId || !data) return;
+      setMatches((prev) => {
+        const list = prev?.data ?? [];
+        const exists = list.some((m) => String(m.id) === String(matchId));
+        if (!exists) return prev; // matchStarted handles new ones
+        return {
+          ...prev,
+          data: list.map((m) =>
+            String(m.id) === String(matchId) ? { ...m, ...data, id: m.id } : m,
+          ),
+        };
+      });
+    };
+
+    // ✅ A new match just went live — refetch the full list
+    const onMatchStarted = ({ matchId }) => {
+      console.log("[useLiveMatches] matchStarted →", matchId);
+      load();
     };
 
     s.on("connect", onConnect);
     s.on("disconnect", onDisconnect);
     s.on("matchData", onMatchData);
+    s.on("matchStarted", onMatchStarted);
 
-    // Socket may already be connected (admin tab warmed it up on same device,
-    // or fast connection on other device)
     if (s.connected) {
       setIsConnected(true);
       syncRooms();
@@ -166,15 +135,11 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
       s.off("connect", onConnect);
       s.off("disconnect", onDisconnect);
       s.off("matchData", onMatchData);
+      s.off("matchStarted", onMatchStarted);
       wantedRooms.current.forEach((id) => s.emit("leaveMatch", id));
       wantedRooms.current.clear();
     };
-  }, [patchMatch]);
-
-  // ── 3. Join rooms added after initial load ────────────────────────────────
-  useEffect(() => {
-    matches?.data?.forEach((m) => joinRoom(m.id));
-  }, [matches, joinRoom]);
+  }, [load]);
 
   return { matches, loading, error, isConnected };
 }
@@ -197,6 +162,7 @@ export function useLiveMatchControl(
   useEffect(() => {
     matchRef.current = match;
   }, [match]);
+
   useEffect(() => {
     if (initialMatch) setMatch(initialMatch);
   }, [initialMatch]);
@@ -258,7 +224,7 @@ export function useLiveMatchControl(
         setMatch(updated);
         broadcast(updated);
         if (successMsg) toast.success(successMsg);
-        return updated;
+        return updated; // ✅ make sure this is returned
       } catch (err) {
         setMatch(prev);
         const msg = err?.message || errorMsg || "Something went wrong";
@@ -271,7 +237,6 @@ export function useLiveMatchControl(
     },
     [broadcast],
   );
-
   const patch = useCallback(
     async (body) => {
       const res = await fetch(apiBase, {
@@ -279,7 +244,6 @@ export function useLiveMatchControl(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
         throw new Error(d?.message || `HTTP ${res.status}`);
@@ -306,20 +270,30 @@ export function useLiveMatchControl(
     }
   }, [apiBase, broadcast]);
 
-  const startMatch = useCallback(
-    () =>
-      run({
-        optimisticFn: (m) => ({
-          ...m,
-          status: "LIVE",
-          actualStartTime: new Date().toISOString(),
-        }),
-        apiFn: () => patch({ action: "START_MATCH" }),
-        successMsg: "Match started! 🏑",
-        errorMsg: "Failed to start match",
+  const startMatch = useCallback(async () => {
+    const updated = await run({
+      optimisticFn: (m) => ({
+        ...m,
+        status: "LIVE",
+        actualStartTime: new Date().toISOString(),
       }),
-    [run, patch],
-  );
+      apiFn: () => patch({ action: "START_MATCH" }),
+      successMsg: "Match started! 🏑",
+      errorMsg: "Failed to start match",
+    });
+
+    if (!updated) return;
+
+    const s = getSocket();
+    if (!s) return;
+
+    // ✅ Broadcast real-time data to everyone in the room
+    s.emit("gameData", { matchId: String(matchId), ...updated });
+
+    // ✅ Tell ALL clients globally to refetch — server must forward this
+    s.emit("matchStarted", { matchId: String(matchId), data: updated });
+  }, [run, patch, matchId]);
+
   const endMatch = useCallback(
     () =>
       run({
@@ -334,6 +308,7 @@ export function useLiveMatchControl(
       }),
     [run, patch],
   );
+
   const setPeriod = useCallback(
     (period) =>
       run({
@@ -343,6 +318,7 @@ export function useLiveMatchControl(
       }),
     [run, patch],
   );
+
   const setStatus = useCallback(
     (status) =>
       run({
@@ -353,6 +329,7 @@ export function useLiveMatchControl(
       }),
     [run, patch],
   );
+
   const setWinner = useCallback(
     (familyId) =>
       run({
@@ -363,6 +340,7 @@ export function useLiveMatchControl(
       }),
     [run, patch],
   );
+
   const setDraw = useCallback(
     () =>
       run({
@@ -373,6 +351,7 @@ export function useLiveMatchControl(
       }),
     [run, patch],
   );
+
   const setManOfMatch = useCallback(
     (playerId) =>
       run({
@@ -412,16 +391,13 @@ export function useLiveMatchControl(
           ),
         }),
         apiFn: () =>
-          patch({
-            action: "ADD_HOCKEY_GOAL",
-            familyId,
-            goal: goalForm,
-          }),
+          patch({ action: "ADD_HOCKEY_GOAL", familyId, goal: goalForm }),
         successMsg: "Goal logged! ⚽",
         errorMsg: "Failed to log goal",
       }),
     [run, patch],
   );
+
   const deleteHockeyGoal = useCallback(
     (familyId, goalIndex) =>
       run({
@@ -442,16 +418,13 @@ export function useLiveMatchControl(
           }),
         }),
         apiFn: () =>
-          patch({
-            action: "DELETE_HOCKEY_GOAL",
-            familyId,
-            goalIndex,
-          }),
+          patch({ action: "DELETE_HOCKEY_GOAL", familyId, goalIndex }),
         successMsg: "Goal removed",
         errorMsg: "Failed to remove goal",
       }),
     [run, patch],
   );
+
   const addShootout = useCallback(
     (familyId, scored) =>
       run({
@@ -472,16 +445,12 @@ export function useLiveMatchControl(
                 },
           ),
         }),
-        apiFn: () =>
-          patch({
-            action: "ADD_SHOOTOUT",
-            familyId,
-            scored,
-          }),
+        apiFn: () => patch({ action: "ADD_SHOOTOUT", familyId, scored }),
         errorMsg: "Failed to record penalty",
       }),
     [run, patch],
   );
+
   const deleteShootout = useCallback(
     (familyId, index) =>
       run({
@@ -497,19 +466,14 @@ export function useLiveMatchControl(
             };
           }),
         }),
-
         apiFn: () =>
-          patch({
-            action: "DELETE_SHOOTOUT",
-            familyId,
-            shootoutIndex: index,
-          }),
+          patch({ action: "DELETE_SHOOTOUT", familyId, shootoutIndex: index }),
         successMsg: "Penalty removed",
         errorMsg: "Failed to remove penalty",
       }),
-
     [run, patch],
   );
+
   const setWalkover = useCallback(
     (familyId) =>
       run({
@@ -528,6 +492,7 @@ export function useLiveMatchControl(
       }),
     [run, patch],
   );
+
   const addNote = useCallback(
     (notes) =>
       run({

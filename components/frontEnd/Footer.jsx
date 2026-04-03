@@ -159,28 +159,6 @@ const SportsFooter = () => {
       <div className="bg-indigo-700 flex flex-col">
         {/* Footer Section */}
         <footer className="relative bg-gradient-to-b from-slate-900 to-slate-950 text-white overflow-hidden">
-          {/* Animated SVG Background */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern
-                  id="grid"
-                  width="40"
-                  height="40"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <path
-                    d="M 40 0 L 0 0 0 40"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="0.5"
-                  />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
-            </svg>
-          </div>
-
           {/* Animated Wave SVG */}
           <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none pointer-events-none">
             <svg
@@ -211,60 +189,61 @@ const SportsFooter = () => {
                 amount: 0.2,
                 margin: "0px 0px -50px 0px",
               }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12"
+              className="w-full flex justify-between flex-col md:flex-row gap-10"
             >
               {/* Brand Section */}
               <m.div variants={itemVariants}>
-                <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-red-500 to-yellow-500 bg-clip-text text-transparent">
-                  CHENANDA
-                </h2>
-                <p
-                  style={{
-                    fontFamily: "'DM Mono', monospace",
-                    fontSize: "0.62rem",
-                    color: "#9e8c72",
-                    letterSpacing: "0.08em",
-                    margin: 0,
-                    paddingBottom: "10px",
-                  }}
-                >
-                  KOKERI VILLAGE, CHEYYANDANE POST, KODAGU, KARNATAKA 571212
-                </p>
-
-                <div className="flex gap-3">
-                  {socialIcons.map((social, idx) => (
-                    <SocialIcon
-                      key={social.name}
-                      social={social}
-                      index={idx}
-                      onHover={handleSocialHover}
-                    />
-                  ))}
+                <div>
+                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-red-500 to-yellow-500 bg-clip-text text-transparent">
+                    CHENANDA
+                  </h2>
+                  <p
+                    style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: "0.62rem",
+                      color: "#9e8c72",
+                      letterSpacing: "0.08em",
+                      margin: 0,
+                      paddingBottom: "10px",
+                    }}
+                  >
+                    KOKERI VILLAGE, CHEYYANDANE POST, KODAGU, KARNATAKA 571212
+                  </p>
+                  <div className="flex gap-3">
+                    {socialIcons.map((social, idx) => (
+                      <SocialIcon
+                        key={social.name}
+                        social={social}
+                        index={idx}
+                        onHover={handleSocialHover}
+                      />
+                    ))}
+                  </div>
                 </div>
               </m.div>
-
-              {/* Tournament Links */}
-              <FooterSection title="TOURNAMENTS" delay={0.3}>
-                <ul className="space-y-3">
-                  {footerLinks.tournament.map(({ link, name }) => (
-                    <FooterLink key={link} link={link} name={name} />
-                  ))}
-                </ul>
-              </FooterSection>
-
-              {/* Company Links */}
-              <FooterSection title="OTHER" delay={0.4}>
-                <ul className="space-y-3">
-                  {footerLinks.other.map(({ link, name }) => (
-                    <FooterLink key={link} link={link} name={name} />
-                  ))}
-                </ul>
-              </FooterSection>
+              <div className="flex space-x-20">
+                {/* Company Links */}
+                <FooterSection title="OTHER" delay={0.4}>
+                  <ul className="space-y-3">
+                    {footerLinks.other.map(({ link, name }) => (
+                      <FooterLink key={link} link={link} name={name} />
+                    ))}
+                  </ul>
+                </FooterSection>
+                {/* Tournament Links */}
+                <FooterSection title="TOURNAMENTS" delay={0.3}>
+                  <ul className="space-y-3">
+                    {footerLinks.tournament.map(({ link, name }) => (
+                      <FooterLink key={link} link={link} name={name} />
+                    ))}
+                  </ul>
+                </FooterSection>
+              </div>
             </m.div>
 
             {/* Bottom Bar */}
             <m.div
-              className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center"
+              className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center mt-4"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ delay: shouldReduceMotion ? 0 : 0.5 }}

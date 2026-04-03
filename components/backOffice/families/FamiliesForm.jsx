@@ -122,9 +122,8 @@ export function FamilyForm({
 
     try {
       const validated = createFamilySchema.parse(formData);
-
       // Submit the form
-      await onSubmit(id, validated);
+      await onSubmit(validated);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors = {};

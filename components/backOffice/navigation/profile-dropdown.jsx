@@ -54,7 +54,7 @@ export function ProfileDropdown() {
           </DropdownMenuItem>
 
           <DropdownMenuItem asChild>
-            <Link href="/auth/change-password">
+            <Link href="/dashboard/change-password">
               Change Password
             </Link>
           </DropdownMenuItem>

@@ -229,3 +229,56 @@ export function useLiveMatches() {
 
   return { matches, loading, error, refresh: fetchMatches };
 }
+
+export function useCreateMatches(tournamentId) {
+  const [creating, setCreating] = useState(false);
+
+  const createMatches = useCallback(async (matchesPayload) => {
+    if (!Array.isArray(matchesPayload) || matchesPayload.length === 0) {
+      toast.error("No matches to submit");
+      return;
+    }
+
+    setCreating(true);
+
+    try {
+      const response = await fetch(`/api/tournaments/${tournamentId}/matches/bulk`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ matches: matchesPayload }),
+      });
+
+      // Always read as text first so we can debug empty/non-JSON responses
+      const text = await response.text();
+
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch {
+        console.error("Non-JSON response from /api/matches/bulk:", text);
+        throw new Error("Server returned an unexpected response");
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error || result?.message || "Failed to create matches",
+        );
+      }
+
+      toast.success(
+        `${result.data?.count ?? matchesPayload.length} match${
+          (result.data?.count ?? matchesPayload.length) > 1 ? "es" : ""
+        } created successfully!`,
+      );
+
+      return result.data;
+    } catch (err) {
+      toast.error("Failed to create matches", { description: err.message });
+      throw err;
+    } finally {
+      setCreating(false);
+    }
+  }, []);
+
+  return { createMatches, creating };
+}

@@ -136,6 +136,8 @@ async function handlePost(request) {
 
   // Validate body
   const body = await request.json();
+  console.log(body);
+
   const validated = createFamilySchema.parse(body);
 
   // Check for duplicate family name

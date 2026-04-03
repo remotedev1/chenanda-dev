@@ -23,6 +23,7 @@ const querySchema = z.object({
     .string()
     .transform((val) => val === "true")
     .optional(),
+  category: z.enum(["TITLE", "GOLD", "SILVER", "BRONZE"]).optional(),
   sortBy: z.enum(["createdAt", "name", "status"]).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
@@ -50,6 +51,10 @@ export const createSponsorSchema = z.object({
     .optional()
     .or(z.literal("")),
   status: z.boolean().default(true),
+  category: z.enum(["TITLE", "GOLD", "SILVER", "BRONZE"], {
+    required_error: "Category is required",
+    invalid_type_error: "Invalid category",
+  }),
 });
 
 /* ---------------- HANDLERS ---------------- */
@@ -60,31 +65,31 @@ async function handleGet(request) {
   });
   if (setup.error) return setup.error;
 
-  // Query params
   const { searchParams } = new URL(request.url);
   const validated = querySchema.parse({
     page: searchParams.get("page"),
     limit: searchParams.get("limit"),
     search: searchParams.get("search") || undefined,
     status: searchParams.get("status") || undefined,
+    category: searchParams.get("category") || undefined,
     sortBy: searchParams.get("sortBy") || undefined,
     sortOrder: searchParams.get("sortOrder") || undefined,
   });
 
   const { page, limit, skip } = parsePagination(searchParams);
 
-  // Build where clause
   const where = {
     ...buildSearchWhere(validated.search, ["name", "description"]),
-    ...(validated.status && { status: validated.status }),
+    ...(validated.status !== undefined && { status: validated.status }),
+    ...(validated.category && { category: validated.category }),
   };
 
-  // Fetch data with counts
   const [sponsors, total] = await Promise.all([
     db.sponsor.findMany({
       where,
       skip,
       take: limit,
+      orderBy: { [validated.sortBy]: validated.sortOrder },
     }),
     db.sponsor.count({ where }),
   ]);
@@ -96,17 +101,14 @@ async function handleGet(request) {
 }
 
 async function handlePost(request) {
-  // Setup (auth + rate limit)
   const setup = await setupApiHandler(request, "sponsors:create");
   if (setup.error) return setup.error;
 
   const { user } = await auth();
 
-  // Validate body
   const body = await request.json();
   const validated = createSponsorSchema.parse(body);
 
-  // Check for duplicate name
   const existing = await db.sponsor.findFirst({
     where: { name: validated.name },
   });
@@ -115,7 +117,6 @@ async function handlePost(request) {
     return errorResponse("A sponsor with this name already exists", 409);
   }
 
-  // Create sponsor
   const sponsor = await db.sponsor.create({
     data: {
       name: validated.name,
@@ -125,20 +126,20 @@ async function handlePost(request) {
       phone: validated.phone || null,
       logo: validated.logo || null,
       status: validated.status,
+      category: validated.category,
       createdBy: {
         connect: { id: user.id },
       },
     },
   });
 
-  // Log activity
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "created",
     entity: "sponsor",
     entityId: sponsor.id,
     entityName: sponsor.name,
-    description: `Created sponsor "${sponsor.name}"`,
+    description: `Created sponsor "${sponsor.name}" as ${validated.category} sponsor`,
     request,
   });
 

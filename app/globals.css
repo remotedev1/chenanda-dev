@@ -16,12 +16,11 @@ html {
 }
 
 :root {
-  /* Kodava Color Palette */
   --color-yellow: #f4c430;
   --color-yellow-light: #f9d866;
   --color-yellow-dark: #d4a620;
 
-  --color-blue: #1a3b5d;
+  --primary: 222 47% 11%;
   --color-blue-light: #2c5f8d;
   --color-blue-dark: #0f2538;
 

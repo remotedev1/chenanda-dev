@@ -21,7 +21,7 @@ const handle = app.getRequestHandler();
 class ServerState {
   constructor() {
     this.matchCache = new Map();
-    this.clients    = new Map();
+    this.clients = new Map();
   }
 
   addClient(socketId) {
@@ -86,6 +86,13 @@ const setupSocketHandlers = (io, state) => {
 
       const count = state.getRoomCount(io, matchId);
       io.to(matchId).emit("watcherCount", { matchId, count });
+    });
+
+    // In your socket server setup
+    socket.on("matchStarted", (data) => {
+      console.log("[server] matchStarted →", data.matchId);
+      // Forward to ALL other connected clients
+      socket.broadcast.emit("matchStarted", data);
     });
 
     socket.on("leaveMatch", (matchId) => {
@@ -190,15 +197,25 @@ const startServer = async () => {
     const shutdown = (sig) => {
       console.log(`\n${sig} — shutting down…`);
       io.close(() => console.log("Socket.IO closed"));
-      server.close(() => { console.log("HTTP server closed"); process.exit(0); });
-      setTimeout(() => { console.error("Forced exit"); process.exit(1); }, 10_000);
+      server.close(() => {
+        console.log("HTTP server closed");
+        process.exit(0);
+      });
+      setTimeout(() => {
+        console.error("Forced exit");
+        process.exit(1);
+      }, 10_000);
     };
 
-    process.on("SIGINT",  () => shutdown("SIGINT"));
+    process.on("SIGINT", () => shutdown("SIGINT"));
     process.on("SIGTERM", () => shutdown("SIGTERM"));
-    process.on("uncaughtException",  (e) => { console.error("UncaughtException:", e);  shutdown("UNCAUGHT"); });
-    process.on("unhandledRejection", (r) => { console.error("UnhandledRejection:", r); });
-
+    process.on("uncaughtException", (e) => {
+      console.error("UncaughtException:", e);
+      shutdown("UNCAUGHT");
+    });
+    process.on("unhandledRejection", (r) => {
+      console.error("UnhandledRejection:", r);
+    });
   } catch (err) {
     console.error("Failed to start server:", err);
     process.exit(1);

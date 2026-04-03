@@ -100,17 +100,14 @@ const matchFormSchema = z
   .object({
     tournamentId: z.string().min(1, "Tournament is required"),
     sport: z.string().min(1, "Sport is required"),
-    gameId: z.string().optional().nullable(),
-    matchNo: z
-      .number({ required_error: "Match number is required" })
-      .int()
-      .min(1, "Match number must be at least 1"),
+
     name: z.string().max(200).optional().nullable(),
     venue: z.string().min(1, "Venue is required"),
     scheduledOn: z.date({ required_error: "Scheduled date/time is required" }),
     pool: z.string().optional().nullable(),
     round: z.string().min(1, "Round is required"),
     status: z.string().default("SCHEDULED"),
+    sport: z.string().min(1, "Sport is required"),
     sponsor: z.string().max(200).optional().nullable(),
     notes: z.string().max(2000).optional().nullable(),
     team1Id: z.string().min(1, "Team 1 is required"),
@@ -312,8 +309,6 @@ export function MatchForm({
   const [formData, setFormData] = useState({
     tournamentId: initialData?.tournamentId || tournamentId || "",
     sport: initialData?.sport || "",
-    gameId: initialData?.gameId || null,
-    matchNo: initialData?.matchNo || "",
     name: initialData?.name || "",
     venue: initialData?.venue || "",
     scheduledOn: initialData?.scheduledOn
@@ -339,7 +334,6 @@ export function MatchForm({
   const { families, loading: loadingFamilies } = useFamilies({ limit: 1000 });
 
   const isPoolStage = formData.round === "POOL_STAGE";
-  const selectedGame = games.find((g) => g.id === formData.gameId);
   const team1 = families.find((f) => f.id === formData.team1Id);
   const team2 = families.find((f) => f.id === formData.team2Id);
 
@@ -347,7 +341,6 @@ export function MatchForm({
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -366,9 +359,7 @@ export function MatchForm({
 
       const dataToValidate = {
         ...formData,
-        matchNo: formData.matchNo ? Number(formData.matchNo) : undefined,
         scheduledOn,
-        gameId: formData.gameId || null,
         name: formData.name || null,
         pool: formData.pool || null,
         sponsor: formData.sponsor || null,
@@ -376,7 +367,8 @@ export function MatchForm({
       };
 
       const validated = matchFormSchema.parse(dataToValidate);
-      const { team1Id, team2Id, team1Name, team2Name, ...matchFields } = validated;
+      const { team1Id, team2Id, team1Name, team2Name, ...matchFields } =
+        validated;
 
       await onSubmit({
         ...matchFields,
@@ -476,24 +468,6 @@ export function MatchForm({
           </Select>
           {errors.sport && (
             <p className="text-sm text-red-500">{errors.sport}</p>
-          )}
-        </div>
-
-        {/* Match No */}
-        <div className="space-y-2">
-          <Label>
-            Match Number <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            type="number"
-            min="1"
-            value={formData.matchNo}
-            onChange={(e) => handleChange("matchNo", e.target.value)}
-            placeholder="e.g., 1"
-            className={`h-12 border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.matchNo ? "border-red-500" : ""}`}
-          />
-          {errors.matchNo && (
-            <p className="text-sm text-red-500">{errors.matchNo}</p>
           )}
         </div>
 
@@ -639,82 +613,6 @@ export function MatchForm({
             </SelectContent>
           </Select>
         </div>
-
-        {/* Link to Game */}
-        {games.length > 0 && (
-          <div className="space-y-2 md:col-span-2">
-            <Label>
-              Link to Game Event{" "}
-              <span className="text-muted-foreground text-xs">(optional)</span>
-            </Label>
-            <Popover open={gamePopoverOpen} onOpenChange={setGamePopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  role="combobox"
-                  className="w-full h-12 justify-between font-normal text-left"
-                >
-                  {selectedGame
-                    ? `${selectedGame.icon || "🏆"} ${selectedGame.name}`
-                    : "Search and select a game event..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 bg-white" align="start">
-                <Command>
-                  <CommandInput placeholder="Search games..." />
-                  <CommandList>
-                    <CommandEmpty>No game found.</CommandEmpty>
-                    <CommandGroup>
-                      <CommandItem
-                        value="none"
-                        onSelect={() => {
-                          handleChange("gameId", null);
-                          setGamePopoverOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            !formData.gameId ? "opacity-100" : "opacity-0",
-                          )}
-                        />
-                        None
-                      </CommandItem>
-                      {games.map((game) => (
-                        <CommandItem
-                          key={game.id}
-                          value={game.name}
-                          onSelect={() => {
-                            handleChange("gameId", game.id);
-                            setGamePopoverOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              formData.gameId === game.id
-                                ? "opacity-100"
-                                : "opacity-0",
-                            )}
-                          />
-                          <span className="mr-2">{game.icon || "🏆"}</span>
-                          {game.name}
-                          {game.category && (
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              · {game.category}
-                            </span>
-                          )}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        )}
 
         {/* Match Name */}
         <div className="space-y-2 md:col-span-2">

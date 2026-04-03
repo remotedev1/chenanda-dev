@@ -35,9 +35,26 @@ import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmation
 import Image from "next/image";
 
 const statusColors = {
-  ACTIVE: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  INACTIVE: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+  true: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  false: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
 };
+
+const categoryColors = {
+  TITLE:
+    "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200",
+  GOLD: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900 dark:text-amber-200",
+  SILVER:
+    "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300",
+  BRONZE:
+    "bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900 dark:text-orange-200",
+};
+
+const SPONSOR_CATEGORIES = [
+  { value: "TITLE", label: "Title" },
+  { value: "GOLD", label: "Gold" },
+  { value: "SILVER", label: "Silver" },
+  { value: "BRONZE", label: "Bronze" },
+];
 
 function SponsorCard({ sponsor, onEdit, onDelete }) {
   const gradients = [
@@ -65,13 +82,23 @@ function SponsorCard({ sponsor, onEdit, onDelete }) {
       >
         <div className="absolute inset-0 bg-black/10" />
 
-        {/* Status badge */}
-        <div className="absolute top-3 right-3">
+        {/* Badges */}
+        <div className="absolute top-3 right-3 flex gap-1.5">
+          {/* Category badge */}
+          {sponsor.category && (
+            <Badge
+              variant="outline"
+              className={`text-xs font-semibold ${categoryColors[sponsor.category]}`}
+            >
+              {sponsor.category}
+            </Badge>
+          )}
+          {/* Status badge */}
           <Badge
             variant="outline"
             className={`text-xs font-semibold border-0 ${statusColors[sponsor.status]}`}
           >
-            {sponsor.status}
+            {sponsor.status ? "Active" : "Inactive"}
           </Badge>
         </div>
 
@@ -82,13 +109,14 @@ function SponsorCard({ sponsor, onEdit, onDelete }) {
         </div>
 
         {/* Logo / Avatar */}
-        <div className="absolute inset-0">
-          {sponsor.logo ? (
-            <div className="w-24 h-24 rounded-xl    shadow-md overflow-hidden flex items-center justify-center">
+        <div className="absolute bottom-3 left-4">
+          {sponsor.logo?.[0]?.url ? (
+            <div className="w-14 h-14 rounded-xl shadow-md overflow-hidden bg-white flex items-center justify-center">
               <Image
                 src={sponsor.logo[0].url}
                 alt={sponsor.name}
-                fill
+                width={56}
+                height={56}
                 className="object-contain"
               />
             </div>
@@ -103,7 +131,7 @@ function SponsorCard({ sponsor, onEdit, onDelete }) {
       </div>
 
       {/* Body */}
-      <div className="px-5 pt-2  space-y-4">
+      <div className="px-5 pt-2 space-y-4">
         {/* Name & description */}
         <div>
           <h3 className="font-bold text-lg text-gray-900 group-hover:text-orange-600 transition-colors line-clamp-1">
@@ -118,24 +146,24 @@ function SponsorCard({ sponsor, onEdit, onDelete }) {
 
         {/* Contact info */}
         <div className="space-y-1.5">
-          {sponsor.contactEmail && (
+          {sponsor.email && (
             <a
-              href={`mailto:${sponsor.contactEmail}`}
+              href={`mailto:${sponsor.email}`}
               onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-colors truncate"
             >
               <Mail className="h-4 w-4 shrink-0 text-orange-400" />
-              <span className="truncate">{sponsor.contactEmail}</span>
+              <span className="truncate">{sponsor.email}</span>
             </a>
           )}
-          {sponsor.contactPhone && (
+          {sponsor.phone && (
             <a
-              href={`tel:${sponsor.contactPhone}`}
+              href={`tel:${sponsor.phone}`}
               onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-colors"
             >
               <Phone className="h-4 w-4 shrink-0 text-orange-400" />
-              <span>{sponsor.contactPhone}</span>
+              <span>{sponsor.phone}</span>
             </a>
           )}
           {sponsor.website && (
@@ -152,11 +180,9 @@ function SponsorCard({ sponsor, onEdit, onDelete }) {
               </span>
             </a>
           )}
-          {!sponsor.contactEmail &&
-            !sponsor.contactPhone &&
-            !sponsor.website && (
-              <p className="text-sm text-gray-400 italic">No contact info</p>
-            )}
+          {!sponsor.email && !sponsor.phone && !sponsor.website && (
+            <p className="text-sm text-gray-400 italic">No contact info</p>
+          )}
         </div>
 
         {/* Footer actions */}
@@ -284,7 +310,7 @@ export function SponsorTable({
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-slate-50  p-4 rounded-lg border border-gray-200">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-slate-50 p-4 rounded-lg border border-gray-200">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <Input
@@ -303,28 +329,50 @@ export function SponsorTable({
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {/* Category filter */}
+          <Select
+            value={filters.category || "all"}
+            onValueChange={(value) =>
+              onFilterChange({ category: value === "all" ? undefined : value })
+            }
+          >
+            <SelectTrigger className="w-[150px] bg-white border-gray-300">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="all">All Categories</SelectItem>
+              {SPONSOR_CATEGORIES.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Status filter */}
           <Select
             value={filters.status || "all"}
             onValueChange={(value) =>
               onFilterChange({ status: value === "all" ? undefined : value })
             }
           >
-            <SelectTrigger className="w-[160px] bg-white border-gray-300">
+            <SelectTrigger className="w-[150px] bg-white border-gray-300">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent className="bg-white">
               <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="ACTIVE">Active</SelectItem>
-              <SelectItem value="INACTIVE">Inactive</SelectItem>
+              <SelectItem value="true">Active</SelectItem>
+              <SelectItem value="false">Inactive</SelectItem>
             </SelectContent>
           </Select>
 
+          {/* Sort */}
           <Select
             value={filters.sortBy || "name"}
             onValueChange={(value) => onFilterChange({ sortBy: value })}
           >
-            <SelectTrigger className="w-[160px] bg-white border-gray-300">
+            <SelectTrigger className="w-[150px] bg-white border-gray-300">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -354,7 +402,7 @@ export function SponsorTable({
             No sponsors found
           </h3>
           <p className="text-gray-500">
-            {searchValue || filters.status
+            {searchValue || filters.status || filters.category
               ? "Try adjusting your search or filters"
               : "Get started by adding your first sponsor"}
           </p>
@@ -397,7 +445,6 @@ export function SponsorTable({
         </div>
       )}
 
-      {/* Delete Dialog */}
       <DeleteConfirmationDialog
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog({ open, sponsor: null })}

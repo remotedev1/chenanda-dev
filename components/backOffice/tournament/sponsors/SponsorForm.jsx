@@ -16,8 +16,15 @@ import { Loader2 } from "lucide-react";
 import { ImageUploader } from "@/components/common/ImageUploader";
 import { z } from "zod";
 import { toast } from "sonner";
-import { createSponsorSchema } from "@/app/api/tournaments/sponsors/route";
 import { deleteImageKitFile } from "@/lib/imageKit";
+import { createSponsorSchema } from "@/app/api/tournaments/sponsors/route";
+
+const SPONSOR_CATEGORIES = [
+  { value: "TITLE", label: "Title Sponsor" },
+  { value: "GOLD", label: "Gold Sponsor" },
+  { value: "SILVER", label: "Silver Sponsor" },
+  { value: "BRONZE", label: "Bronze Sponsor" },
+];
 
 export function SponsorForm({
   onSubmit,
@@ -33,6 +40,7 @@ export function SponsorForm({
     phone: initialData?.phone || "",
     logo: initialData?.logo || null,
     status: initialData?.status ?? true,
+    category: initialData?.category || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -48,21 +56,17 @@ export function SponsorForm({
   const handleLogoUpload = (uploadedImages) => {
     if (uploadedImages && uploadedImages.length > 0) {
       const image = uploadedImages[0];
-
-      // If updating and there's an old logo, mark it for deletion
-      if (formData.logo && formData.logoFileId) {
-        setImagesToDelete((prev) => [...prev, formData.logoFileId]);
+      if (formData.logo && formData.logo[0]?.id) {
+        setImagesToDelete((prev) => [...prev, formData.logo[0].id]);
       }
       handleChange("logo", [{ url: image.url, id: image.fileId }]);
     }
   };
 
   const handleLogoRemove = (image) => {
-    // Mark image for deletion
     if (image.fileId) {
       setImagesToDelete((prev) => [...prev, image.fileId]);
     }
-
     handleChange("logo", null);
   };
 
@@ -81,19 +85,12 @@ export function SponsorForm({
     try {
       const validated = createSponsorSchema.parse(formData);
 
-      // Submit the form
       await onSubmit(validated);
 
-      // After successful submission, delete old images
       if (imagesToDelete.length > 0) {
-        try {
-          await Promise.allSettled(
-            imagesToDelete.map((fileId) => deleteImageKitFile(fileId)),
-          );
-        } catch (error) {
-          console.error("Failed to delete old images:", error);
-          // Don't show error to user as the main operation succeeded
-        }
+        await Promise.allSettled(
+          imagesToDelete.map((fileId) => deleteImageKitFile(fileId)),
+        ).catch((err) => console.error("Failed to delete old images:", err));
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -109,7 +106,7 @@ export function SponsorForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 ">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         {/* Name */}
         <div className="space-y-2">
@@ -120,11 +117,40 @@ export function SponsorForm({
             id="name"
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
-            className={`pl-10 h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
+            className={`h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
               errors.name ? "border-red-500 focus:ring-red-500" : ""
             }`}
           />
           {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+        </div>
+
+        {/* Category */}
+        <div className="space-y-2">
+          <Label htmlFor="category">
+            Category <span className="text-red-500">*</span>
+          </Label>
+          <Select
+            value={formData.category}
+            onValueChange={(value) => handleChange("category", value)}
+          >
+            <SelectTrigger
+              className={`h-12 border-gray-300 ${
+                errors.category ? "border-red-500 focus:ring-red-500" : ""
+              }`}
+            >
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {SPONSOR_CATEGORIES.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.category && (
+            <p className="text-sm text-red-500">{errors.category}</p>
+          )}
         </div>
 
         {/* Website */}
@@ -138,7 +164,7 @@ export function SponsorForm({
               id="website"
               value={formData.website.replace(/^https?:\/\//i, "")}
               onChange={(e) => handleWebsiteChange(e.target.value)}
-              className={`pl-10 h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
+              className={`pl-16 h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
                 errors.website ? "border-red-500 focus:ring-red-500" : ""
               }`}
             />
@@ -156,7 +182,7 @@ export function SponsorForm({
             type="email"
             value={formData.email}
             onChange={(e) => handleChange("email", e.target.value)}
-            className={`pl-10 h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
+            className={`h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
               errors.email ? "border-red-500 focus:ring-red-500" : ""
             }`}
           />
@@ -172,7 +198,7 @@ export function SponsorForm({
             id="phone"
             value={formData.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
-            className={` h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
+            className={`h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
               errors.phone ? "border-red-500 focus:ring-red-500" : ""
             }`}
           />
@@ -188,10 +214,10 @@ export function SponsorForm({
             value={formData.status.toString()}
             onValueChange={(value) => handleChange("status", value === "true")}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-12 border-gray-300">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
-            <SelectContent className="w-auto bg-white">
+            <SelectContent className="bg-white">
               <SelectItem value="true">Active</SelectItem>
               <SelectItem value="false">Inactive</SelectItem>
             </SelectContent>
@@ -201,15 +227,13 @@ export function SponsorForm({
 
       {/* Description */}
       <div className="space-y-2">
-        <Label htmlFor="description" className="text-gray-700 font-medium">
-          Description
-        </Label>
+        <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
           value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
           rows={4}
-          className={` h-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
+          className={`border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 ${
             errors.description ? "border-red-500 focus:ring-red-500" : ""
           }`}
         />
@@ -220,7 +244,9 @@ export function SponsorForm({
 
       {/* Logo Upload */}
       <div className="space-y-2">
-        <Label>Sponsor Logo</Label>
+        <Label>
+          Sponsor Logo <span className="text-red-500">*</span>
+        </Label>
         <ImageUploader
           onUploadComplete={handleLogoUpload}
           onImageRemove={handleLogoRemove}
@@ -245,7 +271,11 @@ export function SponsorForm({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={loading || !formData.logo }>
+        <Button
+          type="submit"
+          disabled={loading || !formData.logo || !formData.category}
+          className="bg-blue-600 text-white"
+        >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {initialData ? "Update" : "Create"} Sponsor
         </Button>

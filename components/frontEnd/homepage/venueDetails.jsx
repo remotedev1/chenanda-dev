@@ -1,255 +1,206 @@
 "use client";
 import { motion } from "framer-motion";
 import { MapPin, Trophy, Clock, Navigation } from "lucide-react";
+import { useLiveMatches } from "@/hooks/useLiveMatches";
 
-const arenaData = {
-  "Arena A": {
-    location: "North Complex",
-    borderColor: "border-2 border-blue-500/50",
-    glowColor: "rgba(59, 130, 246, 0.3)",
-    gradient: "from-blue-500/20 to-purple-500/20",
-    currentMatch: {
-      team1: "Thunder",
-      team2: "Lightning",
-      score1: 3,
-      score2: 2,
-    },
-  },
-  "Arena B": {
-    location: "South Complex",
-    borderColor: "border-2 border-green-500/50",
-    glowColor: "rgba(34, 197, 94, 0.3)",
-    gradient: "from-green-500/20 to-teal-500/20",
-    currentMatch: null,
-  },
-  "Arena C": {
-    location: "East Complex",
-    borderColor: "border-2 border-orange-500/50",
-    glowColor: "rgba(249, 115, 22, 0.3)",
-    gradient: "from-orange-500/20 to-red-500/20",
-    currentMatch: {
-      team1: "Phoenix",
-      team2: "Dragons",
-      score1: 1,
-      score2: 1,
-    },
-  },
-  "Arena D": {
-    location: "West Complex",
-    borderColor: "border-2 border-purple-500/50",
-    glowColor: "rgba(168, 85, 247, 0.3)",
-    gradient: "from-purple-500/20 to-pink-500/20",
-    currentMatch: null,
-  },
+const ARENAS = ["GROUND_1", "GROUND_2", "GROUND_3", "GROUND_4"];
+
+const ARENA_META = {
+  GROUND_1: { location: "North Complex" },
+  GROUND_2: { location: "South Complex" },
+  GROUND_3: { location: "East Complex" },
+  GROUND_4: { location: "West Complex" },
 };
 
-const VenueCard = ({ arena, index }) => {
-  const data = arenaData[arena];
+const VenueCard = ({ arena, match, index }) => {
+  const meta = ARENA_META[arena];
+
+  // Extract teams safely
+  const team1 = match?.participants?.[0];
+  const team2 = match?.participants?.[1];
+
+  const team1Name = team1?.family || "—";
+  const team2Name = team2?.family || "—";
+
+  const score1 = team1?.hockeyData?.goals ?? 0;
+  const score2 = team2?.hockeyData?.goals ?? 0;
+
+  // Shootout (optional)
+  const shootout1 = team1?.hockeyData?.shootoutResults || [];
+  const shootout2 = team2?.hockeyData?.shootoutResults || [];
+
+  const isShootout = match?.currentPeriod === "PENALTY_SHOOTOUT";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.2, duration: 0.6 }}
-      className={`relative overflow-hidden bg-white/60 rounded-xl sm:rounded-2xl ${data.borderColor}`}
-      style={{
-        boxShadow: `0 20px 40px ${data.glowColor}`,
-      }}
+      transition={{ delay: index * 0.1, duration: 0.4 }}
+      className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden"
     >
-      {/* Content Section */}
-      <div className="relative p-4 sm:p-6 md:p-8">
-        {/* Live Match Notification */}
-        {data.currentMatch ? (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.2 + 0.3 }}
-            className="mb-4 sm:mb-6 p-3 sm:p-4 cursor-pointer rounded-lg sm:rounded-xl bg-gradient-to-r from-red-600/20 to-orange-600/20 border-2 border-red-500/50 relative overflow-hidden"
-            style={{
-              boxShadow: "0 0 20px rgba(239, 68, 68, 0.3)",
-            }}
-          >
-            {/* Animated Background Pulse */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-orange-500/10"
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-
-            {/* LIVE Badge */}
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <motion.div
-                  className="flex items-center gap-1.5 sm:gap-2"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <motion.div
-                    className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"
-                    animate={{ opacity: [1, 0.3, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                  <span className="text-red-400 font-black text-xs sm:text-sm uppercase tracking-wider">
-                    Live Now
-                  </span>
-                </motion.div>
-              </div>
-
-              {/* Match Score */}
-              <div className="flex items-center justify-between">
-                <div className="flex-1 text-right">
-                  <div className="text-slate-900 font-bold text-sm sm:text-base md:text-lg">
-                    {data.currentMatch.team1}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 sm:gap-3 mx-2 sm:mx-4">
-                  <div className="text-lg sm:text-xl md:text-2xl font-black text-blue-800">
-                    {data.currentMatch.score1}
-                  </div>
-                  <span className="text-gray-600 font-bold text-sm sm:text-base">
-                    -
-                  </span>
-                  <div className="text-lg sm:text-xl md:text-2xl font-black text-blue-800">
-                    {data.currentMatch.score2}
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  <div className="text-slate-900 font-bold text-sm sm:text-base md:text-lg">
-                    {data.currentMatch.team2}
-                  </div>
-                </div>
+      <div className="p-5 sm:p-6">
+        {/* Live Match */}
+        {match ? (
+          <div className="mb-5 p-4 rounded-xl bg-white/5 border border-white/10">
+            {/* Live badge */}
+            <div className="flex items-center gap-2 mb-4">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+              </span>
+              <span className="text-green-400 text-xs font-semibold uppercase tracking-widest">
+                {match.status}
+              </span>
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 text-white/50 text-xs">
+                <Clock className="w-3 h-3" />
+                <span>{match.currentPeriod}</span>
               </div>
             </div>
-          </motion.div>
+
+            {/* Score */}
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex-1 text-right text-white font-bold text-sm sm:text-base truncate capitalize">
+                {team1Name}
+              </span>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xl sm:text-2xl font-black text-white tabular-nums">
+                  {score1}
+                </span>
+                <span className="text-white/20 text-sm">—</span>
+                <span className="text-xl sm:text-2xl font-black text-white tabular-nums">
+                  {score2}
+                </span>
+              </div>
+
+              <span className="flex-1 text-left text-white font-bold text-sm sm:text-base truncate capitalize">
+                {team2Name}
+              </span>
+            </div>
+
+            {/* 🔥 Shootout UI */}
+            {isShootout && (
+              <div className="mt-4 flex justify-between text-xs">
+                <div className="flex gap-1">
+                  {shootout1.map((s, i) => (
+                    <span
+                      key={i}
+                      className={`w-2 h-2 rounded-full ${
+                        s ? "bg-green-400" : "bg-red-400"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="flex gap-1">
+                  {shootout2.map((s, i) => (
+                    <span
+                      key={i}
+                      className={`w-2 h-2 rounded-full ${
+                        s ? "bg-green-400" : "bg-red-400"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-slate-200 border-2 border-gray-700/50">
-            <span className="text-gray-600 font-medium text-xs sm:text-sm md:text-base">
-              No live match currently.
+          <div className="mb-5 p-4 rounded-xl bg-white/[0.03] border border-white/8">
+            <span className="text-white/25 text-xs font-medium tracking-wide">
+              No match in progress
             </span>
           </div>
         )}
 
-        {/* Arena Name */}
-        <div className="flex  xs:flex-nowrap items-center justify-between gap-2 xs:gap-3 sm:gap-4">
-          <h3 className="text-base xs:text-lg sm:text-xl md:text-3xl lg:text-4xl font-black text-black tracking-tight flex-shrink-0">
-            {arena}
-            <motion.button
-              className="ml-5 w-8 h-8 xs:w-9 xs:h-9 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-md xs:rounded-lg sm:rounded-xl bg-green-600 font-bold relative overflow-hidden group flex-shrink-0"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {/* Button Glow Effect */}
-              <motion.div
-                className="absolute inset-0 bg-green-400 opacity-0 group-hover:opacity-20 transition-opacity"
-                animate={{ x: [-200, 200] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              />
+        {/* Arena name + location */}
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
+              {arena
+                .replaceAll("_", " ")
+                .toLowerCase()
+                .replace(/\b\w/g, (c) => c.toUpperCase())}
+            </h3>
 
-              <span className="relative z-10 flex items-center justify-center">
-                <Navigation className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 md:w-8 md:h-8 text-white" />
-              </span>
-            </motion.button>
-          </h3>
-          <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 text-slate-600 flex-shrink-0">
-            <MapPin className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-            <span className="text-[10px] xs:text-xs sm:text-sm whitespace-nowrap">
-              {data.location}
-            </span>
+            <div className="flex items-center gap-1 mt-0.5 text-white/30">
+              <MapPin className="w-3 h-3" />
+              <span className="text-xs">{meta?.location}</span>
+            </div>
           </div>
-          {/* Action Button */}
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-9 h-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/15 transition-colors duration-150"
+          >
+            <Navigation className="w-4 h-4" />
+          </motion.button>
         </div>
       </div>
 
-      {/* Bottom Accent Line */}
-      <div
-        className={`h-1 bg-gradient-to-r ${data.gradient.replace("/20", "")}`}
-      />
+      <div className={`h-px ${match ? "bg-green-500/40" : "bg-white/5"}`} />
     </motion.div>
   );
 };
 
 export default function VenueDetails() {
+  const { matches, loading, error } = useLiveMatches();
+  // Map arena name → live match object
+  const matchByArena = ARENAS.reduce((acc, arena) => {
+    acc[arena] =
+      matches?.data?.find(
+        (m) => m?.venue?.toLowerCase?.() === arena?.toLowerCase?.(),
+      ) ?? null;
+
+    return acc;
+  }, {});
+
   return (
-    <div className="min-h-screen py-8 sm:py-16 md:py-20 px-3 sm:px-4 md:px-8 bg-slate-300">
-      <div className=" mx-auto sm:max-w-7xl relative">
-        {/* Section Header */}
+    <div className="min-h-screen py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 bg-primary">
+      <div className="relative max-w-5xl mx-auto">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -30 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10 sm:mb-12 md:mb-16"
+          className="mb-10 sm:mb-12"
         >
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <div className="flex-1 w-full">
-              <div className="flex items-center gap-3 sm:gap-4 mb-2">
-                <MapPin className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-secondary flex-shrink-0" />
-                <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-black tracking-tight">
-                  Venue{" "}
-                  <span className="text-secondary bg-clip-text">
-                    Information
-                  </span>
-                </h2>
-              </div>
-            </div>
-
-            {/* Decorative Line */}
-            <motion.div
-              className="hidden md:block flex-1 h-1 bg-gradient-to-r from-orange-300 via-orange-600/20 to-transparent rounded-full"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1, delay: 0.3 }}
-            />
-          </div>
-
-          {/* Info Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-wrap gap-3 sm:gap-4 justify-center md:justify-start"
-          >
-            {[
-              {
-                icon: Trophy,
-                text: "Field Hockey Venues",
-                color: "text-yellow-400",
-              },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-600"
-              >
-                <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} />
-                <span className="text-white text-xs sm:text-sm font-medium">
-                  {item.text}
-                </span>
-              </div>
-            ))}
-          </motion.div>
-        </motion.div>
-
-        {/* Venue Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-          {["Arena A", "Arena B", "Arena C", "Arena D"].map((arena, i) => (
-            <VenueCard key={i} arena={arena} index={i} />
-          ))}
-        </div>
-
-        {/* Additional Info Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-10 sm:mt-12 md:mt-16 text-center"
-        >
-          <div className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full">
-            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-green-900 flex-shrink-0" />
-            <span className="text-slate-800 text-xs sm:text-sm md:text-base">
-              All venues open daily from 6:00 AM to 5:00 PM
+          <div className="inline-flex items-center gap-2 border border-white/15 rounded-full px-4 py-1.5 mb-6">
+            <Trophy className="w-3.5 h-3.5 text-white/40" />
+            <span className="text-white/40 text-xs font-semibold tracking-widest uppercase">
+              Field Hockey Venues
             </span>
           </div>
+
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight">
+            Venue Information
+          </h2>
         </motion.div>
+
+        {/* Error */}
+        {error && (
+          <div className="mb-8 px-4 py-3 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-sm">
+            Failed to load live matches.
+          </div>
+        )}
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {loading
+            ? ARENAS.map((_, i) => (
+                <div
+                  key={i}
+                  className="h-44 rounded-2xl bg-white/5 border border-white/8 animate-pulse"
+                />
+              ))
+            : ARENAS.map((arena, i) => (
+                <VenueCard
+                  key={arena}
+                  arena={arena}
+                  match={matchByArena[arena]}
+                  index={i}
+                />
+              ))}
+        </div>
       </div>
     </div>
   );

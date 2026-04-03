@@ -135,20 +135,28 @@ model Tournament {
 
 //sponsor
 model Sponsor {
-  id           String       @id @default(auto()) @map("_id") @db.ObjectId
-  name         String       @unique
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  name         String          @unique
   email        String?
   phone        String?
   description  String?
   website      String?
-  status       Boolean      @default(false)
+  status       Boolean         @default(false)
   logo         ImageStore[]
-  createdById  String       @db.ObjectId
-  createdBy    User         @relation(fields: [createdById], references: [id])
-  Tournament   Tournament?  @relation(fields: [tournamentId], references: [id])
-  tournamentId String?      @db.ObjectId
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  category     SponsorCategory
+  createdById  String          @db.ObjectId
+  createdBy    User            @relation(fields: [createdById], references: [id])
+  Tournament   Tournament?     @relation(fields: [tournamentId], references: [id])
+  tournamentId String?         @db.ObjectId
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+enum SponsorCategory {
+  TITLE
+  GOLD
+  SILVER
+  BRONZE
 }
 
 type ImageStore {
@@ -292,8 +300,7 @@ model TournamentParticipation {
   // Game-specific registrations for this family in this tournament
   gameRegistrations GameRegistration[]
 
-  matchId String?  @db.ObjectId
-  matches Matches? @relation(fields: [matchId], references: [id])
+  matchIds String[] @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -416,12 +423,8 @@ model Matches {
   tournament   Tournament @relation(fields: [tournamentId], references: [id])
   sport        SportType // Sport for this match
 
-  // Link to specific game/event (optional - for tournaments with multiple game types)
-  gameId String?         @db.ObjectId
-  game   TournamentGame? @relation(fields: [gameId], references: [id], onDelete: SetNull)
-
   // Match details
-  matchNo         Int
+
   name            String? // e.g., "Football - Pool A - Match 3" or "Cricket - Semi Final"
   venue           Venues
   scheduledOn     DateTime
@@ -455,14 +458,13 @@ model Matches {
   notes   String?
   images  String[]
 
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  TournamentParticipation TournamentParticipation[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  TournamentGame   TournamentGame? @relation(fields: [tournamentGameId], references: [id])
+  tournamentGameId String?         @db.ObjectId
 
-  @@unique([tournamentId, sport, matchNo])
   @@index([tournamentId, sport, status])
   @@index([tournamentId, sport, round])
-  @@index([gameId])
   @@index([sport, status])
   @@index([scheduledOn])
 }

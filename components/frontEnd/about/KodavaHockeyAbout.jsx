@@ -98,7 +98,7 @@ function HeroSection() {
         </motion.h1>
 
         <motion.p variants={itemVariants} className="hero-subtitle">
-          Where heritage meets the hockey field — celebrating unity, tradition,
+          Where heritage meets the hockey field celebrating unity, tradition,
           and the indomitable spirit of the Kodava community
         </motion.p>
 
@@ -145,7 +145,7 @@ function AboutSection() {
 
         <div className="about-content">
           <p className="lead-text">
-            The Kodava Hockey Festival is not merely a sporting event—it is a
+            The Kodava Hockey Festival is not merely a sporting eventit is a
             living testament to the enduring spirit of the Kodava people. Born
             from a vision of unity and cultural preservation, this annual
             gathering has evolved into the world&apos;s largest hockey
@@ -157,9 +157,9 @@ function AboutSection() {
             Every November, the verdant hills of Coorg transform into a stage
             where tradition and athleticism converge. What began as a modest
             family tournament has blossomed into a phenomenon that transcends
-            sport—a pilgrimage for the Kodava diaspora, a showcase of
-            resilience, and a bridge connecting generations through the
-            universal language of hockey.
+            sporta pilgrimage for the Kodava diaspora, a showcase of resilience,
+            and a bridge connecting generations through the universal language
+            of hockey.
           </p>
 
           <p>
@@ -231,11 +231,18 @@ function OriginsSection() {
               <h4>The Founding Vision</h4>
               <p>
                 Pandanda Kuttappa, a visionary leader with deep reverence for
-                Kodava culture, conceived the idea of a hockey tournament that
-                would do more than showcase athletic prowess. He envisioned a
-                gathering that would strengthen the bonds between Kodava
-                families, preserve their unique identity, and provide a platform
-                for the younger generation to connect with their roots.
+                Kodava culture, along with his brother Kashi, conceived a hockey
+                tournament with a purpose beyond sport. They envisioned it as a
+                unifying platform to bring Kodava families together, strengthen
+                community bonds, and pass on traditions to the younger
+                generation.
+              </p>
+
+              <p className="pt-5">
+                What they initiated was not merely an event, but a lasting
+                traditionone that continues to strengthen community ties,
+                instill pride, and keep the essence of Kodava identity vibrant
+                across generations.
               </p>
             </div>
           </motion.div>
@@ -251,7 +258,7 @@ function OriginsSection() {
                 captured the imagination of the community. The tournament was
                 held on modest grounds, yet the spirit was boundless. Families
                 traveled from near and far, not just to compete, but to
-                reconnect—to share meals, stories, and laughter under the Coorg
+                reconnectto share meals, stories, and laughter under the Coorg
                 sky.
               </p>
             </div>
@@ -269,7 +276,7 @@ function OriginsSection() {
                 spectators made the pilgrimage home. By the early 2000s, the
                 festival had outgrown its original venue, necessitating
                 infrastructure expansions and better organization. Yet, the soul
-                of the event remained unchanged—family, heritage, and hockey.
+                of the event remained unchangedfamily, heritage, and hockey.
               </p>
             </div>
           </motion.div>
@@ -445,10 +452,10 @@ function ScaleSection() {
 
         <motion.div variants={itemVariants} className="scale-note">
           <p>
-            These numbers represent more than statistics—they embody the
-            strength of a community that has preserved its identity across
-            continents and generations. Each participant, whether player or
-            spectator, contributes to a legacy that transcends sport.
+            These numbers represent more than statisticsthey embody the strength
+            of a community that has preserved its identity across continents and
+            generations. Each participant, whether player or spectator,
+            contributes to a legacy that transcends sport.
           </p>
         </motion.div>
       </motion.div>
@@ -522,9 +529,13 @@ function TraditionsSection() {
             <h3>Family-Based Teams</h3>
             <p>
               Each team represents a Kodava family lineage, with players drawn
-              from extended family networks across the world. This structure
-              transforms competition into a celebration of kinship, where
-              victory honors not just skill but ancestral pride.
+              from extended family networks across the world. There is no gender
+              barrier, as both men and women come together to proudly represent
+              their families on the field. This unique structure transforms
+              competition into a celebration of kinship and unity, where
+              generations stand side by side. Every match becomes more than a
+              game victory is a tribute not only to skill, but to ancestral
+              pride and the enduring legacy of the Kodava community.
             </p>
           </motion.div>
 
@@ -567,10 +578,9 @@ function TraditionsSection() {
             </div>
             <h3>Tournament Structure</h3>
             <p>
-              Played in a knockout format over multiple days, the tournament
-              features round-robin group stages followed by elimination rounds.
-              Matches are timed with precision, and adjudication adheres to
-              international hockey standards.
+              Played in a knockout format over multiple days. Matches are timed
+              with precision, and adjudication adheres to international hockey
+              standards.
             </p>
           </motion.div>
 
@@ -708,7 +718,7 @@ function CultureSection() {
             </div>
             <h3>Traditional Cuisine</h3>
             <p>
-              Food stalls serve authentic Kodava delicacies—pandi curry,
+              Food stalls serve authentic Kodava delicaciespandi curry,
               kadambuttu, nool puttu, and paputtu. Families share meals, passing
               down recipes and stories. The aroma of freshly ground spices
               reinforces the spirit of togetherness.
@@ -721,7 +731,7 @@ function CultureSection() {
             </div>
             <h3>Traditional Attire</h3>
             <p>
-              Participants proudly don traditional Kodava dress—men in kupya and
+              Participants proudly don traditional Kodava dressmen in kupya and
               chale, women in elegant sarees with distinctive jewelry. This
               sartorial pride transforms the tournament into a visual feast.
             </p>
@@ -733,7 +743,7 @@ function CultureSection() {
             </div>
             <h3>Art & Craft Exhibitions</h3>
             <p>
-              Local artisans display traditional Kodava crafts—carved wooden
+              Local artisans display traditional Kodava craftscarved wooden
               artifacts, handwoven textiles, and silver jewelry. These
               exhibitions provide economic opportunities while educating younger
               generations.
@@ -768,10 +778,10 @@ function CultureSection() {
 
         <motion.div variants={itemVariants} className="culture-closing">
           <p>
-            The Kodava Hockey Festival demonstrates that culture is not
-            static—it thrives when communities actively engage with it. By
-            embedding cultural celebration within a sporting event, the festival
-            ensures that tradition remains relevant, dynamic, and cherished.
+            The Kodava Hockey Festival demonstrates that culture is not staticit
+            thrives when communities actively engage with it. By embedding
+            cultural celebration within a sporting event, the festival ensures
+            that tradition remains relevant, dynamic, and cherished.
           </p>
         </motion.div>
       </motion.div>
@@ -845,10 +855,9 @@ function ImpactSection() {
           <motion.div variants={itemVariants} className="impact-block">
             <h3>Global Unity</h3>
             <p>
-              The Kodava community is scattered across continents—from the
-              coffee plantations of Coorg to tech hubs worldwide. The festival
-              serves as an annual pilgrimage, a homecoming that transcends
-              geography.
+              The Kodava community is scattered across continentsfrom the coffee
+              plantations of Coorg to tech hubs worldwide. The festival serves
+              as an annual pilgrimage, a homecoming that transcends geography.
             </p>
             <p>
               For many diaspora Kodavas, this is their primary connection to
@@ -877,21 +886,44 @@ function ImpactSection() {
                 across the hills of Coorg and reaching Kodavas wherever they may
                 be.&rdquo;
               </p>
-              <cite>— A sentiment shared by the community</cite>
+              <cite> A sentiment shared by the community</cite>
             </blockquote>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="impact-closing">
-            <p>
-              As the festival continues to grow, its core mission remains
-              unchanged: to celebrate Kodava heritage, strengthen community
-              bonds, and provide a space where tradition and modernity dance in
-              harmony.
+          <motion.div
+            variants={itemVariants}
+            className="impact-closing max-w-2xl py-10"
+          >
+            <p className="font-serif text-[17px] leading-[1.85] text-gray-900 mb-6 [&::first-letter]:font-serif [&::first-letter]:text-[3.8rem] [&::first-letter]:font-medium [&::first-letter]:leading-[0.82] [&::first-letter]:float-left [&::first-letter]:mr-1 [&::first-letter]:mt-1 [&::first-letter]:text-gray-900">
+              Hockey, in a community like the Kodavas, is not just a sport — it
+              becomes a living expression of who the people are. It carries
+              memory, identity, and emotion in every pass, every cheer, and
+              every gathering around the field.
             </p>
-            <p className="final-line">
-              Here, on the hockey fields of Coorg, the past and future meet—and
-              the spirit of the Kodava people lives on.
+
+            <p className="font-serif text-[17px] leading-[1.85] text-gray-900 mb-6">
+              It brings people back — to their land, to their families, and to a
+              shared sense of belonging that may otherwise fade with time. In a
+              world that constantly pulls individuals apart, hockey becomes the
+              reason they return, reconnect, and stand together again.
             </p>
+
+            <p className="font-serif text-[17px] leading-[1.85] text-gray-900 mb-6">
+              More than competition, it creates a space where generations meet
+              as equals — where elders see their legacy continue, and the young
+              feel rooted in something larger than themselves. It transforms
+              strangers within a lineage into family once again, and family into
+              a united force.
+            </p>
+
+            <div className="border-l-2 border-gray-300 pl-5 mt-8">
+              <p className="font-serif italic text-[18px] leading-[1.75] text-gray-500 m-0">
+                In its truest form, hockey becomes a festival of spirit — where
+                pride is not in winning alone, but in showing up, representing
+                one's roots, and being part of something timeless. It is where
+                identity is not spoken, but lived.
+              </p>
+            </div>
           </motion.div>
         </div>
       </motion.div>

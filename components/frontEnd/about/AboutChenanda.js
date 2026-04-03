@@ -322,6 +322,17 @@ export default function AboutChenanda() {
                 culture by nurturing talent, mentoring young players, and
                 upholding the spirit of sportsmanship that Coorg is known for.
               </p>
+              <p>
+                The first team established by the Chenanda family was{" "}
+                <strong className="text-lg text-blue-900">
+                  Neeliyat Challengers Chenanda{" "}
+                </strong>
+                , formed around 40 years ago. They proudly played in Napoklu and
+                Virajpet, marking the beginning of a strong sporting legacy.
+                Over time, as the tournament evolved, the team later adopted a
+                new name, continuing its journey in the spirit of tradition and
+                unity.
+              </p>
             </div>
           </Card>
 

@@ -41,6 +41,7 @@ const FamiliesMain = () => {
   const { deleteFamily } = useDeleteFamily();
 
   const handleCreate = async (data) => {
+
     await createFamily(data);
     setCreateSheetOpen(false);
     refresh();
@@ -131,7 +132,7 @@ const FamiliesMain = () => {
             <FamilyForm
               onSubmit={handleCreate}
               onCancel={() => setCreateSheetOpen(false)}
-              loading={creating}
+              loading={loading || creating}
             />
           </div>
         </SheetContent>

@@ -134,7 +134,16 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
   return (
     <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
       {/* Header with gradient and sport icon */}
-      <div className="relative h-24 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 overflow-hidden">
+      <div
+        className={cn(
+          "relative h-24 bg-gradient-to-br overflow-hidden",
+          match.status === "LIVE"
+            ? "from-red-500 via-red-600 to-rose-700"
+            : match.status === "COMPLETED"
+              ? "from-gray-400 via-gray-500 to-gray-600"
+              : "from-blue-400 via-blue-500 to-indigo-600",
+        )}
+      >
         <div className="absolute inset-0 bg-black/10" />
 
         {/* Status Badge */}
@@ -181,7 +190,7 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
           <div className="flex-1 text-right min-w-0">
             <div
               className={cn(
-                "font-bold text-base truncate",
+                "font-bold text-base truncate capitalize",
                 team1 ? "text-gray-900" : "text-gray-400 italic",
               )}
             >
@@ -199,7 +208,7 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
           <div className="flex-1 text-left min-w-0">
             <div
               className={cn(
-                "font-bold text-base truncate",
+                "font-bold text-base truncate capitalize",
                 team2 ? "text-gray-900" : "text-gray-400 italic",
               )}
             >
