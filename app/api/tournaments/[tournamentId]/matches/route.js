@@ -129,11 +129,12 @@ export const createMatchSchema = z.object({
 /* ---------------- HANDLERS ---------------- */
 
 async function handleGet(request) {
-  const setup = await setupApiHandler(request, "matches:list");
+  const setup = await setupApiHandler(request, "matches:list", {
+    requireAuthentication: false,
+  });
   if (setup.error) return setup.error;
 
   const { searchParams } = new URL(request.url);
-
   const validated = querySchema.parse({
     page: searchParams.get("page"),
     limit: searchParams.get("limit"),

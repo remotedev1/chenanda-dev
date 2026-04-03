@@ -6,10 +6,10 @@ import { useLiveMatches } from "@/hooks/useLiveMatches";
 const ARENAS = ["GROUND_1", "GROUND_2", "GROUND_3", "GROUND_4"];
 
 const ARENA_META = {
-  GROUND_1: { location: "North Complex" },
-  GROUND_2: { location: "South Complex" },
-  GROUND_3: { location: "East Complex" },
-  GROUND_4: { location: "West Complex" },
+  GROUND_1: { location: "Gen. Thimmaiah Stadium" },
+  GROUND_2: { location: "Gen. Thimmaiah Stadium" },
+  GROUND_3: { location: "Gen. Thimmaiah Stadium" },
+  GROUND_4: { location: "Middle school ground" },
 };
 
 const VenueCard = ({ arena, match, index }) => {
@@ -154,6 +154,7 @@ export default function VenueDetails() {
 
     return acc;
   }, {});
+
 
   return (
     <div className="min-h-screen py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 bg-primary">

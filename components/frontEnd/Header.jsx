@@ -162,7 +162,7 @@ export default function Header() {
                           "relative pb-0.5 transition-colors duration-300",
                           isActive
                             ? "text-white underline underline-offset-4 decoration-2"
-                            : "text-gray-200 hover:text-white",
+                            : "text-white/50 hover:text-white",
                         )}
                       >
                         {link.label}

@@ -143,7 +143,6 @@ async function handleGet(request, { params }) {
     where: { id: matchId },
     include: {
       tournament: { select: { id: true, name: true, year: true } },
-      game: { select: { id: true, name: true, icon: true, category: true } },
     },
   });
 

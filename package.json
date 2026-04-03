@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "devT": "next dev",
     "dev": "set APP_ENV=development && node server.js",
     "build": "next build",
     "start": "set APP_ENV=production node server.js",

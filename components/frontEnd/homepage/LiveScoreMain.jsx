@@ -8,16 +8,7 @@ export default function LiveScoreCarousel() {
 
   return (
     <main style={{ padding: "32px 24px", maxWidth: 960, margin: "0 auto" }}>
-      <h1
-        style={{
-          color: "#e8eaf0",
-          marginBottom: 24,
-          fontFamily: "'Barlow Condensed', sans-serif",
-          fontSize: 32,
-        }}
-      >
-        Live Matches
-      </h1>
+   
 
       {loading && (
         <p style={{ color: "#94a3b8", fontFamily: "monospace" }}>

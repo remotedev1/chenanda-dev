@@ -920,7 +920,7 @@ function ImpactSection() {
               <p className="font-serif italic text-[18px] leading-[1.75] text-gray-500 m-0">
                 In its truest form, hockey becomes a festival of spirit — where
                 pride is not in winning alone, but in showing up, representing
-                one's roots, and being part of something timeless. It is where
+                one&apos;s roots, and being part of something timeless. It is where
                 identity is not spoken, but lived.
               </p>
             </div>

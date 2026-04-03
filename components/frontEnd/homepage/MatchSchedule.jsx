@@ -1,408 +1,100 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Clock,
   MapPin,
   Trophy,
-  Zap,
   Target,
-  Award,
-  TrendingUp,
   Users,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
+import { useMatches } from "@/hooks/useMatch";
+import LiveScoreCarousel from "./LiveScoreMain";
 
-const matches = [
-  {
-    id: 1,
-    team1: "Thunder",
-    team2: "Storm",
-    score1: 3,
-    score2: 2,
-    time: "14:00",
-    date: "Nov 20",
-    status: "live",
-    venue: "Arena A",
-  },
-  {
-    id: 2,
-    team1: "Blue",
-    team2: "Gold",
-    score1: 1,
-    score2: 1,
-    time: "16:30",
-    date: "Nov 20",
-    status: "live",
-    venue: "Arena B",
-  },
-  {
-    id: 3,
-    team1: "Fire",
-    team2: "Ice",
-    score1: null,
-    score2: null,
-    time: "18:00",
-    date: "Nov 21",
-    status: "upcoming",
-    venue: "Arena A",
-  },
-  {
-    id: 4,
-    team1: "Lightning",
-    team2: "Shadow",
-    score1: null,
-    score2: null,
-    time: "14:00",
-    date: "Nov 21",
-    status: "upcoming",
-    venue: "Arena B",
-  },
-  {
-    id: 5,
-    team1: "Phoenix",
-    team2: "Dragons",
-    score1: 4,
-    score2: 1,
-    time: "10:00",
-    date: "Nov 19",
-    status: "completed",
-    venue: "Arena A",
-  },
-  {
-    id: 6,
-    team1: "Eagles",
-    team2: "Hawks",
-    score1: 2,
-    score2: 3,
-    time: "12:30",
-    date: "Nov 19",
-    status: "completed",
-    venue: "Arena B",
-  },
-];
+// ── helpers ──────────────────────────────────────────────────────────────────
 
-const topPlayers = [
-  {
-    name: "Sarah Mitchell",
-    team: "Thunder",
-    goals: 23,
-    avatar: "SM",
-  },
-  {
-    name: "Alex Chen",
-    team: "Storm",
-    goals: 21,
-    avatar: "AC",
-  },
-  {
-    name: "Maya Patel",
-    team: "Blue",
-    goals: 19,
-    avatar: "MP",
-  },
-  {
-    name: "Jordan Hayes",
-    team: "Golden",
-    goals: 18,
-    avatar: "JH",
-  },
-];
+/** Map API status → display tab key */
+function toTabStatus(apiStatus) {
+  if (apiStatus === "LIVE") return "live";
+  if (apiStatus === "COMPLETED") return "completed";
+  return "upcoming"; // SCHEDULED / anything else
+}
 
-const topTeams = [
-  {
-    name: "Thunder",
-    wins: 12,
-    losses: 2,
-    points: 36,
-    color: "from-purple-600 to-blue-600",
-  },
-  {
-    name: "Storm",
-    wins: 11,
-    losses: 3,
-    points: 33,
-    color: "from-blue-600 to-cyan-600",
-  },
-  {
-    name: "Fire",
-    wins: 10,
-    losses: 4,
-    points: 30,
-    color: "from-orange-600 to-red-600",
-  },
-  {
-    name: "Blue",
-    wins: 9,
-    losses: 5,
-    points: 27,
-    color: "from-cyan-600 to-blue-600",
-  },
-];
+/** Format scheduledOn ISO string → "Apr 3 • 09:00" */
+function formatScheduled(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleString("en-IN", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  });
+}
 
-const TopPlayerCard = ({ player, rank }) => {
-  const medals = ["🥇", "🥈", "🥉", "🏅"];
+/** Shootout score = count of `true` in shootoutResults */
+function shootoutScore(results = []) {
+  return results.filter(Boolean).length;
+}
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: rank * 0.1 }}
-      whileHover={{ scale: 1.03, x: 10 }}
-      className={`relative overflow-hidden rounded-xl border-2 ${
-        rank === 0
-          ? "bg-red-400/30 border-red-400"
-          : rank === 1
-          ? "bg-gray-400/30 border-gray-400"
-          : rank === 2
-          ? "bg-orange-400/30 border-orange-400"
-          : "bg-green-400/30 border-green-400"
-      }`}
-    >
-      {/* Rank Badge */}
-      <div className="absolute top-0 left-0 w-16 h-16">
-        <div
-          className={`absolute top-2 left-2 w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
-            rank === 0
-              ? "bg-red-500/20"
-              : rank === 1
-              ? "bg-gray-500/20"
-              : rank === 2
-              ? "bg-orange-500/20"
-              : "bg-green-500/20"
-          }`}
-        >
-          {medals[rank]}
-        </div>
-      </div>
+function formatPeriod(p) {
+  if (!p) return null;
+  return p
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
-      <div className="relative p-6 pl-20">
-        <div className="flex items-center justify-between">
-          {/* Player Info */}
-          <div className="flex items-center gap-4">
-            <div
-              className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold ${
-                rank === 0
-                  ? "bg-gradient-to-br from-red-400 to-orange-500 text-black"
-                  : rank === 1
-                  ? "bg-gradient-to-br from-gray-300 to-gray-500 text-black"
-                  : rank === 2
-                  ? "bg-gradient-to-br from-orange-400 to-orange-600 text-white"
-                  : "bg-gradient-to-br from-green-400 to-green-600 text-white"
-              }`}
-            >
-              {player.avatar}
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-black mb-1">
-                {player.name}
-              </h3>
-              <div className="flex items-center gap-2 text-sm text-gray-800">
-                <Users className="w-4 h-4" />
-                <span>{player.team}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Goals */}
-          <div className="text-right">
-            <motion.div
-              className={`text-4xl font-black ${
-                rank === 0
-                  ? "text-red-500"
-                  : rank === 1
-                  ? "text-gray-500"
-                  : rank === 2
-                  ? "text-orange-500"
-                  : "text-green-500"
-              }`}
-              animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              {player.goals}
-            </motion.div>
-            <div className="text-sm text-gray-500 font-medium">GOALS</div>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{
-              width: `${(player.goals / topPlayers[0].goals) * 100}%`,
-            }}
-            transition={{ duration: 1, delay: rank * 0.1 }}
-            className={`h-full ${
-              rank === 0
-                ? "bg-gradient-to-r from-red-500 to-orange-500"
-                : rank === 1
-                ? "bg-gradient-to-r from-gray-400 to-gray-600"
-                : rank === 2
-                ? "bg-gradient-to-r from-orange-500 to-red-500"
-                : "bg-gradient-to-r from-green-500 to-cyan-500"
-            }`}
-          />
-        </div>
-      </div>
-
-      {/* Glow Effect for Top 3 */}
-      {rank < 3 && (
-        <motion.div
-          className="absolute inset-0 rounded-xl"
-          style={{
-            background:
-              rank === 0
-                ? "radial-gradient(circle at 50% 50%, rgba(234, 179, 8, 0.1) 0%, transparent 70%)"
-                : rank === 1
-                ? "radial-gradient(circle at 50% 50%, rgba(156, 163, 175, 0.1) 0%, transparent 70%)"
-                : "radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.1) 0%, transparent 70%)",
-          }}
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      )}
-    </motion.div>
-  );
-};
-
-// const TopTeamCard = ({ team, rank }) => {
-//   const medals = ["🥇", "🥈", "🥉", "🏅"];
-
-//   return (
-//     <motion.div
-//       initial={{ opacity: 0, y: 20 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       transition={{ delay: rank * 0.1 }}
-//       whileHover={{ scale: 1.03, y: -5 }}
-//       className={`relative overflow-hidden rounded-xl border-2 ${
-//         rank === 0
-//           ? "border-red-400 shadow-lg shadow-red-500/30"
-//           : rank === 1
-//           ? "border-gray-400 shadow-lg shadow-gray-500/30"
-//           : "border-green-600"
-//       }`}
-//       style={{
-//         background: `linear-gradient(135deg, #0a1f1a 0%, #0d2b26 50%, #0a1f1a 100%)`,
-//       }}
-//     >
-//       {/* Rank Number */}
-//       <div className="absolute top-4 right-4 text-6xl font-black text-white/5">
-//         #{rank + 1}
-//       </div>
-
-//       {/* Turf Pattern */}
-//       <div className="absolute inset-0 opacity-5">
-//         <div
-//           className="w-full h-full"
-//           style={{
-//             backgroundImage:
-//               "repeating-linear-gradient(90deg, transparent, transparent 25px, #10b981 25px, #10b981 27px)",
-//           }}
-//         />
-//       </div>
-
-//       <div className="relative p-6">
-//         {/* Medal Badge */}
-//         <div className="flex items-start justify-between mb-4">
-//           <div className="text-4xl">{medals[rank]}</div>
-//           <div
-//             className={`px-3 py-1 rounded-full text-xs font-bold ${
-//               rank === 0
-//                 ? "bg-red-500/20 text-red-400"
-//                 : rank === 1
-//                 ? "bg-gray-500/20 text-gray-400"
-//                 : rank === 2
-//                 ? "bg-orange-500/20 text-orange-400"
-//                 : "bg-green-500/20 text-green-400"
-//             }`}
-//           >
-//             RANK {rank + 1}
-//           </div>
-//         </div>
-
-//         {/* Team Name */}
-//         <div className="mb-6">
-//           <h3
-//             className={`text-3xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r ${team.color}`}
-//           >
-//             {team.name}
-//           </h3>
-//           <div className="flex items-center gap-2 text-gray-400">
-//             <Trophy className="w-4 h-4" />
-//             <span className="text-sm">Championship Contender</span>
-//           </div>
-//         </div>
-
-//         {/* Stats Grid */}
-//         <div className="grid grid-cols-3 gap-4">
-//           <div className="text-center">
-//             <motion.div
-//               className="text-3xl font-black text-green-400"
-//               animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
-//               transition={{ duration: 2, repeat: Infinity }}
-//             >
-//               {team.wins}
-//             </motion.div>
-//             <div className="text-xs text-gray-500 mt-1">WINS</div>
-//           </div>
-//           <div className="text-center">
-//             <div className="text-3xl font-black text-red-400">
-//               {team.losses}
-//             </div>
-//             <div className="text-xs text-gray-500 mt-1">LOSSES</div>
-//           </div>
-//           <div className="text-center">
-//             <motion.div
-//               className={`text-3xl font-black ${
-//                 rank === 0 ? "text-red-400" : "text-cyan-400"
-//               }`}
-//               animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
-//               transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-//             >
-//               {team.points}
-//             </motion.div>
-//             <div className="text-xs text-gray-500 mt-1">POINTS</div>
-//           </div>
-//         </div>
-
-//         {/* Win Rate Bar */}
-//         <div className="mt-4">
-//           <div className="flex justify-between text-xs text-gray-500 mb-2">
-//             <span>Win Rate</span>
-//             <span>
-//               {Math.round((team.wins / (team.wins + team.losses)) * 100)}%
-//             </span>
-//           </div>
-//           <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-//             <motion.div
-//               initial={{ width: 0 }}
-//               animate={{
-//                 width: `${(team.wins / (team.wins + team.losses)) * 100}%`,
-//               }}
-//               transition={{ duration: 1, delay: rank * 0.1 }}
-//               className={`h-full bg-gradient-to-r ${team.color}`}
-//             />
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Bottom Accent */}
-//       <div className={`h-1 bg-gradient-to-r ${team.color}`} />
-//     </motion.div>
-//   );
-// };
+// ── MatchCard ─────────────────────────────────────────────────────────────────
 
 const MatchCard = ({ match }) => {
-  const isLive = match.status === "live";
-  const isCompleted = match.status === "completed";
-  const isUpcoming = match.status === "upcoming";
+  const tabStatus = toTabStatus(match.status);
+  const isLive = tabStatus === "live";
+  const isCompleted = tabStatus === "completed";
+  const isUpcoming = tabStatus === "upcoming";
+  console.log(match);
+
+  const [p1, p2] = match.participants || [];
+  const team1 = p1?.family ?? "TBD";
+  const team2 = p2?.family ?? "TBD";
+
+  const inShootout = match.currentPeriod === "PENALTY_SHOOTOUT";
+
+  // Goals (field goals)
+  const goals1 = p1?.hockeyData?.goals ?? null;
+  const goals2 = p2?.hockeyData?.goals ?? null;
+
+  // Shootout scores (only show if in / after shootout)
+  const so1 = shootoutScore(p1?.hockeyData?.shootoutResults);
+  const so2 = shootoutScore(p2?.hockeyData?.shootoutResults);
+  const showShootout =
+    inShootout ||
+    (isCompleted &&
+      (p1?.hockeyData?.shootoutResults?.length > 0 ||
+        p2?.hockeyData?.shootoutResults?.length > 0));
 
   const winner =
-    isCompleted && match.score1 !== match.score2
-      ? match.score1 > match.score2
+    isCompleted && !match.isDraw && match.winnerId
+      ? match.winnerId === p1?.familyId
         ? "team1"
         : "team2"
       : null;
+
+  const bgClass = isLive
+    ? "bg-blue-400/30"
+    : isCompleted
+      ? "bg-red-400/30"
+      : "bg-green-400/30";
+
+  const accentClass = isLive
+    ? "bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-600"
+    : isCompleted
+      ? "bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800"
+      : "bg-gradient-to-r from-green-800 via-green-600 to-green-800";
 
   return (
     <motion.div
@@ -412,16 +104,10 @@ const MatchCard = ({ match }) => {
       exit={{ opacity: 0, y: -20 }}
       whileHover={{ scale: 1.02, y: -4 }}
       transition={{ duration: 0.3 }}
-      className={`relative   overflow-x-auto no-scrollbar rounded-xl  ${
-        isLive
-          ? "bg-blue-400/30"
-          : isCompleted
-          ? "bg-red-400/30"
-          : "bg-green-400/30"
-      }`}
+      className={`relative overflow-hidden rounded-xl ${bgClass}`}
     >
-      {/* Turf Pattern Background */}
-      <div className="absolute inset-0 opacity-5">
+      {/* Turf pattern */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div
           className="w-full h-full"
           style={{
@@ -431,7 +117,7 @@ const MatchCard = ({ match }) => {
         />
       </div>
 
-      {/* Live Badge */}
+      {/* Live badge */}
       {isLive && (
         <motion.div
           animate={{ opacity: [1, 0.5, 1] }}
@@ -451,131 +137,270 @@ const MatchCard = ({ match }) => {
         </motion.div>
       )}
 
-      {/* Match Content */}
       <div className="relative p-6">
-        {/* Date and Time */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Meta row */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2 text-black/60 text-sm">
             <Clock className="w-4 h-4" />
-            <span>
-              {match.date} • {match.time}
-            </span>
+            <span>{formatScheduled(match.scheduledOn)}</span>
           </div>
-          <div className="flex items-center gap-1 text-black/60 text-sm">
-            <MapPin className="w-4 h-4" />
-            <span>{match.venue}</span>
+          <div className="flex items-center gap-3">
+            {match.round && (
+              <span className="text-xs font-semibold bg-black/10 px-2 py-0.5 rounded-full text-black/70">
+                {match.round.replace(/_/g, " ")}
+              </span>
+            )}
+            {match.pool && (
+              <span className="text-xs font-semibold bg-black/10 px-2 py-0.5 rounded-full text-black/70">
+                Pool {match.pool}
+              </span>
+            )}
+            <div className="flex items-center gap-1 text-black/60 text-sm">
+              <MapPin className="w-4 h-4" />
+              <span>{match.venue?.replace(/_/g, " ") ?? "TBD"}</span>
+            </div>
           </div>
         </div>
 
-        {/* Teams and Scores */}
+        {/* Period pill */}
+        {match.currentPeriod && (
+          <div className="flex justify-center mb-3">
+            <span
+              className={`text-xs font-bold px-3 py-1 rounded-full ${
+                isLive ? "bg-blue-600 text-white" : "bg-black/10 text-black/60"
+              }`}
+            >
+              {formatPeriod(match.currentPeriod)}
+            </span>
+          </div>
+        )}
+
+        {/* Teams & Scores */}
         <div className="flex items-center justify-between gap-4">
           {/* Team 1 */}
           <motion.div
-            className={`flex-1 text-right ${
-              winner === "team1" ? "text-red-600" : "text-black"
-            }`}
+            className={`flex-1 text-right ${winner === "team1" ? "text-red-600" : "text-black"}`}
             whileHover={{ x: -5 }}
           >
             <div className="flex items-center justify-end gap-2">
               {winner === "team1" && <Trophy className="w-5 h-5" />}
-              <h3
-                className={`text-lg sm:text-3xl font-bold ${
-                  winner === "team1" ? "text-red-600" : ""
-                }`}
-              >
-                {match.team1}
+              <h3 className="text-lg sm:text-2xl font-bold capitalize">
+                {team1}
               </h3>
             </div>
           </motion.div>
 
-          {/* Score or VS */}
-          <div className="flex items-center gap-4">
+          {/* Score block */}
+          <div className="flex flex-col items-center gap-1">
             {isUpcoming ? (
               <div className="flex flex-col items-center">
                 <span className="text-4xl font-black text-green-400 tracking-wider">
                   VS
                 </span>
-                <span className="text-xs text-gray-500 mt-1">Starts Soon</span>
+                <span className="text-xs text-gray-500 mt-1">Upcoming</span>
               </div>
             ) : (
               <>
-                <motion.div
-                  className={`text-5xl font-black ${
-                    isLive
-                      ? "text-blue-700"
-                      : winner === "team1"
-                      ? "text-red-600"
-                      : "text-black"
-                  }`}
-                  animate={isLive ? { scale: [1, 1.1, 1] } : {}}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  {match.score1}
-                </motion.div>
-                <span className="text-3xl text-gray-600 font-bold">-</span>
-                <motion.div
-                  className={`text-5xl font-black ${
-                    isLive
-                      ? "text-blue-700"
-                      : winner === "team2"
-                      ? "text-red-600"
-                      : "text-black"
-                  }`}
-                  animate={isLive ? { scale: [1, 1.1, 1] } : {}}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                >
-                  {match.score2}
-                </motion.div>
+                {/* Field goals */}
+                <div className="flex items-center gap-3">
+                  <motion.span
+                    className={`text-5xl font-black ${isLive ? "text-blue-700" : winner === "team1" ? "text-red-600" : "text-black"}`}
+                    animate={isLive ? { scale: [1, 1.08, 1] } : {}}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    {goals1 ?? 0}
+                  </motion.span>
+                  <span className="text-3xl text-gray-600 font-bold">-</span>
+                  <motion.span
+                    className={`text-5xl font-black ${isLive ? "text-blue-700" : winner === "team2" ? "text-red-600" : "text-black"}`}
+                    animate={isLive ? { scale: [1, 1.08, 1] } : {}}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                  >
+                    {goals2 ?? 0}
+                  </motion.span>
+                </div>
+
+                {/* Shootout scores */}
+                {showShootout && (
+                  <div className="flex items-center gap-2 text-sm font-semibold text-purple-700">
+                    <span>SO: {so1}</span>
+                    <span className="text-gray-400">–</span>
+                    <span>{so2}</span>
+                  </div>
+                )}
               </>
             )}
           </div>
 
           {/* Team 2 */}
           <motion.div
-            className={`flex-1 ${
-              winner === "team2" ? "text-red-600" : "text-black"
-            }`}
+            className={`flex-1 ${winner === "team2" ? "text-red-600" : "text-black"}`}
             whileHover={{ x: 5 }}
           >
             <div className="flex items-center gap-2">
-              <h3
-                className={`text-lg sm:text-3xl font-bold ${
-                  winner === "team2" ? "text-red-600" : ""
-                }`}
-              >
-                {match.team2}
+              <h3 className="text-lg sm:text-2xl font-bold capitalize">
+                {team2}
               </h3>
               {winner === "team2" && <Trophy className="w-5 h-5" />}
             </div>
           </motion.div>
         </div>
+
+        {/* Draw badge */}
+        {isCompleted && match.isDraw && (
+          <div className="flex justify-center mt-3">
+            <span className="text-xs font-bold bg-gray-200 text-gray-600 px-3 py-1 rounded-full">
+              Draw
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Bottom Accent Line */}
-      <div
-        className={`h-1 ${
-          isLive
-            ? "bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-600"
-            : isCompleted
-            ? "bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800"
-            : "bg-gradient-to-r from-green-800 via-green-600 to-green-800"
-        }`}
-      />
+      {/* Bottom accent */}
+      <div className={`h-1 ${accentClass}`} />
     </motion.div>
   );
 };
 
-export default function FieldHockeySchedule() {
-  const [activeTab, setActiveTab] = useState("live");
-  const [activeSection, setActiveSection] = useState("matches"); // 'matches', 'players', 'teams'
-
-  const tabs = ["upcoming", "live", "completed"];
-
-  const filteredMatches = matches.filter((m) => m.status === activeTab);
+const TopPlayerCard = ({ player, topPlayers, rank }) => {
+  const medals = ["🥇", "🥈", "🥉", "🏅"];
+  const colors = {
+    0: {
+      border: "border-red-400",
+      bg: "bg-red-400/30",
+      score: "text-red-500",
+      bar: "from-red-500 to-orange-500",
+      avatar: "from-red-400 to-orange-500 text-black",
+    },
+    1: {
+      border: "border-gray-400",
+      bg: "bg-gray-400/30",
+      score: "text-gray-500",
+      bar: "from-gray-400 to-gray-600",
+      avatar: "from-gray-300 to-gray-500 text-black",
+    },
+    2: {
+      border: "border-orange-400",
+      bg: "bg-orange-400/30",
+      score: "text-orange-500",
+      bar: "from-orange-500 to-red-500",
+      avatar: "from-orange-400 to-orange-600 text-white",
+    },
+    3: {
+      border: "border-green-400",
+      bg: "bg-green-400/30",
+      score: "text-green-500",
+      bar: "from-green-500 to-cyan-500",
+      avatar: "from-green-400 to-green-600 text-white",
+    },
+  };
+  const c = colors[rank] ?? colors[3];
 
   return (
-    <div className=" bg-white p-4 md:p-16 relative">
-      <div className="max-w-7xl mx-auto ">
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: rank * 0.1 }}
+      whileHover={{ scale: 1.03, x: 10 }}
+      className={`relative overflow-hidden rounded-xl border-2 ${c.border} ${c.bg}`}
+    >
+      <div className="absolute top-2 left-2 w-12 h-12 rounded-full flex items-center justify-center text-2xl">
+        {medals[rank]}
+      </div>
+      <div className="relative p-6 pl-20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div
+              className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-gradient-to-br ${c.avatar}`}
+            >
+              {player.avatar}
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-black mb-1">
+                {player.name}
+              </h3>
+              <div className="flex items-center gap-2 text-sm text-gray-800">
+                <Users className="w-4 h-4" />
+                <span>{player.team}</span>
+              </div>
+            </div>
+          </div>
+          <div className="text-right">
+            <motion.div
+              className={`text-4xl font-black ${c.score}`}
+              animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              {player.goals}
+            </motion.div>
+            <div className="text-sm text-gray-500 font-medium">GOALS</div>
+          </div>
+        </div>
+        <div className="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{
+              width: `${(player.goals / topPlayers[0].goals) * 100}%`,
+            }}
+            transition={{ duration: 1, delay: rank * 0.1 }}
+            className={`h-full bg-gradient-to-r ${c.bar}`}
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// ── Main Component ────────────────────────────────────────────────────────────
+
+export default function FieldHockeySchedule() {
+  const [activeTab, setActiveTab] = useState("live");
+  const [activeSection, setActiveSection] = useState("matches");
+
+  const { matches, loading, refresh } = useMatches();
+  const tabs = ["live", "upcoming", "completed"];
+
+  const filteredMatches = matches.filter(
+    (m) => toTabStatus(m.status) === activeTab,
+  );
+
+  const liveCount = matches.filter(
+    (m) => toTabStatus(m.status) === "live",
+  ).length;
+
+  const topScorers = useMemo(() => {
+    const map = new Map();
+
+    matches.forEach((match) => {
+      match.participants?.forEach((p) => {
+        const goals = p?.hockeyData?.goalDetails ?? [];
+
+        goals.forEach((g) => {
+          if (!g.playerName) return;
+
+          const key = g.playerName;
+
+          if (!map.has(key)) {
+            map.set(key, {
+              name: g.playerName,
+              team: p.family,
+              goals: 0,
+            });
+          }
+
+          map.get(key).goals += 1;
+        });
+      });
+    });
+
+    return Array.from(map.values())
+      .sort((a, b) => b.goals - a.goals)
+      .slice(0, 5);
+  }, [matches]);
+
+  return (
+    <div className="bg-white p-4 md:p-16 relative">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -50 }}
@@ -584,7 +409,7 @@ export default function FieldHockeySchedule() {
         >
           <h1 className="text-5xl md:text-7xl font-black text-black mb-4 tracking-tight">
             Tournament{" "}
-            <span className="text-secondary bg-clip-text ">Dashboard</span>
+            <span className="text-secondary bg-clip-text">Dashboard</span>
           </h1>
           <p className="text-gray-600 text-lg">
             Field Hockey Championship 2026
@@ -595,27 +420,16 @@ export default function FieldHockeySchedule() {
         <div className="flex flex-wrap justify-center gap-2 xs:gap-2.5 sm:gap-3 mb-6 sm:mb-8 px-2">
           {[
             { id: "matches", icon: Clock, label: "Matches" },
-            { id: "players", icon: Target, label: "Top 5 Scorers" },
-            // { id: "teams", icon: Award, label: "Top Teams" },
+            { id: "players", icon: Target, label: "Top Scorers" },
           ].map((section) => (
             <motion.button
               key={section.id}
               onClick={() => setActiveSection(section.id)}
-              className={`
-            flex items-center gap-1.5 xs:gap-2 
-            px-3 xs:px-4 sm:px-5 md:px-6 
-            py-2 xs:py-2.5 sm:py-3 
-            rounded-lg xs:rounded-xl 
-            font-bold 
-            text-[10px] xs:text-xs sm:text-sm 
-            uppercase tracking-wider 
-            transition-all
-            ${
-              activeSection === section.id
-                ? "bg-gradient-to-r from-blue-700 to-blue-900 text-white"
-                : "bg-gradient-to-r from-gray-800 to-gray-900 text-gray-400 hover:from-gray-700 hover:to-gray-800"
-            }
-          `}
+              className={`flex items-center gap-1.5 xs:gap-2 px-3 xs:px-4 sm:px-5 md:px-6 py-2 xs:py-2.5 sm:py-3 rounded-lg xs:rounded-xl font-bold text-[10px] xs:text-xs sm:text-sm uppercase tracking-wider transition-all ${
+                activeSection === section.id
+                  ? "bg-gradient-to-r from-blue-700 to-blue-900 text-white"
+                  : "bg-gradient-to-r from-gray-800 to-gray-900 text-gray-400 hover:from-gray-700 hover:to-gray-800"
+              }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -623,6 +437,18 @@ export default function FieldHockeySchedule() {
               <span className="whitespace-nowrap">{section.label}</span>
             </motion.button>
           ))}
+
+          {/* Refresh button */}
+          <motion.button
+            onClick={refresh}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-gray-800 to-gray-900 text-gray-400 hover:from-gray-700 hover:to-gray-800 disabled:opacity-50"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            <span>Refresh</span>
+          </motion.button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -636,22 +462,17 @@ export default function FieldHockeySchedule() {
             >
               {/* Tabs */}
               <div className="relative mb-8 w-full">
-                {/* scroll container */}
                 <div className="flex justify-center">
-                  <div
-                    className="flex gap-2 md:gap-4 bg-slate-300 backdrop-blur-sm p-2 rounded-2xl border-2 border-slate-400
-      overflow-x-auto no-scrollbar max-w-full"
-                  >
+                  <div className="flex gap-2 md:gap-4 bg-slate-300 backdrop-blur-sm p-2 rounded-2xl border-2 border-slate-400 overflow-x-auto no-scrollbar max-w-full">
                     {tabs.map((tab) => (
                       <motion.button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`relative px-4 md:px-10 py-2 md:py-3 rounded-xl font-semibold text-xs md:text-lg uppercase tracking-wider transition-all whitespace-nowrap
-            ${
-              activeTab === tab
-                ? "text-white"
-                : "text-blue-600 hover:text-white"
-            }`}
+                        className={`relative px-4 md:px-10 py-2 md:py-3 rounded-xl font-semibold text-xs md:text-lg uppercase tracking-wider transition-all whitespace-nowrap ${
+                          activeTab === tab
+                            ? "text-white"
+                            : "text-blue-600 hover:text-white"
+                        }`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -660,7 +481,7 @@ export default function FieldHockeySchedule() {
                             layoutId="activeTab"
                             className="absolute inset-0 bg-blue-600 rounded-xl"
                             style={{
-                              boxShadow: "0 0 20px rgba(6, 182, 212, 0.5)",
+                              boxShadow: "0 0 20px rgba(6,182,212,0.5)",
                             }}
                             transition={{
                               type: "spring",
@@ -669,43 +490,65 @@ export default function FieldHockeySchedule() {
                             }}
                           />
                         )}
-                        <span className="relative z-10">{tab}</span>
+                        <span className="relative z-10 flex items-center gap-2">
+                          {tab}
+                          {tab === "live" && liveCount > 0 && (
+                            <motion.span
+                              animate={{ scale: [1, 1.2, 1] }}
+                              transition={{ duration: 1.5, repeat: Infinity }}
+                              className="bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center"
+                            >
+                              {liveCount}
+                            </motion.span>
+                          )}
+                        </span>
                       </motion.button>
                     ))}
                   </div>
                 </div>
-
-                <motion.div
-                  className="absolute -bottom-4 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.5 }}
-                />
               </div>
 
-              {/* Match Cards Grid */}
-              <motion.div
-                layout
-                className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-              >
-                <AnimatePresence mode="popLayout">
-                  {filteredMatches.map((match) => (
-                    <MatchCard key={match.id} match={match} />
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-
-              {/* Empty State */}
-              {filteredMatches.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-20"
-                >
-                  <div className="text-gray-600 text-xl">
-                    No {activeTab} matches
-                  </div>
-                </motion.div>
+              {/* Loading state */}
+              {loading ? (
+                <div className="flex justify-center items-center py-24">
+                  <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+                </div>
+              ) : (
+                <>
+                  {activeTab === "live" ? (
+                    // ✅ LIVE TAB → show carousel instead of cards
+                    <motion.div
+                      key="live-carousel"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="w-full"
+                    >
+                      <LiveScoreCarousel />
+                    </motion.div>
+                  ) : (
+                    // ✅ OTHER TABS → show match cards
+                    <motion.div
+                      layout
+                      className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                    >
+                      <AnimatePresence mode="popLayout">
+                        {filteredMatches.map((match) => (
+                          <MatchCard key={match.id} match={match} />
+                        ))}
+                      </AnimatePresence>
+                    </motion.div>
+                  )}
+                  {filteredMatches.length === 0 && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-20 text-gray-600 text-xl"
+                    >
+                      No {activeTab} matches
+                    </motion.div>
+                  )}
+                </>
               )}
             </motion.div>
           )}
@@ -725,35 +568,10 @@ export default function FieldHockeySchedule() {
                 </h2>
               </div>
               <div className="space-y-4">
-                {topPlayers.map((player, index) => (
-                  <TopPlayerCard key={index} player={player} rank={index} />
+                {topScorers.map((player, index) => (
+                  <TopPlayerCard key={index} player={player} topPlayers={topScorers} rank={index} />
                 ))}
               </div>
-            </motion.div>
-          )}
-
-          {/* Top Teams Section */}
-          {activeSection === "teams" && (
-            <motion.div
-              key="teams"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Award className="w-8 h-8 text-red-400" />
-                  <h2 className="text-3xl font-black text-white">
-                    Leaderboard
-                  </h2>
-                </div>
-                <Trophy className="w-8 h-8 text-red-400" />
-              </div>
-              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {topTeams.map((team, index) => (
-                  <TopTeamCard key={index} team={team} rank={index} />
-                ))}
-              </div> */}
             </motion.div>
           )}
         </AnimatePresence>

@@ -157,7 +157,9 @@ const MatchesMain = ({ games = [] }) => {
   } = useMatches({ tournamentId });
   const { createMatch, creating } = useCreateMatch({ tournamentId });
   const { updateMatch, updating } = useUpdateMatch({ tournamentId });
-  const { createMatches, creating: bulkCreating } = useCreateMatches({ tournamentId });
+  const { createMatches, creating: bulkCreating } = useCreateMatches({
+    tournamentId,
+  });
   const { deleteMatch } = useDeleteMatch();
 
   // ─── Handlers ───────────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "class-variance-authority";
 import { useEffect, useRef, useState, useCallback } from "react";
 
 // ─── Web Audio sound synthesiser ─────────────────────────────────────────────
@@ -560,7 +561,6 @@ export default function LiveCard({ match }) {
           </div>
         )}
 
-
         {/* Status + timer */}
         <div
           style={{
@@ -606,9 +606,6 @@ export default function LiveCard({ match }) {
               </span>
             )}
           </div>
-          <span style={{ color: "#334155", fontSize: 11 }}>
-            #{match.matchNo}
-          </span>
         </div>
 
         {/* Scoreline */}
@@ -622,17 +619,6 @@ export default function LiveCard({ match }) {
         >
           {/* Team 1 */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p
-              style={{
-                color: "#94a3b8",
-                fontSize: 10,
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                margin: 0,
-              }}
-            >
-              Home
-            </p>
             <p
               style={{
                 color: score1 >= score2 ? "#f1f5f9" : "#475569",
@@ -662,29 +648,19 @@ export default function LiveCard({ match }) {
             }}
           >
             <span
-              style={{
-                fontSize: 38,
-                fontWeight: 900,
-                color: score1 > score2 ? "#f8fafc" : "#334155",
-                fontFamily: "monospace",
-                lineHeight: 1,
-                transition: "color 0.3s",
-              }}
+              className={cx(
+                "text-[38px] font-black font-mono leading-none transition-colors duration-300",
+                score1 > score2 ? "text-white" : "text-white/50",
+              )}
             >
               {score1}
             </span>
-            <span style={{ color: "#1e293b", fontSize: 22, fontWeight: 300 }}>
-              :
-            </span>
+            <span className="text-white/50 animate-ping ">:</span>
             <span
-              style={{
-                fontSize: 38,
-                fontWeight: 900,
-                color: score2 > score1 ? "#f8fafc" : "#334155",
-                fontFamily: "monospace",
-                lineHeight: 1,
-                transition: "color 0.3s",
-              }}
+              className={cx(
+                "text-[38px] font-black font-mono leading-none transition-colors duration-300",
+                score2 > score1 ? "text-white" : "text-white/50",
+              )}
             >
               {score2}
             </span>
@@ -694,18 +670,7 @@ export default function LiveCard({ match }) {
           <div style={{ flex: 1, minWidth: 0, textAlign: "right" }}>
             <p
               style={{
-                color: "#94a3b8",
-                fontSize: 10,
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                margin: 0,
-              }}
-            >
-              Away
-            </p>
-            <p
-              style={{
-                color: score2 >= score1 ? "#f1f5f9" : "#475569",
+                color: score2 >= score1 ? "#f1f5f9" : " #797979",
                 fontWeight: 800,
                 fontSize: 18,
                 margin: "2px 0 0",
@@ -723,23 +688,6 @@ export default function LiveCard({ match }) {
           </div>
         </div>
 
-        {/* Draw badge */}
-        {match.isDraw && (
-          <div style={{ textAlign: "center", marginTop: 6 }}>
-            <span
-              style={{
-                color: "#94a3b8",
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-              }}
-            >
-              Draw
-            </span>
-          </div>
-        )}
-
         {/* Goal feed */}
         {match.participants && <GoalFeed participants={match.participants} />}
 
@@ -750,10 +698,10 @@ export default function LiveCard({ match }) {
             display: "flex",
             justifyContent: "space-between",
             fontSize: 10,
-            color: "#334155",
             borderTop: "1px solid #1e293b",
             paddingTop: 8,
           }}
+          className="text-white/50"
         >
           <span>
             {fmt(match.round)}

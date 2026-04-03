@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-export function useMatches({ tournamentId, gameId } = {}) {
+export function useMatches({ gameId } = {}) {
   const [matches, setMatches] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,6 +20,8 @@ export function useMatches({ tournamentId, gameId } = {}) {
     page: 1,
     limit: 1000,
   });
+
+  const tournamentId = process.env.NEXT_PUBLIC_TOURNAMENT_ID;
 
   const fetchMatches = useCallback(async () => {
     setLoading(true);
@@ -242,11 +244,14 @@ export function useCreateMatches(tournamentId) {
     setCreating(true);
 
     try {
-      const response = await fetch(`/api/tournaments/${tournamentId}/matches/bulk`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matches: matchesPayload }),
-      });
+      const response = await fetch(
+        `/api/tournaments/${tournamentId}/matches/bulk`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ matches: matchesPayload }),
+        },
+      );
 
       // Always read as text first so we can debug empty/non-JSON responses
       const text = await response.text();

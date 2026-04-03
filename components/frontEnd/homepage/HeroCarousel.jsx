@@ -208,7 +208,7 @@ export default function HeroCarousel() {
             {/* 4. Slide content — highest layer */}
             <div
               className={[
-                "absolute bottom-[90px] left-10 md:left-[120px]  z-10 max-w-[520px]",
+                "absolute bottom-[90px] left-5 md:left-[120px]  z-10 max-w-[520px]",
                 "transition-all duration-[600ms] ease-out",
                 isActive
                   ? "opacity-100 translate-y-0"
@@ -230,12 +230,12 @@ export default function HeroCarousel() {
 
       {/* ── Stats + Controls bar ── */}
       <div
-        className="absolute bottom-0 left-0 right-0 z-30  px-[50px] py-[18px]"
+        className="absolute bottom-0 left-0 right-0 z-30  py-[18px]"
         style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }}
       >
-        <div className="max-w-7xl  mx-auto flex">
+        <div className="max-w-7xl px-6 md:px-0 mx-auto flex">
           {/* Stats */}
-          <div className="flex items-center gap-10 mr-10">
+          <div className="flex items-center gap-10 ">
             {STATS.map((s) => (
               <div key={s.label} className="flex flex-col">
                 <span className="font-display text-lg md:text-xl font-extrabold text-white leading-none">
