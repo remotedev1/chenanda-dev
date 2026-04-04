@@ -284,7 +284,7 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              {(isLive || canGoLive) && onLiveControl && (
+              {/* {(isLive || canGoLive) && onLiveControl && (
                 <>
                   <DropdownMenuItem
                     onClick={() => onLiveControl(match)}
@@ -295,7 +295,16 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
-              )}
+              )} */}
+
+              <DropdownMenuItem
+                onClick={() => onLiveControl(match)}
+                className="cursor-pointer text-red-600 font-medium"
+              >
+                <Radio className="mr-2 h-4 w-4" />
+                {isLive ? "Live Controls" : "Go Live"}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => onEdit(match)}
                 className="cursor-pointer"

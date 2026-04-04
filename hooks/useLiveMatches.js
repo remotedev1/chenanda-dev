@@ -294,20 +294,55 @@ export function useLiveMatchControl(
     s.emit("matchStarted", { matchId: String(matchId), data: updated });
   }, [run, patch, matchId]);
 
-  const endMatch = useCallback(
-    () =>
-      run({
-        optimisticFn: (m) => ({
-          ...m,
-          status: "COMPLETED",
-          actualEndTime: new Date().toISOString(),
-        }),
-        apiFn: () => patch({ action: "END_MATCH" }),
-        successMsg: "Match ended",
-        errorMsg: "Failed to end match",
+  const endMatch = useCallback(() => {
+    const m = matchRef.current;
+    const [p1, p2] = m?.participants ?? [];
+
+    const goals1 = p1?.hockeyData?.goals ?? 0;
+    const goals2 = p2?.hockeyData?.goals ?? 0;
+
+    const so1Results = p1?.hockeyData?.shootoutResults ?? [];
+    const so2Results = p2?.hockeyData?.shootoutResults ?? [];
+    const so1 = so1Results.filter(Boolean).length;
+    const so2 = so2Results.filter(Boolean).length;
+
+    const hasShootout = so1Results.length > 0 || so2Results.length > 0;
+
+    let winnerId = null;
+    let isDraw = false;
+
+    if (goals1 !== goals2) {
+      // decided by field goals
+      winnerId = goals1 > goals2 ? p1?.familyId : p2?.familyId;
+    } else if (hasShootout) {
+      // decided by shootout
+      if (so1 !== so2) {
+        winnerId = so1 > so2 ? p1?.familyId : p2?.familyId;
+      } else {
+        isDraw = true;
+      }
+    } else {
+      isDraw = true;
+    }
+
+    return run({
+      optimisticFn: (m) => ({
+        ...m,
+        status: "COMPLETED",
+        actualEndTime: new Date().toISOString(),
+        winnerId,
+        isDraw,
       }),
-    [run, patch],
-  );
+      apiFn: () =>
+        patch({
+          action: "END_MATCH",
+          winnerId,
+          isDraw,
+        }),
+      successMsg: isDraw ? "Match ended — Draw" : `Match ended — Winner set 🏆`,
+      errorMsg: "Failed to end match",
+    });
+  }, [run, patch]);
 
   const setPeriod = useCallback(
     (period) =>
@@ -356,12 +391,14 @@ export function useLiveMatchControl(
     (playerId) =>
       run({
         optimisticFn: (m) => ({ ...m, manOfTheMatchId: playerId }),
-        apiFn: () => patch({ action: "SET_MAN_OF_MATCH", playerId }),
+        apiFn: () => patch({ action: "MAN_OF_THE_MATCH", manOfTheMatchId: playerId }),
         successMsg: "Player of the match set 🌟",
         errorMsg: "Failed to set player of match",
       }),
     [run, patch],
   );
+
+  
 
   const addHockeyGoal = useCallback(
     (familyId, goalForm) =>
@@ -479,7 +516,7 @@ export function useLiveMatchControl(
       run({
         optimisticFn: (m) => ({
           ...m,
-          status: "WALKOVER",
+          status: "COMPLETED",
           winnerId: familyId,
           participants: m.participants.map((p) => ({
             ...p,

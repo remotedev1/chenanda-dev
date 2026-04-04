@@ -99,7 +99,7 @@ export const liveUpdateSchema = z.object({
     "SET_STATUS",
     "SET_WINNER",
     "SET_DRAW",
-    "SET_MAN_OF_MATCH",
+    "MAN_OF_THE_MATCH",
     "ADD_NOTE",
     "ADD_SHOOTOUT",
     "ADD_HOCKEY_GOAL",
@@ -186,6 +186,8 @@ async function handlePatch(request, { params }) {
         status: "COMPLETED",
         actualEndTime: new Date(),
         currentPeriod: "FULL_TIME",
+        winnerId: body.winnerId ?? null,
+        isDraw: body.isDraw ?? false,
       };
       activityDescription = `Ended match "${matchLabel}"`;
       break;
@@ -235,7 +237,8 @@ async function handlePatch(request, { params }) {
       activityDescription = `Match "${matchLabel}" set as draw`;
       break;
 
-    case "SET_MAN_OF_MATCH":
+    case "MAN_OF_THE_MATCH":
+      console.log(validated);
       updateData = { manOfTheMatchId: validated.manOfTheMatchId || null };
       activityDescription = `Set man of the match for "${matchLabel}"`;
       break;
@@ -377,7 +380,6 @@ async function handlePatch(request, { params }) {
     }
 
     case "DELETE_SHOOTOUT": {
-      console.log(validated);
       if (!validated.familyId)
         return errorResponse(
           "familyId is required for DELETE_SHOOTOUT action",
@@ -435,7 +437,7 @@ async function handlePatch(request, { params }) {
 
       updateData = {
         participants,
-        status: "WALKOVER",
+        status: "COMPLETED",
         actualEndTime: new Date(),
         winnerId: validated.familyId,
         winnerName: winner.family,

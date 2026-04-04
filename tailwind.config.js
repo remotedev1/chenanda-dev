@@ -86,12 +86,17 @@ module.exports = {
             transform: "rotate(90deg)",
           },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         flip: "flip 6s infinite steps(2, end)",
         rotate: "rotate 3s linear infinite both",
+        marquee: "marquee 6s linear infinite",
       },
     },
   },

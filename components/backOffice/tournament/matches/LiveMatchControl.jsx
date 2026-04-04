@@ -528,6 +528,9 @@ function TeamPanel({
   isAnyPending,
   confirm,
   tournamentId,
+  players,
+  familyLoading,
+  invalidate,
 }) {
   const isCompleted = matchStatus === "COMPLETED" || matchStatus === "WALKOVER";
   const goalDetails = getGoalDetails(team);
@@ -543,12 +546,6 @@ function TeamPanel({
   });
   const [addingPlayer, setAddingPlayer] = useState(false);
   const [showGoalForm, setShowGoalForm] = useState(false);
-  const {
-    family,
-    loading: familyLoading,
-    refresh: invalidate,
-  } = useFamily(team.familyId);
-  const players = family?.data?.players ?? [];
 
   const handleAddGoal = async () => {
     if (!goalForm.playerId) return toast.error("Select a player");
@@ -920,25 +917,15 @@ function StatusSelector({ currentStatus, onSelect, disabled }) {
 }
 
 /* Result panel */
-function ResultPanel({ match, onSetManOfMatch, disabled }) {
+function ResultPanel({ match, onSetManOfMatch, disabled, players }) {
   const [manId, setManId] = useState(match?.manOfTheMatchId || "");
+
+  useEffect(() => {
+    if (match?.manOfTheMatchId) setManId(match.manOfTheMatchId);
+  }, [match?.manOfTheMatchId]);
+
   const t1 = match?.participants?.[0];
   const t2 = match?.participants?.[1];
-
-  // Load players from both teams via useFamily
-  const { family: family1 } = useFamily(t1?.familyId);
-  const { family: family2 } = useFamily(t2?.familyId);
-
-  const allPlayers = [
-    ...(family1?.data?.players || []).map((p) => ({
-      ...p,
-      family: t1?.family,
-    })),
-    ...(family2?.data?.players || []).map((p) => ({
-      ...p,
-      family: t2?.family,
-    })),
-  ];
 
   return (
     <div className="rounded-2xl bg-slate-900/60 border border-slate-700/40 p-5 space-y-5">
@@ -1013,7 +1000,7 @@ function ResultPanel({ match, onSetManOfMatch, disabled }) {
               <SelectValue placeholder="Select player…" />
             </SelectTrigger>
             <SelectContent className="bg-slate-900 border-slate-700">
-              {allPlayers.map((p) => (
+              {players.map((p) => (
                 <SelectItem
                   key={p.id}
                   value={p.id}
@@ -1030,14 +1017,14 @@ function ResultPanel({ match, onSetManOfMatch, disabled }) {
             size="sm"
             className="bg-yellow-600 hover:bg-yellow-700 text-white shrink-0"
           >
-            <Crown className="h-3.5 w-3.5" />
+            Confirm
           </Button>
         </div>
         {match?.manOfTheMatchId && (
           <p className="text-yellow-400 text-xs flex items-center gap-1.5">
             <Crown className="h-3 w-3" />
-            {allPlayers.find((p) => p.id === match.manOfTheMatchId)
-              ?.playerName || "Awarded"}
+            {players.find((p) => p.id === match.manOfTheMatchId)?.playerName ||
+              "Awarded"}
           </p>
         )}
       </div>
@@ -1052,7 +1039,6 @@ function ResultPanel({ match, onSetManOfMatch, disabled }) {
 export function LiveMatchControl({ matchId, tournamentId }) {
   const [initialMatch, setInitialMatch] = useState(null);
   const [bootstrapLoading, setBootstrapLoading] = useState(true);
-  const confirmDialog = useConfirm();
 
   /* Bootstrap: load match once, then hand off to hook */
   useEffect(() => {
@@ -1088,6 +1074,24 @@ export function LiveMatchControl({ matchId, tournamentId }) {
     refetch,
   } = useLiveMatchControl(matchId, tournamentId, initialMatch);
 
+  const t1 = match?.participants?.[0];
+  const t2 = match?.participants?.[1];
+
+  const {
+    family: family1,
+    loading: family1Loading,
+    refresh: invalidate1,
+  } = useFamily(t1?.familyId);
+  const {
+    family: family2,
+    loading: family2Loading,
+    refresh: invalidate2,
+  } = useFamily(t2?.familyId);
+  const players1 = family1?.data?.players ?? [];
+  const players2 = family2?.data?.players ?? [];
+
+  const confirmDialog = useConfirm();
+
   const actions = {
     addHockeyGoal,
     deleteHockeyGoal,
@@ -1096,6 +1100,11 @@ export function LiveMatchControl({ matchId, tournamentId }) {
     setWalkover,
     addPlayer,
   };
+
+  const allPlayers = [
+    ...players1.map((p) => ({ ...p, family: t1?.family })),
+    ...players2.map((p) => ({ ...p, family: t2?.family })),
+  ];
 
   /* ── Render: loading ── */
   if (bootstrapLoading) {
@@ -1145,8 +1154,6 @@ export function LiveMatchControl({ matchId, tournamentId }) {
     "CANCELLED",
   ].includes(match.status);
   const isLive = match.status === "LIVE";
-  const t1 = match.participants?.[0];
-  const t2 = match.participants?.[1];
 
   return (
     <TooltipProvider>
@@ -1306,6 +1313,9 @@ export function LiveMatchControl({ matchId, tournamentId }) {
                 isAnyPending={loading}
                 confirm={confirmDialog.confirm}
                 tournamentId={tournamentId}
+                players={idx === 0 ? players1 : players2}
+                familyLoading={idx === 0 ? family1Loading : family2Loading}
+                invalidate={idx === 0 ? invalidate1 : invalidate2}
               />
             ))}
           </div>
@@ -1315,6 +1325,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
             match={match}
             onSetManOfMatch={setManOfMatch}
             disabled={loading}
+            players={allPlayers}
           />
 
           {/* Match info footer */}

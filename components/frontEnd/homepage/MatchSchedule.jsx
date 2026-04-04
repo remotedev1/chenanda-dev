@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Clock,
@@ -41,15 +47,36 @@ function shootoutScore(results = []) {
   return results.filter(Boolean).length;
 }
 
-function formatPeriod(p) {
-  if (!p) return null;
-  return p
-    .replace(/_/g, " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 // ── MatchCard ─────────────────────────────────────────────────────────────────
+const Marquee = ({ text, className, reverse = false }) => {
+  const ref = useRef(null);
+  const [shouldScroll, setShouldScroll] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    setShouldScroll(el.scrollWidth > el.clientWidth);
+  }, [text]);
+
+  return (
+    <div ref={ref} className={`overflow-hidden ${className}`}>
+      {shouldScroll ? (
+        <div
+          className={`flex whitespace-nowrap ${reverse ? "justify-end" : "justify-start"}`}
+        >
+          <span
+            className="inline-block animate-marquee"
+            style={{ animationDirection: reverse ? "reverse" : "normal" }}
+          >
+            {text}&nbsp;&nbsp;&nbsp;{text}
+          </span>
+        </div>
+      ) : (
+        <span className="whitespace-nowrap">{text}</span>
+      )}
+    </div>
+  );
+};
 
 const MatchCard = ({ match }) => {
   const tabStatus = toTabStatus(match.status);
@@ -93,16 +120,21 @@ const MatchCard = ({ match }) => {
       {/* Teams & Score */}
       <div className="flex items-center justify-between gap-2 sm:gap-3 md:gap-4">
         {/* Team 1 */}
-        <div className="flex-1 flex items-center gap-1 sm:gap-1.5 min-w-0">
+        <div className="relative flex-1 flex items-center gap-1 sm:gap-1.5 min-w-0">
           {winner === "team1" && (
-            <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-amber-400 shrink-0" />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute -bottom-5 left-0 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full"
+            >
+              Winner
+            </motion.div>
           )}
-          <span
-            className={`text-md sm:text-lg md:text-2xl font-semibold capitalize truncate transition-colors
-            ${winner === "team1" ? "text-zinc-900" : winner === "team2" ? "text-zinc-400" : "text-zinc-800"}`}
-          >
-            {team1}
-          </span>
+          <Marquee
+            text={team1}
+            className={`text-md sm:text-lg md:text-2xl font-semibold capitalize transition-colors min-w-0 flex-1
+      ${winner === "team1" ? "text-zinc-900" : winner === "team2" ? "text-zinc-400" : "text-zinc-800"}`}
+          />
         </div>
 
         {/* Score */}
@@ -143,22 +175,26 @@ const MatchCard = ({ match }) => {
         </div>
 
         {/* Team 2 */}
-        <div className="flex-1 flex items-center justify-end gap-1 sm:gap-1.5 min-w-0">
-          <span
-            className={`text-md sm:text-lg md:text-2xl font-semibold capitalize truncate transition-colors
-
-            ${winner === "team2" ? "text-zinc-900" : winner === "team1" ? "text-zinc-400" : "text-zinc-800"}`}
-          >
-            {team2}
-          </span>
+        <div className=" relative flex-1 flex items-center justify-end gap-1 sm:gap-1.5 min-w-0">
+          <Marquee
+            text={team2}
+            className={`text-md sm:text-lg md:text-2xl font-semibold capitalize transition-colors min-w-0 flex-1 text-right
+      ${winner === "team2" ? "text-zinc-900" : winner === "team1" ? "text-zinc-400" : "text-zinc-800"}`}
+          />
           {winner === "team2" && (
-            <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-amber-400 shrink-0" />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute -bottom-5 right-0 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full"
+            >
+              Winner
+            </motion.div>
           )}
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-zinc-100 gap-2 flex-wrap">
+      <div className="flex items-center justify-between mt-3 sm:mt-4 pt-2 sm:pt-2.5 border-t border-zinc-100 gap-2 flex-wrap">
         {match.round && (
           <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-800 uppercase tracking-wide">
             {match.round.replace(/_/g, " ")}

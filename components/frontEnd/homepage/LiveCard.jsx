@@ -406,16 +406,19 @@ function GoalFeed({ participants }) {
           }}
         >
           <span
-            style={{ color: "#22d3ee", fontFamily: "monospace", minWidth: 28 }}
+            style={{ color: "blue", fontFamily: "monospace" }}
+            className="font-semibold text-md"
           >
             {e.minute ?? "—"}′
           </span>
           <span style={{ fontSize: 13 }}>🏑</span>
-          <span style={{ color: "#e2e8f0", fontWeight: 600 }}>
+          <span style={{ color: "black", fontWeight: 600 }} className="capitalize">
             {e.playerName}
           </span>
           <span style={{ color: "#475569" }}>·</span>
-          <span style={{ color: "#64748b" }}>{e.family}</span>
+          <span style={{ color: "#64748b" }} className="capitalize">
+            {e.family}
+          </span>
           {e.type && (
             <span
               style={{
