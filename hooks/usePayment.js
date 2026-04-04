@@ -9,6 +9,8 @@ export function usePayments({
   tournamentId,
   gameId,
   sport,
+  searchField,
+  searchValue,
   status,
   paymentType,
   initialLimit = 1000,
@@ -18,7 +20,8 @@ export function usePayments({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
-    search: "",
+    search: searchValue || "",
+    searchField: searchField || "familyName",
     status: status || undefined,
     paymentType: paymentType || undefined,
     sport: sport || undefined,
@@ -31,10 +34,11 @@ export function usePayments({
     setError(null);
 
     try {
-      const params = new URLSearchParams({
+       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
         ...(filters.search && { search: filters.search }),
+        ...(filters.search && { searchField: filters.searchField }), // ✅ add this
         ...(familyId && { familyId }),
         ...(tournamentId && { tournamentId }),
         ...(gameId && { gameId }),

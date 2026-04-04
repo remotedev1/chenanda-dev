@@ -19,6 +19,7 @@ const querySchema = z.object({
   page: z.string().default("1"),
   limit: z.string().default("1000"),
   search: z.string().optional(),
+  searchField: z.enum(["familyName", "receiptNumber"]).default("familyName"), // ✅ added
   familyId: z.string().optional(),
   tournamentId: z.string().optional(),
   gameId: z.string().optional(),
@@ -93,6 +94,7 @@ async function handleGet(request) {
     page: searchParams.get("page"),
     limit: searchParams.get("limit"),
     search: searchParams.get("search") || undefined,
+    searchField: searchParams.get("searchField") || undefined,
     familyId: searchParams.get("familyId") || undefined,
     tournamentId: searchParams.get("tournamentId") || undefined,
     gameId: searchParams.get("gameId") || undefined,
@@ -104,17 +106,33 @@ async function handleGet(request) {
   });
 
   const { page, limit, skip } = parsePagination(searchParams);
+  const searchWhere = (() => {
+    if (!validated.search) return {};
+    if (validated.searchField === "receiptNumber") {
+      return {
+        receiptNumber: { contains: validated.search, mode: "insensitive" },
+      };
+    }
+
+    if (validated.searchField === "familyName") {
+      return {
+        family: {
+          familyName: { contains: validated.search, mode: "insensitive" },
+        },
+      };
+    }
+
+    // fallback
+    return buildSearchWhere(validated.search, [
+      "description",
+      "payerName",
+      "receiptNumber",
+      "transactionId",
+    ]);
+  })();
 
   const where = {
-    ...buildSearchWhere(validated.search, [
-      "description",
-      "notes",
-      "payerName",
-      "payerEmail",
-      "transactionId",
-      "orderId",
-      "receiptNumber",
-    ]),
+    ...searchWhere,
     ...(validated.familyId && { familyId: validated.familyId }),
     ...(validated.tournamentId && { tournamentId: validated.tournamentId }),
     ...(validated.gameId && { gameId: validated.gameId }),

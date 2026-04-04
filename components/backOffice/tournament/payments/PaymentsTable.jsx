@@ -323,7 +323,6 @@ export function PaymentTable({
       onFilterChange({ search: value, searchField });
     }, 500);
   };
-
   // Also fire when searchField changes
   const handleSearchFieldChange = (field) => {
     setSearchField(field);
