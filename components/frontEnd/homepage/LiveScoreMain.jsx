@@ -7,28 +7,14 @@ export default function LiveScoreCarousel() {
   const { matches, loading, error } = useLiveMatches();
 
   return (
-    <main style={{ padding: "32px 24px", maxWidth: 960, margin: "0 auto" }}>
-   
-
-      {loading && (
-        <p style={{ color: "#94a3b8", fontFamily: "monospace" }}>
-          Loading matches…
-        </p>
-      )}
-
+    <main style={{ maxWidth: 960, margin: "0 auto" }}>
       {error && (
         <p style={{ color: "#f87171", fontFamily: "monospace" }}>
           Failed to load matches: {error}
         </p>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-          gap: 20,
-        }}
-      >
+      <div className="grid gap-2.5 mx-auto [grid-template-columns:repeat(auto-fill,minmax(340px,1fr))]">
         {Array.isArray(matches?.data) &&
           matches.data.map((match) => (
             // Pass the live `match` object — useLiveMatches keeps it fresh

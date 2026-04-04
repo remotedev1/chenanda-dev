@@ -529,20 +529,19 @@ export default function LiveCard({ match }) {
 
       <div
         style={{
-          background: pulse ? "#0f2a3a" : "#0f172a",
-          border: `1px solid ${pulse ? "#22d3ee55" : "#1e293b"}`,
+          background: pulse ? "#000" : "#fff",
+          border: `1px solid ${pulse ? "#000" : "#e2e8f0"}`,
           borderRadius: 16,
-          padding: "18px 20px",
           transition: "background 0.3s, border-color 0.3s",
           display: "flex",
           flexDirection: "column",
           gap: 0,
           fontFamily: "'Inter', 'Segoe UI', sans-serif",
-          userSelect: "none",
           position: "relative",
         }}
+        className="select-none p-2 md:p-4 w-[90vw] md:w-[400px] "
       >
-        {/* Audio not yet enabled hint */}
+        {/* Audio hint */}
         {!audioReady && (
           <div
             style={{
@@ -550,18 +549,18 @@ export default function LiveCard({ match }) {
               top: 8,
               right: 12,
               fontSize: 10,
-              color: "#334155",
+              color: pulse ? "#ffffff60" : "#94a3b8",
               display: "flex",
               alignItems: "center",
               gap: 4,
             }}
           >
             <span>🔇</span>
-            <span>Click anywhere to enable audio</span>
+            <span>Click to enable audio</span>
           </div>
         )}
 
-        {/* Status + timer */}
+        {/* Status + period */}
         <div
           style={{
             display: "flex",
@@ -601,7 +600,9 @@ export default function LiveCard({ match }) {
               {match.status}
             </span>
             {match.currentPeriod && (
-              <span style={{ color: "#64748b", fontSize: 11 }}>
+              <span
+                style={{ color: pulse ? "#ffffff60" : "#64748b", fontSize: 11 }}
+              >
                 {fmt(match.currentPeriod)}
               </span>
             )}
@@ -621,17 +622,23 @@ export default function LiveCard({ match }) {
           <div style={{ flex: 1, minWidth: 0 }}>
             <p
               style={{
-                color: score1 >= score2 ? "#f1f5f9" : "#475569",
+                color:
+                  score1 >= score2
+                    ? pulse
+                      ? "#fff"
+                      : "#000"
+                    : pulse
+                      ? "#ffffff50"
+                      : "#94a3b8",
                 fontWeight: 800,
-                fontSize: 18,
                 margin: "2px 0 0",
                 overflow: "hidden",
-                textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
                 fontFamily: "'Barlow Condensed', 'Inter', sans-serif",
                 letterSpacing: "0.02em",
                 transition: "color 0.3s",
               }}
+              className="text-sm md:text-lg"
             >
               {t1?.family?.toUpperCase() ?? "—"}
             </p>
@@ -643,23 +650,44 @@ export default function LiveCard({ match }) {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 10,
               flexShrink: 0,
             }}
+            className="gap-2 md:gap-[1rem]"
           >
             <span
               className={cx(
                 "text-[38px] font-black font-mono leading-none transition-colors duration-300",
-                score1 > score2 ? "text-white" : "text-white/50",
+                score1 > score2
+                  ? pulse
+                    ? "text-white"
+                    : "text-black"
+                  : pulse
+                    ? "text-white/40"
+                    : "text-black/30",
               )}
             >
               {score1}
             </span>
-            <span className="text-white/50 animate-ping ">:</span>
+            <span
+              style={{
+                color: pulse ? "white" : "black",
+                fontSize: 28,
+                fontWeight: 800,
+              }}
+              className="animate-ping"
+            >
+              :
+            </span>
             <span
               className={cx(
                 "text-[38px] font-black font-mono leading-none transition-colors duration-300",
-                score2 > score1 ? "text-white" : "text-white/50",
+                score2 > score1
+                  ? pulse
+                    ? "text-white"
+                    : "text-black"
+                  : pulse
+                    ? "text-white/40"
+                    : "text-black/30",
               )}
             >
               {score2}
@@ -670,9 +698,15 @@ export default function LiveCard({ match }) {
           <div style={{ flex: 1, minWidth: 0, textAlign: "right" }}>
             <p
               style={{
-                color: score2 >= score1 ? "#f1f5f9" : " #797979",
+                color:
+                  score2 >= score1
+                    ? pulse
+                      ? "#fff"
+                      : "#000"
+                    : pulse
+                      ? "#ffffff50"
+                      : "#94a3b8",
                 fontWeight: 800,
-                fontSize: 18,
                 margin: "2px 0 0",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -681,6 +715,7 @@ export default function LiveCard({ match }) {
                 letterSpacing: "0.02em",
                 transition: "color 0.3s",
               }}
+              className="text-sm md:text-lg"
             >
               {t2?.family?.toUpperCase() ?? "—"}
             </p>
@@ -698,10 +733,11 @@ export default function LiveCard({ match }) {
             display: "flex",
             justifyContent: "space-between",
             fontSize: 10,
-            borderTop: "1px solid #1e293b",
+            borderTop: `1px solid ${pulse ? "#ffffff15" : "#e2e8f0"}`,
             paddingTop: 8,
+            color: pulse ? "#ffffff50" : "#94a3b8",
+            transition: "border-color 0.3s, color 0.3s",
           }}
-          className="text-white/50"
         >
           <span>
             {fmt(match.round)}
@@ -711,11 +747,11 @@ export default function LiveCard({ match }) {
         </div>
 
         <style>{`
-          @keyframes livePing {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.4; transform: scale(1.5); }
-          }
-        `}</style>
+    @keyframes livePing {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(1.5); }
+    }
+  `}</style>
       </div>
     </>
   );
