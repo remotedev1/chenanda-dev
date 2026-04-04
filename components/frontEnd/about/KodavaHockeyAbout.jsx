@@ -139,12 +139,10 @@ function AboutSection() {
         animate={isInView ? "visible" : "hidden"}
         variants={variants}
       >
-        <div className="about-header accent-border">
-          <h2>About the Festival</h2>
-        </div>
+        <p className="text-6xl font-bold">About the Festival</p>
 
         <div className="about-content">
-          <p className="lead-text">
+          <p className="md:lead-text">
             The Kodava Hockey Festival is not merely a sporting eventit is a
             living testament to the enduring spirit of the Kodava people. Born
             from a vision of unity and cultural preservation, this annual
@@ -204,7 +202,7 @@ function OriginsSection() {
   };
 
   return (
-    <section className="origins-section section" ref={ref}>
+    <section className="origins-section section !pt-0" ref={ref}>
       <motion.div
         className="origins-container"
         variants={containerVariants}
@@ -213,10 +211,10 @@ function OriginsSection() {
       >
         <motion.div
           variants={itemVariants}
-          className="origins-header accent-border"
+          className="origins-header accent-border !mb-2"
         >
           <h2>Origins & Vision</h2>
-          <p className="section-intro">
+          <p className="section-intro ">
             A dream rooted in community, nurtured by passion
           </p>
         </motion.div>
@@ -226,7 +224,7 @@ function OriginsSection() {
             <div className="timeline-marker" aria-hidden="true">
               <span className="marker-dot"></span>
             </div>
-            <div className="timeline-content">
+            <div className="timeline-content !p-2 md:!p-5 ">
               <h3 className="timeline-year">1997</h3>
               <h4>The Founding Vision</h4>
               <p>
@@ -251,7 +249,7 @@ function OriginsSection() {
             <div className="timeline-marker" aria-hidden="true">
               <span className="marker-dot"></span>
             </div>
-            <div className="timeline-content">
+            <div className="timeline-content !p-2 md:!p-5">
               <h4>The First Tournament</h4>
               <p>
                 What began with 60 teams representing Kodava families quickly
@@ -268,7 +266,7 @@ function OriginsSection() {
             <div className="timeline-marker" aria-hidden="true">
               <span className="marker-dot"></span>
             </div>
-            <div className="timeline-content">
+            <div className="timeline-content !p-2 md:!p-5">
               <h4>Exponential Growth</h4>
               <p>
                 Word spread like wildfire across the Kodava diaspora. Each year,
@@ -285,7 +283,7 @@ function OriginsSection() {
             <div className="timeline-marker" aria-hidden="true">
               <span className="marker-dot"></span>
             </div>
-            <div className="timeline-content">
+            <div className="timeline-content !p-2 md:!p-5">
               <h4>A Global Phenomenon</h4>
               <p>
                 Today, the Kodava Hockey Festival stands as a symbol of what a
@@ -920,8 +918,8 @@ function ImpactSection() {
               <p className="font-serif italic text-[18px] leading-[1.75] text-gray-500 m-0">
                 In its truest form, hockey becomes a festival of spirit — where
                 pride is not in winning alone, but in showing up, representing
-                one&apos;s roots, and being part of something timeless. It is where
-                identity is not spoken, but lived.
+                one&apos;s roots, and being part of something timeless. It is
+                where identity is not spoken, but lived.
               </p>
             </div>
           </motion.div>

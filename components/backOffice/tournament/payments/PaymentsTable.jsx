@@ -126,7 +126,10 @@ function PaymentCard({ payment, onEdit, onDelete }) {
         <div className="absolute top-3 right-3">
           <Badge
             variant="outline"
-            className={cn("bg-white/95 backdrop-blur-sm border", statusConfig.className)}
+            className={cn(
+              "bg-white/95 backdrop-blur-sm border",
+              statusConfig.className,
+            )}
           >
             {statusConfig.label}
           </Badge>
@@ -296,6 +299,7 @@ export function PaymentTable({
   const wasFocusedRef = useRef(false);
 
   const [searchValue, setSearchValue] = useState(filters.search || "");
+  const [searchField, setSearchField] = useState("familyName");
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     payment: null,
@@ -314,14 +318,18 @@ export function PaymentTable({
   // Handle search with debounce
   const handleSearch = (value) => {
     setSearchValue(value);
-
-    if (searchTimerRef.current) {
-      clearTimeout(searchTimerRef.current);
-    }
-
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     searchTimerRef.current = setTimeout(() => {
-      onFilterChange({ search: value });
+      onFilterChange({ search: value, searchField });
     }, 500);
+  };
+
+  // Also fire when searchField changes
+  const handleSearchFieldChange = (field) => {
+    setSearchField(field);
+    if (searchValue) {
+      onFilterChange({ search: searchValue, searchField: field });
+    }
   };
 
   const handleFocus = () => {
@@ -404,17 +412,33 @@ export function PaymentTable({
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-          <Input
-            ref={searchInputRef}
-            placeholder="Search payments..."
-            value={searchValue}
-            onChange={(e) => handleSearch(e.target.value)}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            className="pl-9 bg-white border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
-          />
+        <div className="relative flex flex-1 max-w-md">
+          <Select value={searchField} onValueChange={handleSearchFieldChange}>
+            <SelectTrigger className="w-[150px] rounded-r-none border-r-0 bg-white border-gray-300 shrink-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="familyName">Family Name</SelectItem>
+              <SelectItem value="receiptNumber">Receipt No.</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <Input
+              ref={searchInputRef}
+              placeholder={
+                searchField === "familyName"
+                  ? "Search by family name..."
+                  : "Search by receipt no..."
+              }
+              value={searchValue}
+              onChange={(e) => handleSearch(e.target.value)}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              className="pl-9 rounded-l-none bg-white border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+            />
+          </div>
         </div>
 
         <div className="flex gap-2 flex-wrap">
@@ -502,7 +526,10 @@ export function PaymentTable({
             No payments found
           </h3>
           <p className="text-gray-500 mb-6">
-            {searchValue || filters.status || filters.paymentType || filters.sport
+            {searchValue ||
+            filters.status ||
+            filters.paymentType ||
+            filters.sport
               ? "Try adjusting your search or filters"
               : "Get started by recording your first payment"}
           </p>

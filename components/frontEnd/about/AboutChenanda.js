@@ -154,11 +154,11 @@ export default function AboutChenanda() {
                   <span>Our Heritage</span>
                 </h3>
                 <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                  The Chenanda Okka is a close-knit family of over{" "}
+                  The Chenanda Okka is a close-knit family of over
                   <span className="font-semibold text-amber-800">
                     300 members
                   </span>
-                  , deeply rooted in{" "}
+                  , deeply rooted in
                   <span className="font-semibold text-amber-800">Kokeri</span>,
                   with family branches spread across Kodambur, and Alur
                   Siddapura in the heart of Coorg.
@@ -176,15 +176,15 @@ export default function AboutChenanda() {
                   <span>Our Values</span>
                 </h3>
                 <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                  United across generations, the Okka stands as a symbol of{" "}
+                  United across generations, the Okka stands as a symbol of
                   <span className="font-semibold text-amber-800">
                     togetherness
                   </span>
-                  ,{" "}
+                  ,
                   <span className="font-semibold text-amber-800">
                     respect for elders
                   </span>
-                  , and an enduring sense of{" "}
+                  , and an enduring sense of
                   <span className="font-semibold text-amber-800">
                     belonging
                   </span>
@@ -242,15 +242,15 @@ export default function AboutChenanda() {
                   <span>National Recognition</span>
                 </h3>
                 <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                  The family is especially honoured to have produced{" "}
+                  The family is especially honoured to have produced
                   <span className="font-bold text-orange-800">
                     two eminent Olympians
                   </span>
-                  , including recipients of the prestigious{" "}
+                  , including recipients of the prestigious
                   <span className="font-bold text-orange-800">
                     Arjuna Award
-                  </span>{" "}
-                  and{" "}
+                  </span>
+                  and
                   <span className="font-bold text-orange-800">
                     Dronacharya Award
                   </span>
@@ -304,36 +304,35 @@ export default function AboutChenanda() {
           </div>
 
           {/* Hockey Legacy Section */}
-          <Card delay={0.7} className="mb-10 sm:mb-14 md:mb-16">
-            <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl sm:shadow-2xl text-white">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <span className="text-4xl sm:text-5xl" aria-hidden="true">
-                  🏑
-                </span>
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-                  The Hockey Legacy
-                </h3>
-              </div>
-              <p className="text-base sm:text-lg md:text-xl leading-relaxed">
-                Sports particularly{" "}
-                <span className="font-bold  decoration-white/50">hockey </span>
-                runs deep in the Chenanda lineage. Across generations, the
-                family has actively contributed to the rich Kodava hockey
-                culture by nurturing talent, mentoring young players, and
-                upholding the spirit of sportsmanship that Coorg is known for.
-              </p>
-              <p>
-                The first team established by the Chenanda family was{" "}
-                <strong className="text-lg text-blue-900">
-                  Neeliyat Challengers Chenanda{" "}
-                </strong>
-                , formed around 40 years ago. They proudly played in Napoklu and
-                Virajpet, marking the beginning of a strong sporting legacy.
-                Over time, as the tournament evolved, the team later adopted a
-                new name, continuing its journey in the spirit of tradition and
-                unity.
+          <Card
+            delay={0.7}
+            className="bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 mb-12 shadow-lg sm:shadow-xl border border-orange-200 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300"
+          >
+            <div className=" mb-4 sm:mb-6 max-w-7xl mx-auto">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-bold">
+                The Hockey Legacy
               </p>
             </div>
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed mb-4">
+              Sports particularly &nbsp;
+              <span className="font-bold underline decoration-white/50">
+                hockey
+              </span>
+              &nbsp; run deep in the Chenanda lineage. Across generations, the
+              family has actively contributed to the rich Kodava hockey culture
+              by nurturing talent, mentoring young players, and upholding the
+              spirit of sportsmanship that Coorg is known for.
+            </p>
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed">
+              The first team established by the Chenanda family was &nbsp;
+              <strong className="font-bold ">
+                Neeliyat Challengers Chenanda
+              </strong>
+              , formed around 40 years ago. They proudly played in Napoklu and
+              Virajpet, marking the beginning of a strong sporting legacy. Over
+              time, as the tournament evolved, the team later adopted a new
+              name, continuing its journey in the spirit of tradition and unity.
+            </p>
           </Card>
 
           {/* Tournament Announcement */}
@@ -342,56 +341,53 @@ export default function AboutChenanda() {
             variants={staggerContainer}
             initial="hidden"
             animate={featuresInView ? "visible" : "hidden"}
-            className="mb-10 sm:mb-14 md:mb-16"
+            className="bg-gradient-to-br from-indigo-100 via-blue-50 to-cyan-100 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 mb-12 shadow-lg sm:shadow-xl border border-indigo-200 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300"
           >
-            <div className="relative bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12 shadow-xl sm:shadow-2xl overflow-hidden">
-              {/* Decorative elements */}
-              <div
-                className="absolute top-0 right-0 w-40 sm:w-48 md:w-64 h-40 sm:h-48 md:h-64 bg-white/10 rounded-full blur-3xl"
-                aria-hidden="true"
-              ></div>
-              <div
-                className="absolute bottom-0 left-0 w-40 sm:w-48 md:w-64 h-40 sm:h-48 md:h-64 bg-white/10 rounded-full blur-3xl"
-                aria-hidden="true"
-              ></div>
+            {/* Decorative elements */}
+            <div
+              className="absolute top-0 right-0 w-40 sm:w-48 md:w-64 h-40 sm:h-48 md:h-64 bg-white/10 rounded-full blur-3xl"
+              aria-hidden="true"
+            ></div>
+            <div
+              className="absolute bottom-0 left-0 w-40 sm:w-48 md:w-64 h-40 sm:h-48 md:h-64 bg-white/10 rounded-full blur-3xl"
+              aria-hidden="true"
+            ></div>
 
-              <div className="relative text-center text-white">
-                <div className="inline-block mb-3 sm:mb-4">
-                  <span
-                    className="text-5xl sm:text-6xl md:text-7xl"
-                    aria-hidden="true"
+            <div className="relative text-center ">
+              <div className="inline-block mb-3 sm:mb-4">
+                <span
+                  className="text-5xl sm:text-6xl md:text-7xl"
+                  aria-hidden="true"
+                >
+                  🏆
+                </span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2">
+                Chenanda Hockey Tournament 2026
+              </h3>
+              <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 sm:mb-5 md:mb-6 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl py-3 sm:py-4 px-4 sm:px-6 md:px-8 inline-block border-2 border-white/40">
+                5th April 2026
+              </div>
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-8 px-2">
+                Carrying this legacy forward, the Chenanda family is proud to
+                organize the Kodava Hockey Tournament 2026 with the purpose of:
+              </p>
+
+              <div className="grid  grid-cols-1 md:grid-cols-2  gap-3 sm:gap-4 max-w-5xl mx-auto">
+                {features.map((item, index) => (
+                  <m.div
+                    key={index}
+                    variants={itemVariants}
+                    className="bg-white/20  rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 border-2 border-white hover:bg-white/30 hover:scale-105 transition-all duration-300"
                   >
-                    🏆
-                  </span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2">
-                  Chenanda Hockey Tournament 2026
-                </h3>
-                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 sm:mb-5 md:mb-6 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl py-3 sm:py-4 px-4 sm:px-6 md:px-8 inline-block border-2 border-white/40">
-                  5th April 2026
-                </div>
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed max-w-4xl mx-auto mb-6 sm:mb-7 md:mb-8 px-2">
-                  Carrying this legacy forward, the Chenanda family is proud to
-                  organize the Kodava Hockey Tournament 2026 with the purpose
-                  of:
-                </p>
-
-                <div className="grid  grid-cols-1 md:grid-cols-2  gap-3 sm:gap-4 max-w-5xl mx-auto">
-                  {features.map((item, index) => (
-                    <m.div
-                      key={index}
-                      variants={itemVariants}
-                      className="bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 border-2 border-white/40 hover:bg-white/30 hover:scale-105 transition-all duration-300"
-                    >
-                      <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">
-                        {item.icon}
-                      </div>
-                      <div className="text-sm sm:text-base md:text-lg font-semibold">
-                        {item.text}
-                      </div>
-                    </m.div>
-                  ))}
-                </div>
+                    <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">
+                      {item.icon}
+                    </div>
+                    <div className="text-sm sm:text-base md:text-lg font-semibold">
+                      {item.text}
+                    </div>
+                  </m.div>
+                ))}
               </div>
             </div>
           </m.div>
