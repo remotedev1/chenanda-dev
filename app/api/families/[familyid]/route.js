@@ -78,7 +78,6 @@ async function handlePatch(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  //TODO
   const { familyId } = params;
   // Validate body
   const body = await request.json();

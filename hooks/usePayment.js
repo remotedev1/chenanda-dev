@@ -34,7 +34,7 @@ export function usePayments({
     setError(null);
 
     try {
-       const params = new URLSearchParams({
+      const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
         ...(filters.search && { search: filters.search }),

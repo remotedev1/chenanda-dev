@@ -62,7 +62,7 @@ export const createPaymentSchema = z.object({
   tournamentId: z.string().optional().nullable(),
   tournamentName: z.string().optional().nullable(),
   sport: z.string().optional().nullable(),
-  gameId: z.string().optional().nullable(),
+  gameIds: z.array(z.string()).default([]),
   payerName: z.string().min(1, "Payer name is required"),
   payerEmail: z.string().email("Invalid email").optional().nullable(),
   payerPhone: z.string().min(10, "Phone must be at least 10 digits"),
@@ -203,20 +203,19 @@ async function handlePut(request, { params }) {
   }
 
   // If gameId provided, verify it exists
-  if (validated.gameId) {
-    const game = await db.tournamentGame.findUnique({
-      where: { id: validated.gameId },
+  if (validated.gameIds.length > 0) {
+    const games = await db.tournamentGame.findMany({
+      where: { id: { in: validated.gameIds } },
       select: { id: true },
     });
-    if (!game) {
-      return errorResponse("Selected game does not exist", 400);
+    if (games.length !== validated.gameIds.length) {
+      return errorResponse("One or more selected games do not exist", 400);
     }
   }
 
   // Check payment exists for this family
   const existingPayment = await db.payment.findFirst({
     where: { id: paymentId },
-    select: { family: true },
   });
 
   if (!existingPayment) {
@@ -234,7 +233,7 @@ async function handlePut(request, { params }) {
       tournamentId: validated.tournamentId || null,
       tournamentName: validated.tournamentName || null,
       sport: validated.sport || null,
-      gameId: validated.gameId || null,
+      gameIds: validated.gameIds || [],
       payerName: validated.payerName,
       payerEmail: validated.payerEmail || null,
       payerPhone: validated.payerPhone,
@@ -255,7 +254,7 @@ async function handlePut(request, { params }) {
     entity: "payment",
     entityId: payment.id,
     entityName: `${payment.currency} ${payment.amount.toFixed(2)}`,
-    description: `Updated payment of ${payment.currency} ${payment.amount.toFixed(2)} for family "${existingPayment.family.familyName}"`,
+    description: `Updated payment of ${payment.currency} ${payment.amount.toFixed(2)} for family "${existingPayment.id} familyId}"`,
     request,
   });
 

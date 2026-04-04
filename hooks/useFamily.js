@@ -300,11 +300,11 @@ export function useCreateFamily() {
 export function useUpdateFamily() {
   const [updating, setUpdating] = useState(false);
 
-  const updateFamily = useCallback(async (id, data) => {
+  const updateFamily = useCallback(async (data) => {
     setUpdating(true);
 
     try {
-      const response = await fetch(`/api/families/${id}`, {
+      const response = await fetch(`/api/families/${data.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
