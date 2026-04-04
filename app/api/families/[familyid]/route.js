@@ -30,6 +30,7 @@ const updateFamilySchema = z.object({
     .or(z.literal("")),
   info: z.array(z.record(z.any())).optional(),
   images: z.array(z.string().url("Invalid image URL")).optional(),
+  isFamily: z.boolean().optional(),
 });
 
 /* ---------------- HANDLERS ---------------- */
@@ -121,6 +122,7 @@ async function handlePatch(request, { params }) {
     ...(validated.images !== undefined && {
       images: validated.images,
     }),
+    ...(validated.isFamily !== undefined && { isFamily: validated.isFamily }),
     updatedAt: new Date(),
   };
 

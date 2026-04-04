@@ -30,6 +30,8 @@ const bulkMatchSchema = z.object({
           "GROUND_8",
           "MAIN_STADIUM",
         ]),
+        gameId: z.string().min(1, "Please select a game"),
+
         scheduledOn: z
           .string()
           .datetime()
@@ -110,10 +112,7 @@ async function handlePost(request) {
   if (tournaments.length !== tournamentIds.length) {
     const foundIds = new Set(tournaments.map((t) => t.id));
     const missing = tournamentIds.filter((id) => !foundIds.has(id));
-    return errorResponse(
-      `Tournament(s) not found: ${missing.join(", ")}`,
-      400,
-    );
+    return errorResponse(`Tournament(s) not found: ${missing.join(", ")}`, 400);
   }
 
   const tournamentMap = Object.fromEntries(tournaments.map((t) => [t.id, t]));
@@ -129,6 +128,7 @@ async function handlePost(request) {
         venue: m.venue,
         scheduledOn: m.scheduledOn,
         pool: m.pool || null,
+        gameId: m.gameId,
         round: m.round,
         status: m.status,
         isDraw: false,

@@ -21,6 +21,7 @@ const createFamilySchema = z.object({
   colors: z.string().optional(),
   info: z.array(z.record(z.any())).optional().default([]),
   images: z.array(z.string()).optional().default([]),
+  isFamily: z.boolean().default(true),
 });
 
 export function FamilyForm({
@@ -36,6 +37,7 @@ export function FamilyForm({
     colors: initialData?.colors || "",
     info: initialData?.info || [],
     images: initialData?.images || [],
+    isFamily: initialData?.isFamily !== undefined ? initialData.isFamily : true,
   });
 
   const [errors, setErrors] = useState({});
@@ -158,6 +160,59 @@ export function FamilyForm({
           {errors.familyName && (
             <p className="text-sm text-red-500">{errors.familyName}</p>
           )}
+        </div>
+        {/* Record Type */}
+        <div className="space-y-2 md:col-span-2">
+          <Label>Record Type</Label>
+          <div className="flex gap-3">
+            {[
+              {
+                value: true,
+                label: "Family",
+                desc: "A  family team",
+              },
+              {
+                value: false,
+                label: "Other",
+                desc: "Non-family participant (club, institution, etc.)",
+              },
+            ].map((opt) => (
+              <button
+                key={String(opt.value)}
+                type="button"
+                onClick={() => handleChange("isFamily", opt.value)}
+                className={`flex-1 flex items-start gap-3 p-3 rounded-xl border-2 text-left transition-all ${
+                  formData.isFamily === opt.value
+                    ? "border-orange-500 bg-orange-50"
+                    : "border-gray-200 hover:border-gray-300 bg-white"
+                }`}
+              >
+                <div
+                  className={`mt-0.5 h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center ${
+                    formData.isFamily === opt.value
+                      ? "border-orange-500"
+                      : "border-gray-300"
+                  }`}
+                >
+                  {formData.isFamily === opt.value && (
+                    <div className="h-2 w-2 rounded-full bg-orange-500" />
+                  )}
+                </div>
+                <div>
+                  <p
+                    className={`text-sm font-semibold ${
+                      formData.isFamily === opt.value
+                        ? "text-orange-700"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    {opt.label}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">{opt.desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Description */}

@@ -50,7 +50,7 @@ const EventCountdown = () => {
   });
   const statsInView = useInView(statsRef, { once: true, margin: "-30px" });
 
-  const targetDate = useMemo(() => new Date("2026-04-05T00:00:00"), []);
+  const targetDate = useMemo(() => new Date("2026-04-05T10:00:00"), []);
 
   const calculateTimeLeft = useCallback(() => {
     const difference = +targetDate - +new Date();

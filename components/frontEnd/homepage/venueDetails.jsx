@@ -127,8 +127,6 @@ const VenueCard = ({ arena, match, index }) => {
               <span className="text-xs">{meta?.location}</span>
             </div>
           </div>
-
-          
         </div>
       </div>
 
@@ -149,7 +147,6 @@ export default function VenueDetails() {
     return acc;
   }, {});
 
-
   return (
     <div className="min-h-screen py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 bg-primary">
       <div className="relative max-w-5xl mx-auto">
@@ -159,8 +156,6 @@ export default function VenueDetails() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-10 sm:mb-12"
         >
-        
-
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight">
             Venue Information
           </h2>

@@ -23,6 +23,7 @@ const querySchema = z.object({
     .enum(["createdAt", "familyName", "updatedAt"])
     .default("familyName"),
   sortOrder: z.enum(["asc", "desc"]).default("asc"),
+  isFamily: z.enum(["true", "false"]).optional(),
 });
 
 export const createFamilySchema = z.object({
@@ -42,6 +43,7 @@ export const createFamilySchema = z.object({
     .or(z.literal("")),
   info: z.array(z.record(z.any())).optional().default([]),
   images: z.array(z.string().url("Invalid image URL")).optional().default([]),
+  isFamily: z.boolean().optional().default(true),
 });
 
 /* ---------------- HANDLERS ---------------- */
@@ -52,7 +54,6 @@ async function handleGet(request) {
     requireAuthentication: false,
   });
   if (setup.error) return setup.error;
-
 
   // Query params
   const { searchParams } = new URL(request.url);
@@ -69,6 +70,9 @@ async function handleGet(request) {
   // Build where clause
   const where = {
     ...buildSearchWhere(validated.search, ["familyName", "description"]),
+    ...(searchParams.get("isFamily") !== null && {
+      isFamily: searchParams.get("isFamily") !== "false",
+    }),
   };
 
   // Build orderBy based on sortBy parameter
@@ -136,7 +140,6 @@ async function handlePost(request) {
 
   // Validate body
   const body = await request.json();
-  console.log(body);
 
   const validated = createFamilySchema.parse(body);
 
@@ -156,6 +159,7 @@ async function handlePost(request) {
       description: validated.description || null,
       colors: validated.colors || null,
       info: validated.info || [],
+      isFamily: validated.isFamily ?? true,
       images: validated.images || [],
     },
     include: {

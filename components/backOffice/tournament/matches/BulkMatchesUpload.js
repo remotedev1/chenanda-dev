@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useFamilies } from "@/hooks/useFamily";
 import ReactSelect from "react-select";
+import { useGames } from "@/hooks/useTournamentGame";
 
 /* ── Constants ── */
 
@@ -103,6 +104,7 @@ const newMatch = (defaults = {}) => ({
   pool: null,
   venue: "",
   scheduledDate: "",
+  gameId: "",
   scheduledTime: "09:00",
   status: "SCHEDULED",
   errors: {},
@@ -188,7 +190,7 @@ function LockedField({ value }) {
 
 /* ── Defaults Panel ── */
 
-function DefaultsPanel({ defaults, onChange }) {
+function DefaultsPanel({ defaults, onChange, games, loadingGames }) {
   const sport = SPORT_TYPES.find((s) => s.value === defaults.sport);
   const hasAny =
     defaults.sport ||
@@ -315,6 +317,38 @@ function DefaultsPanel({ defaults, onChange }) {
         />
       </div>
 
+      {/* Game */}
+      <div className="mt-3 space-y-1">
+        <Label className="text-xs text-orange-800 font-medium">
+          Tournament Game <span className="text-red-400">*</span>
+        </Label>
+        <Select
+          value={defaults.gameId || "__none__"}
+          onValueChange={(v) => onChange("gameId", v === "__none__" ? "" : v)}
+        >
+          <SelectTrigger className="h-9 text-xs bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400">
+            <SelectValue
+              placeholder={loadingGames ? "Loading games…" : "Select game"}
+            />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="__none__">— No default —</SelectItem>
+            {games.map((g) => (
+              <SelectItem key={g.id} value={g.id}>
+                {g.name} · {g.sportType} · {g.category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {defaults.gameId && (
+        <Badge className="bg-orange-500 text-white text-[11px] h-5 gap-1 border-0">
+          <Lock className="h-2.5 w-2.5" />
+          {games.find((g) => g.id === defaults.gameId)?.name || "Game set"}
+        </Badge>
+      )}
+
       {/* Active locked chips */}
       {hasAny && (
         <div className="mt-3 flex flex-wrap gap-1.5 items-center">
@@ -349,6 +383,12 @@ function DefaultsPanel({ defaults, onChange }) {
             <Badge className="bg-orange-500 text-white text-[11px] h-5 gap-1 border-0">
               <Lock className="h-2.5 w-2.5" />
               {defaults.scheduledDate}
+            </Badge>
+          )}
+          {defaults.gameId && (
+            <Badge className="bg-orange-500 text-white text-[11px] h-5 gap-1 border-0">
+              <Lock className="h-2.5 w-2.5" />
+              {games.find((g) => g.id === defaults.gameId)?.name || "Game set"}
             </Badge>
           )}
         </div>
@@ -833,6 +873,7 @@ export function BulkMatchUpload({ onSubmit, onCancel, onDone, tournamentId }) {
     sport: "FIELD_HOCKEY",
     round: "",
     pool: null,
+    gameId: "",
     venue: "",
     scheduledDate: "",
   });
@@ -841,6 +882,7 @@ export function BulkMatchUpload({ onSubmit, onCancel, onDone, tournamentId }) {
   const [submitting, setSubmitting] = useState(false);
 
   const { families, loading: loadingFamilies } = useFamilies({ limit: 1000 });
+  const { games, loading: loadingGames } = useGames({ tournamentId });
 
   const handleDefaultChange = useCallback((field, value) => {
     setDefaults((prev) => ({ ...prev, [field]: value }));
@@ -896,6 +938,11 @@ export function BulkMatchUpload({ onSubmit, onCancel, onDone, tournamentId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!defaults.gameId) {
+      toast.error("Please select a Tournament Game in Global Defaults");
+      return;
+    }
+
     let hasErrors = false;
     const validated = matches.map((m) => {
       const errs = validate(m, defaults);
@@ -925,6 +972,7 @@ export function BulkMatchUpload({ onSubmit, onCancel, onDone, tournamentId }) {
           tournamentId,
           sport: defaults.sport || m.sport,
           round: defaults.round || m.round,
+          gameId: defaults.gameId || undefined,
           pool:
             defaults.pool !== null && defaults.pool !== undefined
               ? defaults.pool
@@ -955,7 +1003,12 @@ export function BulkMatchUpload({ onSubmit, onCancel, onDone, tournamentId }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <DefaultsPanel defaults={defaults} onChange={handleDefaultChange} />
+      <DefaultsPanel
+        defaults={defaults}
+        onChange={handleDefaultChange}
+        games={games}
+        loadingGames={loadingGames}
+      />
 
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2 flex-wrap">

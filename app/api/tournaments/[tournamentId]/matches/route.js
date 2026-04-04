@@ -59,6 +59,7 @@ export const createMatchSchema = z.object({
     "GROUND_8",
     "MAIN_STADIUM",
   ]),
+  gameId: z.string().min(1, "Please select a game"),
   scheduledOn: z
     .string()
     .datetime()
@@ -142,6 +143,7 @@ async function handleGet(request) {
     tournamentId: searchParams.get("tournamentId") || undefined,
     sport: searchParams.get("sport") || undefined,
     status: searchParams.get("status") || undefined,
+    gameId: searchParams.get("gameId") || undefined,
     round: searchParams.get("round") || undefined,
     pool: searchParams.get("pool") || undefined,
     venue: searchParams.get("venue") || undefined,
@@ -155,6 +157,7 @@ async function handleGet(request) {
     ...buildSearchWhere(validated.search, ["name", "notes", "winnerName"]),
     ...(validated.tournamentId && { tournamentId: validated.tournamentId }),
     ...(validated.sport && { sport: validated.sport }),
+    ...(validated.gameId && { gameId: validated.gameId }),
     ...(validated.status && { status: validated.status }),
     ...(validated.round && { round: validated.round }),
     ...(validated.pool && { pool: validated.pool }),
@@ -214,12 +217,14 @@ async function handlePost(request) {
     return errorResponse("Selected tournament does not exist", 400);
   }
 
+
   const match = await db.matches.create({
     data: {
       tournamentId: validated.tournamentId,
       sport: validated.sport,
       name: validated.name || null,
       venue: validated.venue,
+      gameId: validated.gameId,
       scheduledOn: validated.scheduledOn,
       actualStartTime: validated.actualStartTime || null,
       actualEndTime: validated.actualEndTime || null,

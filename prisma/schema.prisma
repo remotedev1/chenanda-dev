@@ -334,6 +334,7 @@ model Families {
 
   // Payments made by this family
   payments Payment[]
+  isFamily Boolean   @default(true)
 
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
@@ -419,9 +420,11 @@ model Matches {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   // Tournament and Sport link
-  tournamentId String     @db.ObjectId
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId String          @db.ObjectId
+  tournament   Tournament      @relation(fields: [tournamentId], references: [id])
   sport        SportType // Sport for this match
+  gameId       String?         @db.ObjectId
+  game         TournamentGame? @relation(fields: [gameId], references: [id])
 
   // Match details
 
@@ -458,15 +461,14 @@ model Matches {
   notes   String?
   images  String[]
 
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  TournamentGame   TournamentGame? @relation(fields: [tournamentGameId], references: [id])
-  tournamentGameId String?         @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([tournamentId, sport, status])
   @@index([tournamentId, sport, round])
   @@index([sport, status])
   @@index([scheduledOn])
+  @@index([gameId])
 }
 
 enum Pool {

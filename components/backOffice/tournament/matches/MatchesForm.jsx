@@ -13,33 +13,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Loader2,
-  Calendar as CalendarIcon,
   Clock,
   ChevronsUpDown,
-  Check,
   Swords,
   Users,
+  Trophy,
 } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFamilies } from "@/hooks/useFamily";
-import ReactSelect from "react-select"; // Renamed to avoid conflict
+import ReactSelect from "react-select";
 
 /* ---- Constants ---- */
 
@@ -100,14 +86,13 @@ const matchFormSchema = z
   .object({
     tournamentId: z.string().min(1, "Tournament is required"),
     sport: z.string().min(1, "Sport is required"),
-
+    gameId: z.string().min(1, "Please select a game"),
     name: z.string().max(200).optional().nullable(),
     venue: z.string().min(1, "Venue is required"),
     scheduledOn: z.date({ required_error: "Scheduled date/time is required" }),
     pool: z.string().optional().nullable(),
     round: z.string().min(1, "Round is required"),
     status: z.string().default("SCHEDULED"),
-    sport: z.string().min(1, "Sport is required"),
     sponsor: z.string().max(200).optional().nullable(),
     notes: z.string().max(2000).optional().nullable(),
     team1Id: z.string().min(1, "Team 1 is required"),
@@ -147,9 +132,7 @@ function TeamCombobox({
       height: "48px",
       borderColor: error ? "#ef4444" : state.isFocused ? "#f97316" : "#d1d5db",
       boxShadow: state.isFocused ? "0 0 0 1px #f97316" : "none",
-      "&:hover": {
-        borderColor: state.isFocused ? "#f97316" : "#d1d5db",
-      },
+      "&:hover": { borderColor: state.isFocused ? "#f97316" : "#d1d5db" },
       cursor: "pointer",
     }),
     valueContainer: (provided) => ({
@@ -157,24 +140,14 @@ function TeamCombobox({
       height: "48px",
       padding: "0 8px",
     }),
-    input: (provided) => ({
-      ...provided,
-      margin: "0px",
-    }),
-    indicatorSeparator: () => ({
-      display: "none",
-    }),
-    indicatorsContainer: (provided) => ({
-      ...provided,
-      height: "48px",
-    }),
+    input: (provided) => ({ ...provided, margin: "0px" }),
+    indicatorSeparator: () => ({ display: "none" }),
+    indicatorsContainer: (provided) => ({ ...provided, height: "48px" }),
     clearIndicator: (provided) => ({
       ...provided,
       cursor: "pointer",
       padding: "4px",
-      "&:hover": {
-        color: "#6b7280",
-      },
+      "&:hover": { color: "#6b7280" },
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
@@ -202,14 +175,9 @@ function TeamCombobox({
       color: "#1f2937",
       cursor: "pointer",
       padding: "8px 12px",
-      "&:active": {
-        backgroundColor: "#fed7aa",
-      },
+      "&:active": { backgroundColor: "#fed7aa" },
     }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: "#9ca3af",
-    }),
+    placeholder: (provided) => ({ ...provided, color: "#9ca3af" }),
   };
 
   const formatOptionLabel = ({ label }) => (
@@ -221,13 +189,6 @@ function TeamCombobox({
     </div>
   );
 
-  const CustomPlaceholder = ({ children }) => (
-    <div className="flex items-center gap-2 text-muted-foreground">
-      <Users className="h-4 w-4 shrink-0" />
-      <span>{children}</span>
-    </div>
-  );
-
   return (
     <div className="space-y-2">
       <Label>
@@ -235,23 +196,155 @@ function TeamCombobox({
       </Label>
       <ReactSelect
         value={selectedOption}
-        onChange={(option) => {
-          onChange(option ? option.value : null);
-        }}
+        onChange={(option) => onChange(option ? option.value : null)}
         options={options}
         isLoading={loading}
         isDisabled={loading}
         isClearable
         isSearchable
         placeholder={
-          <CustomPlaceholder>
-            {loading ? "Loading teams..." : `Search ${label}...`}
-          </CustomPlaceholder>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Users className="h-4 w-4 shrink-0" />
+            <span>{loading ? "Loading teams..." : `Search ${label}...`}</span>
+          </div>
         }
         noOptionsMessage={() => "No team found"}
         styles={customStyles}
         formatOptionLabel={formatOptionLabel}
         components={{
+          DropdownIndicator: (props) => (
+            <div {...props.innerProps} className="px-2">
+              <ChevronsUpDown className="h-4 w-4 opacity-50" />
+            </div>
+          ),
+        }}
+      />
+      {error && <p className="text-sm text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+/* ---- Game Select ---- */
+
+function GameSelect({ games, loadingGames, value, onChange, error }) {
+  const options = games.map((g) => ({
+    value: g.id,
+    label: g.name,
+    sportType: g.sportType,
+    category: g.category,
+    format: g.format,
+  }));
+
+  const selectedOption = options.find((o) => o.value === value) || null;
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "48px",
+      borderColor: error ? "#ef4444" : state.isFocused ? "#f97316" : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #f97316" : "none",
+      "&:hover": { borderColor: state.isFocused ? "#f97316" : "#d1d5db" },
+      cursor: "pointer",
+    }),
+    valueContainer: (provided) => ({ ...provided, padding: "4px 8px" }),
+    input: (provided) => ({ ...provided, margin: "0px" }),
+    indicatorSeparator: () => ({ display: "none" }),
+    clearIndicator: (provided) => ({
+      ...provided,
+      cursor: "pointer",
+      padding: "4px",
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      cursor: "pointer",
+      padding: "8px",
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: "white",
+      zIndex: 50,
+      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+    }),
+    menuList: (provided) => ({ ...provided, maxHeight: "240px", padding: 4 }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#fed7aa"
+        : state.isFocused
+          ? "#ffedd5"
+          : "white",
+      color: "#1f2937",
+      cursor: "pointer",
+      borderRadius: "6px",
+      padding: "8px 10px",
+      "&:active": { backgroundColor: "#fed7aa" },
+    }),
+    placeholder: (provided) => ({ ...provided, color: "#9ca3af" }),
+  };
+
+  const formatOptionLabel = ({ label, sportType, category, format }) => (
+    <div className="flex flex-col gap-0.5">
+      <span className="font-medium text-sm text-gray-800">{label}</span>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {sportType && (
+          <span className="text-[10px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-medium">
+            {sportType.replace(/_/g, " ")}
+          </span>
+        )}
+        {category && (
+          <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">
+            {category}
+          </span>
+        )}
+        {format && (
+          <span className="text-[10px] text-gray-400">{format}</span>
+        )}
+      </div>
+    </div>
+  );
+
+  // Compact single-value display
+  const formatSingleValue = ({ data }) => (
+    <div className="flex items-center gap-2">
+      <Trophy className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+      <span className="text-sm font-medium text-gray-800 truncate">
+        {data.label}
+      </span>
+      {data.category && (
+        <span className="text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded shrink-0">
+          {data.category}
+        </span>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="space-y-2">
+      <Label>
+        Tournament Game <span className="text-red-500">*</span>
+      </Label>
+      <ReactSelect
+        value={selectedOption}
+        onChange={(opt) => onChange(opt ? opt.value : "")}
+        options={options}
+        isLoading={loadingGames}
+        isDisabled={loadingGames}
+        isClearable
+        isSearchable
+        placeholder={
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Trophy className="h-4 w-4 shrink-0" />
+            <span>
+              {loadingGames ? "Loading games…" : "Select tournament game…"}
+            </span>
+          </div>
+        }
+        noOptionsMessage={() => "No games found"}
+        styles={customStyles}
+        formatOptionLabel={formatOptionLabel}
+        formatValueLabel={formatSingleValue}
+        components={{
+          SingleValue: formatSingleValue,
           DropdownIndicator: (props) => (
             <div {...props.innerProps} className="px-2">
               <ChevronsUpDown className="h-4 w-4 opacity-50" />
@@ -305,10 +398,12 @@ export function MatchForm({
   initialData = null,
   tournamentId,
   games = [],
+  loadingGames = false,
 }) {
   const [formData, setFormData] = useState({
     tournamentId: initialData?.tournamentId || tournamentId || "",
     sport: initialData?.sport || "",
+    gameId: initialData?.tournamentGameId || initialData?.gameId || "",
     name: initialData?.name || "",
     venue: initialData?.venue || "",
     scheduledOn: initialData?.scheduledOn
@@ -329,13 +424,22 @@ export function MatchForm({
   });
 
   const [errors, setErrors] = useState({});
-  const [gamePopoverOpen, setGamePopoverOpen] = useState(false);
-
   const { families, loading: loadingFamilies } = useFamilies({ limit: 1000 });
 
   const isPoolStage = formData.round === "POOL_STAGE";
   const team1 = families.find((f) => f.id === formData.team1Id);
   const team2 = families.find((f) => f.id === formData.team2Id);
+
+  // When a game is selected, auto-fill sport if not already set
+  const handleGameChange = (gameId) => {
+    handleChange("gameId", gameId);
+    if (gameId && !formData.sport) {
+      const selectedGame = games.find((g) => g.id === gameId);
+      if (selectedGame?.sportType) {
+        handleChange("sport", selectedGame.sportType);
+      }
+    }
+  };
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -395,6 +499,18 @@ export function MatchForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-5 md:grid-cols-2">
+
+        {/* ── TOURNAMENT GAME ── */}
+        <div className="md:col-span-2">
+          <GameSelect
+            games={games}
+            loadingGames={loadingGames}
+            value={formData.gameId}
+            onChange={handleGameChange}
+            error={errors.gameId}
+          />
+        </div>
+
         {/* ── TEAMS ── */}
         <div className="md:col-span-2 space-y-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -555,7 +671,6 @@ export function MatchForm({
           <Label>
             Scheduled Date <span className="text-red-500">*</span>
           </Label>
-
           <Input
             type="date"
             value={

@@ -24,6 +24,7 @@ import { MatchForm } from "./MatchesForm";
 import { LiveMatchControl } from "./LiveMatchControl";
 import { BulkMatchUpload } from "./BulkMatchesUpload";
 import PropTypes from "prop-types";
+import { useGames } from "@/hooks/useTournamentGame";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -142,7 +143,7 @@ ViewToggle.propTypes = {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const MatchesMain = ({ games = [] }) => {
+const MatchesMain = () => {
   const { tournamentId } = useParams();
   const [ui, dispatch] = useReducer(uiReducer, initialUIState);
 
@@ -160,6 +161,8 @@ const MatchesMain = ({ games = [] }) => {
   const { createMatches, creating: bulkCreating } = useCreateMatches({
     tournamentId,
   });
+  const { games, loading: loadingGames } = useGames({ tournamentId });
+
   const { deleteMatch } = useDeleteMatch();
 
   // ─── Handlers ───────────────────────────────────────────────────────────────
