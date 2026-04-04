@@ -2,6 +2,7 @@
 import React, { useState, useMemo, memo, useCallback } from "react";
 import { LazyMotion, domAnimation, m, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import { InstagramLogoIcon } from "@radix-ui/react-icons";
 
 // Memoized Social Icon Component
 const SocialIcon = memo(({ social, index, onHover }) => {
@@ -44,7 +45,7 @@ const FooterLink = memo(({ link, name }) => {
     >
       <Link
         href={link}
-        className="text-gray-400 hover:text-yellow-400 transition-colors"
+        className="text-gray-400 hover:text-yellow-400 transition-colors text-sm :md:text-xl"
       >
         {name}
       </Link>
@@ -72,7 +73,7 @@ const FooterSection = memo(({ title, children, delay = 0 }) => {
 
   return (
     <m.div variants={itemVariants}>
-      <h3 className="text-xl font-semibold mb-4 text-red-500 relative inline-block">
+      <h3 className="text-lg md:text-xl font-semibold mb-4 text-red-500 relative inline-block">
         {title}
         <m.div
           className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-red-500 to-yellow-500"
@@ -115,7 +116,7 @@ const SportsFooter = () => {
       // { name: "Twitter", icon: "𝕏" },
       {
         name: "Instagram",
-        icon: "📷",
+        icon: <InstagramLogoIcon className="text-pink-500" />,
         url: "https://www.instagram.com/chenanda_hockey_2026?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
       },
       // { name: "YouTube", icon: "▶" },
@@ -221,10 +222,10 @@ const SportsFooter = () => {
                   </div>
                 </div>
               </m.div>
-              <div className="flex space-x-20">
+              <div className="flex space-x-8">
                 {/* Company Links */}
                 <FooterSection title="OTHER" delay={0.4}>
-                  <ul className="space-y-3">
+                  <ul className="space-y-2">
                     {footerLinks.other.map(({ link, name }) => (
                       <FooterLink key={link} link={link} name={name} />
                     ))}

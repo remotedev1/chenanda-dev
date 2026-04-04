@@ -17,7 +17,6 @@ import {
   useUpdateFamily,
   useDeleteFamily,
 } from "@/hooks/useFamily";
-import { Skeleton } from "@/components/ui/skeleton";
 import { FamilyForm } from "./FamiliesForm";
 import { FamilyTable } from "./FamiliesTable";
 import { withPermission } from "@/components/auth/WithPerission";

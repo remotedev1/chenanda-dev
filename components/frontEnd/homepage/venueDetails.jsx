@@ -128,13 +128,7 @@ const VenueCard = ({ arena, match, index }) => {
             </div>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-9 h-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/15 transition-colors duration-150"
-          >
-            <Navigation className="w-4 h-4" />
-          </motion.button>
+          
         </div>
       </div>
 
@@ -165,12 +159,7 @@ export default function VenueDetails() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-10 sm:mb-12"
         >
-          <div className="inline-flex items-center gap-2 border border-white/15 rounded-full px-4 py-1.5 mb-6">
-            <Trophy className="w-3.5 h-3.5 text-white/40" />
-            <span className="text-white/40 text-xs font-semibold tracking-widest uppercase">
-              Field Hockey Venues
-            </span>
-          </div>
+        
 
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight">
             Venue Information

@@ -140,7 +140,7 @@ export default function Header() {
       <header className="w-full fixed left-0 z-50">
         <div className={headerClass}>
           {/* ── Container ── */}
-          <div className="w-full max-w-7xl mx-auto flex justify-between items-center  px-8 lg:px-2 pt-4 lg:pt-0">
+          <div className="w-full max-w-7xl mx-auto flex justify-between items-center  px-6 lg:px-2 pt-4 lg:pt-0">
             {/* Logo */}
             <Logo pathname={pathname} isFixed={isFixed} />
 

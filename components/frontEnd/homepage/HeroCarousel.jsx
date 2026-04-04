@@ -158,17 +158,17 @@ export default function HeroCarousel() {
 
   return (
     <section
-      className="relative w-full h-screen overflow-hidden bg-black"
+      className="relative w-full h-[96vh] overflow-hidden bg-black"
       aria-label="Kodava Hockey Festival hero carousel"
       aria-roledescription="carousel"
     >
-      <div className="relative w-full h-full flex items-start   justify-center md:justify-start z-30 translate-y-6  translate-x-0 md:translate-x-[7.5rem]">
-        <div className="relative w-[280px] h-full sm:w-[100px] md:w-[600px]  lg:w-[700px] ">
+      <div className="absolute  left-5 md:left-[7rem]  bottom-10 md:bottom-[10rem]      z-30 ">
+        <div className="w-[94vw] h-[50vh]  md:w-[60vw] mx-auto relative">
           <Image
             src="/logo-title.png"
             alt=""
             fill
-            className="object-contain pointer-events-none select-none opacity-90"
+            className="object-contain pointer-events-none select-none"
             aria-hidden
           />
         </div>
@@ -216,7 +216,7 @@ export default function HeroCarousel() {
               ].join(" ")}
               style={{ transitionDelay: isActive ? "300ms" : "0ms" }}
             >
-              <h2 className="font-display text-3xl lg:text-[3rem] font-extrabold text-white leading-none tracking-tight uppercase mb-3.5">
+              <h2 className="font-display text-3xl lg:text-[3rem] font-extrabold text-white/75 leading-none tracking-tight uppercase mb-3.5">
                 {slide.title.map((line, j) => (
                   <span key={j} className="block">
                     {line}

@@ -56,19 +56,14 @@ const MatchCard = ({ match }) => {
   const isLive = tabStatus === "live";
   const isCompleted = tabStatus === "completed";
   const isUpcoming = tabStatus === "upcoming";
-  console.log(match);
 
   const [p1, p2] = match.participants || [];
   const team1 = p1?.family ?? "TBD";
   const team2 = p2?.family ?? "TBD";
 
   const inShootout = match.currentPeriod === "PENALTY_SHOOTOUT";
-
-  // Goals (field goals)
-  const goals1 = p1?.hockeyData?.goals ?? null;
-  const goals2 = p2?.hockeyData?.goals ?? null;
-
-  // Shootout scores (only show if in / after shootout)
+  const goals1 = p1?.hockeyData?.goals ?? 0;
+  const goals2 = p2?.hockeyData?.goals ?? 0;
   const so1 = shootoutScore(p1?.hockeyData?.shootoutResults);
   const so2 = shootoutScore(p2?.hockeyData?.shootoutResults);
   const showShootout =
@@ -84,180 +79,107 @@ const MatchCard = ({ match }) => {
         : "team2"
       : null;
 
-  const bgClass = isLive
-    ? "bg-blue-400/30"
-    : isCompleted
-      ? "bg-red-400/30"
-      : "bg-green-400/30";
-
-  const accentClass = isLive
-    ? "bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-600"
-    : isCompleted
-      ? "bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800"
-      : "bg-gradient-to-r from-green-800 via-green-600 to-green-800";
-
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      whileHover={{ scale: 1.02, y: -4 }}
-      transition={{ duration: 0.3 }}
-      className={`relative overflow-hidden rounded-xl ${bgClass}`}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.25 }}
+      className="relative bg-white  border border-zinc-200  rounded-2xl px-3 md:px-5 py-3 md:py-4  cursor-pointer"
     >
-      {/* Turf pattern */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(90deg, transparent, transparent 30px, #10b981 30px, #10b981 32px)",
-          }}
-        />
+      {/* Meta row */}
+      <div className="flex items-center justify-between text-xs text-black mb-4">
+        <span>{formatScheduled(match.scheduledOn)}</span>
+        <div className="flex items-center gap-2">
+          {match.round && (
+            <span className="border border-green-500 px-2 py-1 rounded-md">
+              {match.round.replace(/_/g, " ")} ({match?.pool})
+            </span>
+          )}
+          {match.venue && (
+            <span className="lowercase border border-blue-500  px-2 py-1 rounded-md">
+              {match.venue.replace(/_/g, " ")}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Live badge */}
-      {isLive && (
-        <motion.div
-          animate={{ opacity: [1, 0.5, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="absolute bottom-3 right-2 z-10"
-        >
-          <div className="flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-              className="w-2 h-2 bg-white rounded-full"
-            />
-            <span className="text-white text-xs font-bold uppercase tracking-wider">
-              Live
-            </span>
-          </div>
-        </motion.div>
-      )}
-
-      <div className="relative p-6">
-        {/* Meta row */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2 text-black/60 text-sm">
-            <Clock className="w-4 h-4" />
-            <span>{formatScheduled(match.scheduledOn)}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            {match.round && (
-              <span className="text-xs font-semibold bg-black/10 px-2 py-0.5 rounded-full text-black/70">
-                {match.round.replace(/_/g, " ")}
-              </span>
-            )}
-            {match.pool && (
-              <span className="text-xs font-semibold bg-black/10 px-2 py-0.5 rounded-full text-black/70">
-                Pool {match.pool}
-              </span>
-            )}
-            <div className="flex items-center gap-1 text-black/60 text-sm">
-              <MapPin className="w-4 h-4" />
-              <span>{match.venue?.replace(/_/g, " ") ?? "TBD"}</span>
-            </div>
-          </div>
+      {/* Teams & Score */}
+      <div className="flex items-center justify-between gap-4">
+        {/* Team 1 */}
+        <div className="flex-1 flex items-center justify-start gap-2">
+          {winner === "team1" && <Trophy className="w-4 h-4 text-amber-400" />}
+          <span
+            className={`text-sm sm:text-base font-semibold capitalize ${winner === "team1" ? "text-primary " : "text-primary "}`}
+          >
+            {team1}
+          </span>
         </div>
 
-        {/* Period pill */}
-        {match.currentPeriod && (
-          <div className="flex justify-center mb-3">
-            <span
-              className={`text-xs font-bold px-3 py-1 rounded-full ${
-                isLive ? "bg-blue-600 text-white" : "bg-black/10 text-black/60"
-              }`}
-            >
-              {formatPeriod(match.currentPeriod)}
+        {/* Score */}
+        <div className="flex flex-col items-center min-w-[80px]">
+          {isUpcoming ? (
+            <span className="text-md font-medium text-zinc-800 tracking-widest uppercase">
+              vs
             </span>
-          </div>
-        )}
-
-        {/* Teams & Scores */}
-        <div className="flex items-center justify-between gap-4">
-          {/* Team 1 */}
-          <motion.div
-            className={`flex-1 text-right ${winner === "team1" ? "text-red-600" : "text-black"}`}
-            whileHover={{ x: -5 }}
-          >
-            <div className="flex items-center justify-end gap-2">
-              {winner === "team1" && <Trophy className="w-5 h-5" />}
-              <h3 className="text-lg sm:text-2xl font-bold capitalize">
-                {team1}
-              </h3>
-            </div>
-          </motion.div>
-
-          {/* Score block */}
-          <div className="flex flex-col items-center gap-1">
-            {isUpcoming ? (
-              <div className="flex flex-col items-center">
-                <span className="text-4xl font-black text-green-400 tracking-wider">
-                  VS
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-2xl font-bold ${winner === "team1" ? "text-zinc-900 " : "text-zinc-400"}`}
+                >
+                  {goals1}
                 </span>
-                <span className="text-xs text-gray-500 mt-1">Upcoming</span>
+                <span className="text-zinc-300 dark:text-zinc-600">–</span>
+                <span
+                  className={`text-2xl font-bold ${winner === "team2" ? "text-zinc-900 " : "text-zinc-400"}`}
+                >
+                  {goals2}
+                </span>
               </div>
-            ) : (
-              <>
-                {/* Field goals */}
-                <div className="flex items-center gap-3">
-                  <motion.span
-                    className={`text-5xl font-black ${isLive ? "text-blue-700" : winner === "team1" ? "text-red-600" : "text-black"}`}
-                    animate={isLive ? { scale: [1, 1.08, 1] } : {}}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    {goals1 ?? 0}
-                  </motion.span>
-                  <span className="text-3xl text-gray-600 font-bold">-</span>
-                  <motion.span
-                    className={`text-5xl font-black ${isLive ? "text-blue-700" : winner === "team2" ? "text-red-600" : "text-black"}`}
-                    animate={isLive ? { scale: [1, 1.08, 1] } : {}}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                  >
-                    {goals2 ?? 0}
-                  </motion.span>
-                </div>
+              {showShootout && (
+                <span className="text-xs text-zinc-400 mt-0.5">
+                  SO {so1}–{so2}
+                </span>
+              )}
+            </>
+          )}
 
-                {/* Shootout scores */}
-                {showShootout && (
-                  <div className="flex items-center gap-2 text-sm font-semibold text-purple-700">
-                    <span>SO: {so1}</span>
-                    <span className="text-gray-400">–</span>
-                    <span>{so2}</span>
-                  </div>
-                )}
-              </>
+          {/* Status pill */}
+          <div className="mt-1.5">
+            {isLive && (
+              <motion.span
+                animate={{ opacity: [1, 0.4, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="text-[10px] font-bold tracking-widest uppercase text-red-500"
+              >
+                ● Live
+              </motion.span>
+            )}
+            {isCompleted && match.isDraw && (
+              <span className="text-[10px] text-zinc-400 uppercase tracking-widest">
+                Draw
+              </span>
+            )}
+            {match.currentPeriod && isLive && (
+              <span className="block text-[10px] text-zinc-400 text-center">
+                {formatPeriod(match.currentPeriod)}
+              </span>
             )}
           </div>
-
-          {/* Team 2 */}
-          <motion.div
-            className={`flex-1 ${winner === "team2" ? "text-red-600" : "text-black"}`}
-            whileHover={{ x: 5 }}
-          >
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg sm:text-2xl font-bold capitalize">
-                {team2}
-              </h3>
-              {winner === "team2" && <Trophy className="w-5 h-5" />}
-            </div>
-          </motion.div>
         </div>
 
-        {/* Draw badge */}
-        {isCompleted && match.isDraw && (
-          <div className="flex justify-center mt-3">
-            <span className="text-xs font-bold bg-gray-200 text-gray-600 px-3 py-1 rounded-full">
-              Draw
-            </span>
-          </div>
-        )}
+        {/* Team 2 */}
+        <div className="flex-1 flex items-center gap-2">
+          <span
+            className={`text-sm sm:text-base font-semibold capitalize ${winner === "team2" ? "text-primary " : "text-primary "}`}
+          >
+            {team2}
+          </span>
+          {winner === "team2" && <Trophy className="w-4 h-4 text-amber-400" />}
+        </div>
       </div>
-
-      {/* Bottom accent */}
-      <div className={`h-1 ${accentClass}`} />
     </motion.div>
   );
 };
@@ -399,7 +321,7 @@ export default function FieldHockeySchedule() {
   }, [matches]);
 
   return (
-    <div className="bg-white p-4 md:p-16 relative">
+    <div className="bg-primary p-4 md:p-16 relative">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -407,11 +329,11 @@ export default function FieldHockeySchedule() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl md:text-7xl font-black text-black mb-4 tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tight">
             Tournament{" "}
             <span className="text-secondary bg-clip-text">Dashboard</span>
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-white/75 text-lg">
             Field Hockey Championship 2026
           </p>
         </motion.div>
@@ -569,7 +491,12 @@ export default function FieldHockeySchedule() {
               </div>
               <div className="space-y-4">
                 {topScorers.map((player, index) => (
-                  <TopPlayerCard key={index} player={player} topPlayers={topScorers} rank={index} />
+                  <TopPlayerCard
+                    key={index}
+                    player={player}
+                    topPlayers={topScorers}
+                    rank={index}
+                  />
                 ))}
               </div>
             </motion.div>
