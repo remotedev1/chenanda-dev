@@ -4,9 +4,11 @@ import { useEffect, useRef } from "react";
 import { motion, useAnimation, useInView } from "framer-motion";
 
 /* ── constants ── */
-const GOLD = "#e8c84a";
-const TEAL = "#4ac8e8";
-const PARTICLE_COLORS = [GOLD, TEAL, "#ffffff", "#d4a017"];
+const GOLD = "#b8860b";
+const GOLD_LIGHT = "#f0c040";
+const TEAL = "#0e7fa8";
+const TEAL_LIGHT = "#4ac8e8";
+const PARTICLE_COLORS = [GOLD_LIGHT, TEAL_LIGHT, "#ccc", "#e0a800"];
 
 function randomParticles(count = 22) {
   return Array.from({ length: count }, (_, i) => ({
@@ -20,13 +22,6 @@ function randomParticles(count = 22) {
   }));
 }
 
-/* ─────────────────────────────────────────
-   DiagonalBeams
-   Fix: wrap SVG in a sized div with overflow:hidden
-   so the beams fill 100% of the parent on any
-   screen width. The SVG uses width/height 100%
-   instead of fixed px values.
-───────────────────────────────────────── */
 function DiagonalBeams() {
   return (
     <div
@@ -35,37 +30,29 @@ function DiagonalBeams() {
         inset: 0,
         width: "100%",
         height: "100%",
-        overflow: "hidden", // clips beam overhang on narrow screens
+        overflow: "hidden",
         zIndex: 1,
         pointerEvents: "none",
       }}
     >
       <svg
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-        }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
         viewBox="0 0 800 520"
-        preserveAspectRatio="xMidYMid slice" // slice = beams always fill the container
+        preserveAspectRatio="xMidYMid slice"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
           <linearGradient id="beam1" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={GOLD} stopOpacity={0} />
-            <stop offset="50%" stopColor={GOLD} stopOpacity={0.14} />
-            <stop offset="100%" stopColor={GOLD} stopOpacity={0} />
+            <stop offset="0%" stopColor={GOLD_LIGHT} stopOpacity={0} />
+            <stop offset="50%" stopColor={GOLD_LIGHT} stopOpacity={0.18} />
+            <stop offset="100%" stopColor={GOLD_LIGHT} stopOpacity={0} />
           </linearGradient>
           <linearGradient id="beam2" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={TEAL} stopOpacity={0} />
-            <stop offset="50%" stopColor={TEAL} stopOpacity={0.14} />
-            <stop offset="100%" stopColor={TEAL} stopOpacity={0} />
+            <stop offset="0%" stopColor={TEAL_LIGHT} stopOpacity={0} />
+            <stop offset="50%" stopColor={TEAL_LIGHT} stopOpacity={0.18} />
+            <stop offset="100%" stopColor={TEAL_LIGHT} stopOpacity={0} />
           </linearGradient>
         </defs>
-
-        {/* gold left beams — polygons start well left of 0 so they
-            always cover the edge even on wide phones */}
         <motion.polygon
           points="-120,0 320,0 160,520 -120,520"
           fill="url(#beam1)"
@@ -79,8 +66,6 @@ function DiagonalBeams() {
           animate={{ x: [0, 20, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
-
-        {/* teal right beams — polygons start well right of 800 */}
         <motion.polygon
           points="920,0 480,0 640,520 920,520"
           fill="url(#beam2)"
@@ -108,52 +93,18 @@ function UAEEmblem() {
   return (
     <svg width="100" height="100" viewBox="0 0 100 100">
       <motion.circle
-        cx="50"
-        cy="50"
-        r="46"
-        fill="none"
-        stroke={GOLD}
-        strokeWidth={1}
+        cx="50" cy="50" r="46"
+        fill="none" stroke={GOLD} strokeWidth={1.5}
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ duration: 1.4, delay: 0.6, ease: "easeInOut" }}
       />
-      <circle
-        cx="50"
-        cy="50"
-        r="38"
-        fill="#12192e"
-        stroke={GOLD}
-        strokeWidth={0.5}
-      />
+      <circle cx="50" cy="50" r="38" fill="#fff" stroke={GOLD} strokeWidth={0.5} />
       <rect x="18" y="32" width="64" height="9" rx={1} fill="#00732f" />
-      <rect
-        x="18"
-        y="41"
-        width="64"
-        height="9"
-        rx={1}
-        fill="#fff"
-        opacity={0.9}
-      />
-      <rect
-        x="18"
-        y="50"
-        width="64"
-        height="9"
-        rx={1}
-        fill="#000"
-        opacity={0.85}
-      />
+      <rect x="18" y="41" width="64" height="9" rx={1} fill="#f5f5f5" />
+      <rect x="18" y="50" width="64" height="9" rx={1} fill="#1a1a1a" opacity={0.85} />
       <rect x="18" y="32" width="14" height="27" rx={1} fill="#EF3340" />
-      <text
-        x="50"
-        y="76"
-        textAnchor="middle"
-        fontSize={9}
-        fill={GOLD}
-        fontFamily="sans-serif"
-      >
+      <text x="50" y="76" textAnchor="middle" fontSize={9} fill={GOLD} fontFamily="sans-serif">
         ★ UAE ★
       </text>
     </svg>
@@ -164,56 +115,19 @@ function ThamaneEmblem() {
   return (
     <svg width="100" height="100" viewBox="0 0 100 100">
       <motion.circle
-        cx="50"
-        cy="50"
-        r="46"
-        fill="none"
-        stroke={TEAL}
-        strokeWidth={1}
+        cx="50" cy="50" r="46"
+        fill="none" stroke={TEAL} strokeWidth={1.5}
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ duration: 1.4, delay: 0.9, ease: "easeInOut" }}
       />
-      <circle
-        cx="50"
-        cy="50"
-        r="38"
-        fill="#0d1e2e"
-        stroke={TEAL}
-        strokeWidth={0.5}
-      />
-      <polygon
-        points="50,18 68,30 68,58 50,72 32,58 32,30"
-        fill="none"
-        stroke={TEAL}
-        strokeWidth={1.5}
-      />
-      <polygon
-        points="50,24 63,33 63,55 50,66 37,55 37,33"
-        fill="#1a3a4a"
-        stroke={TEAL}
-        strokeWidth={0.5}
-      />
-      <text
-        x="50"
-        y="56"
-        textAnchor="middle"
-        fontSize={20}
-        fill={TEAL}
-        fontFamily="'Bebas Neue', sans-serif"
-        fontWeight={700}
-      >
+      <circle cx="50" cy="50" r="38" fill="#e8f6fb" stroke={TEAL} strokeWidth={0.5} />
+      <polygon points="50,18 68,30 68,58 50,72 32,58 32,30" fill="none" stroke={TEAL} strokeWidth={1.5} />
+      <polygon points="50,24 63,33 63,55 50,66 37,55 37,33" fill="#c5e8f5" stroke={TEAL} strokeWidth={0.5} />
+      <text x="50" y="56" textAnchor="middle" fontSize={20} fill={TEAL} fontFamily="'Bebas Neue', sans-serif" fontWeight={700}>
         XI
       </text>
-      <text
-        x="50"
-        y="76"
-        textAnchor="middle"
-        fontSize={8}
-        fill={TEAL}
-        fontFamily="sans-serif"
-        opacity={0.8}
-      >
+      <text x="50" y="76" textAnchor="middle" fontSize={8} fill={TEAL} fontFamily="sans-serif" opacity={0.8}>
         THAMANE
       </text>
     </svg>
@@ -222,7 +136,6 @@ function ThamaneEmblem() {
 
 function FloatingParticles() {
   const particles = useRef(randomParticles(22));
-
   return (
     <>
       {particles.current.map((p) => (
@@ -237,16 +150,106 @@ function FloatingParticles() {
             backgroundColor: p.color,
             zIndex: 3,
           }}
-          animate={{ y: [-480], rotate: [0, 720], opacity: [0.6, 0] }}
-          transition={{
-            duration: p.duration,
-            delay: p.delay,
-            repeat: Infinity,
-            ease: "linear",
-          }}
+          animate={{ y: [-480], rotate: [0, 720], opacity: [0.35, 0] }}
+          transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "linear" }}
         />
       ))}
     </>
+  );
+}
+
+/* ── Live Notification Badge ── */
+function LiveBadge() {
+  return (
+    <motion.div
+      className="flex items-center gap-2.5 mb-4"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 12, height: 12 }}>
+        <motion.span
+          style={{ position: "absolute", borderRadius: "50%", width: 24, height: 24, background: "rgba(200,30,30,0.2)" }}
+          animate={{ scale: [1, 1.8, 1], opacity: [0.7, 0, 0.7] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+        />
+        <span style={{ position: "relative", borderRadius: "50%", width: 10, height: 10, background: "#e02020", display: "inline-block" }} />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          background: "rgba(200,30,30,0.08)",
+          border: "1px solid rgba(200,30,30,0.22)",
+          borderRadius: 20,
+          padding: "5px 14px 5px 10px",
+        }}
+      >
+        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 15, letterSpacing: 3, color: "#cc2222" }}>
+          LIVE NOW
+        </span>
+      </div>
+
+      <div style={{ height: 1, width: 40, background: "linear-gradient(90deg,rgba(200,30,30,0.35),transparent)" }} />
+      <span style={{ fontSize: 11, letterSpacing: 2, color: "#aaa", textTransform: "uppercase" }}>
+        Broadcasting
+      </span>
+    </motion.div>
+  );
+}
+
+/* ── YouTube Live Button ── */
+function YouTubeLiveButton({ href = "https://www.youtube.com/live/YOUR_STREAM_ID" }) {
+  return (
+    <motion.div
+      className="flex flex-col items-center gap-2 mt-7"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: 0.9, ease: "easeOut" }}
+    >
+      <motion.a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 12,
+          background: "#ff0000",
+          border: "none",
+          borderRadius: 6,
+          padding: "12px 28px",
+          textDecoration: "none",
+          cursor: "pointer",
+          boxShadow: "0 4px 18px rgba(255,0,0,0.2)",
+        }}
+        whileHover={{ scale: 1.04, boxShadow: "0 6px 24px rgba(255,0,0,0.35)" }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+        </svg>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 17, letterSpacing: 2, color: "#fff", lineHeight: 1 }}>
+            Watch Live on YouTube
+          </span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", letterSpacing: 1 }}>
+            youtube.com · Live Stream
+          </span>
+        </div>
+        <div style={{ position: "relative", width: 10, height: 10, flexShrink: 0 }}>
+          <motion.span
+            style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#fff" }}
+            animate={{ scale: [1, 2.2, 1], opacity: [0.6, 0, 0.6] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
+          />
+          <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#fff" }} />
+        </div>
+      </motion.a>
+    </motion.div>
   );
 }
 
@@ -267,19 +270,12 @@ export default function ExhibitionMatch() {
 
   const lineGrow = {
     hidden: { scaleX: 0, opacity: 0 },
-    show: {
-      scaleX: 1,
-      opacity: 1,
-      transition: { duration: 1.2, ease: "easeOut" },
-    },
+    show: { scaleX: 1, opacity: 1, transition: { duration: 1.2, ease: "easeOut" } },
   };
 
   const barFill = {
     hidden: { scaleX: 0 },
-    show: {
-      scaleX: 1,
-      transition: { duration: 1.5, delay: 1.2, ease: "easeOut" },
-    },
+    show: { scaleX: 1, transition: { duration: 1.5, delay: 1.2, ease: "easeOut" } },
   };
 
   return (
@@ -296,11 +292,30 @@ export default function ExhibitionMatch() {
       <div
         ref={ref}
         className="relative w-full overflow-hidden py-16"
-        style={{ background: "#0a0e1a", fontFamily: "'Rajdhani', sans-serif" }}
+        style={{
+          background: "linear-gradient(160deg, #f9f6ee 0%, #eef6fb 50%, #f0f8ff 100%)",
+          fontFamily: "'Rajdhani', sans-serif",
+          borderRadius: 16,
+          border: "1px solid #e2ddd0",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.07)",
+        }}
       >
         {/* background layers */}
         <DiagonalBeams />
         <FloatingParticles />
+
+        {/* subtle grid overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            backgroundImage:
+              "linear-gradient(rgba(180,160,100,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(180,160,100,0.07) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
 
         {/* content */}
         <motion.div
@@ -310,6 +325,9 @@ export default function ExhibitionMatch() {
           initial="hidden"
           animate={inView ? "show" : "hidden"}
         >
+          {/* LIVE badge */}
+          <LiveBadge />
+
           {/* top banner */}
           <motion.div
             className="w-full flex items-center justify-center gap-2 sm:gap-3 mb-1.5"
@@ -317,9 +335,7 @@ export default function ExhibitionMatch() {
           >
             <motion.div
               className="flex-1 h-px origin-center"
-              style={{
-                background: `linear-gradient(90deg, transparent, ${GOLD} 60%, transparent)`,
-              }}
+              style={{ background: `linear-gradient(90deg, transparent, ${GOLD} 60%, transparent)` }}
               variants={lineGrow}
             />
             <span
@@ -335,27 +351,26 @@ export default function ExhibitionMatch() {
             </span>
             <motion.div
               className="flex-1 h-px origin-center"
-              style={{
-                background: `linear-gradient(90deg, transparent, ${GOLD} 60%, transparent)`,
-              }}
+              style={{ background: `linear-gradient(90deg, transparent, ${GOLD} 60%, transparent)` }}
               variants={lineGrow}
             />
           </motion.div>
 
-          {/* badge */}
+          {/* shimmer badge */}
           <motion.div
             variants={fadeUp}
             className="mb-5"
             style={{
-              background: "linear-gradient(135deg, #d4a017, #f5c842, #d4a017)",
+              background: "linear-gradient(135deg, #c8920a, #f0c040, #c8920a)",
               backgroundSize: "200% 200%",
               padding: "3px 18px",
               borderRadius: 2,
               fontFamily: "'Bebas Neue', sans-serif",
               fontSize: 11,
               letterSpacing: 3,
-              color: "#0a0e1a",
+              color: "#fff",
               animation: "shimmer 3s ease infinite",
+              boxShadow: "0 2px 10px rgba(200,146,10,0.25)",
             }}
           >
             Special Event
@@ -389,15 +404,11 @@ export default function ExhibitionMatch() {
                 style={{
                   fontFamily: "'Bebas Neue', sans-serif",
                   fontSize: "clamp(36px, 8vw, 52px)",
-                  color: "#fff",
+                  color: "#333",
                   lineHeight: 1,
                 }}
-                animate={{ opacity: [1, 0.7, 1] }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
+                animate={{ opacity: [1, 0.6, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               >
                 VS
               </motion.div>
@@ -431,28 +442,11 @@ export default function ExhibitionMatch() {
               { label: "Sport", value: "Field Hockey" },
               { label: "Type", value: "Special Match" },
             ].map((item) => (
-              <div
-                key={item.label}
-                className="flex flex-col items-center gap-1"
-              >
-                <span
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: 2,
-                    color: "#666",
-                    textTransform: "uppercase",
-                  }}
-                >
+              <div key={item.label} className="flex flex-col items-center gap-1">
+                <span style={{ fontSize: 10, letterSpacing: 2, color: "#aaa", textTransform: "uppercase" }}>
                   {item.label}
                 </span>
-                <span
-                  style={{
-                    fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: 16,
-                    letterSpacing: 1,
-                    color: "#ccc",
-                  }}
-                >
+                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: 1, color: "#555" }}>
                   {item.value}
                 </span>
               </div>
@@ -461,50 +455,40 @@ export default function ExhibitionMatch() {
 
           {/* score bar */}
           <div className="w-full max-w-2xl mt-5 flex flex-col gap-1.5">
-            <div className="w-full h-1.5 rounded-full overflow-hidden flex">
+            <div
+              className="w-full h-1.5 rounded-full overflow-hidden flex"
+              style={{ background: "#e8e2d6" }}
+            >
               <motion.div
                 className="flex-1 h-full origin-left"
-                style={{
-                  background: `linear-gradient(90deg, ${GOLD}, #f5a623)`,
-                }}
+                style={{ background: `linear-gradient(90deg, ${GOLD}, #e8a820)` }}
                 variants={barFill}
                 initial="hidden"
                 animate={inView ? "show" : "hidden"}
               />
-              <div className="w-0.5 h-full bg-white shrink-0" />
+              <div className="w-0.5 h-full shrink-0" style={{ background: "#bbb" }} />
               <motion.div
                 className="flex-1 h-full origin-right"
-                style={{
-                  background: `linear-gradient(90deg, #1a9fbf, ${TEAL})`,
-                }}
+                style={{ background: `linear-gradient(90deg, #1a8fb0, ${TEAL})` }}
                 variants={barFill}
                 initial="hidden"
                 animate={inView ? "show" : "hidden"}
               />
             </div>
             <div className="flex justify-between">
-              <span
-                style={{
-                  fontSize: 10,
-                  letterSpacing: 2,
-                  color: GOLD,
-                  fontFamily: "'Bebas Neue', sans-serif",
-                }}
-              >
+              <span style={{ fontSize: 10, letterSpacing: 2, color: GOLD, fontFamily: "'Bebas Neue', sans-serif" }}>
                 Team UAE
               </span>
-              <span
-                style={{
-                  fontSize: 10,
-                  letterSpacing: 2,
-                  color: TEAL,
-                  fontFamily: "'Bebas Neue', sans-serif",
-                }}
-              >
+              <span style={{ fontSize: 10, letterSpacing: 2, color: TEAL, fontFamily: "'Bebas Neue', sans-serif" }}>
                 Thamane XI
               </span>
             </div>
           </div>
+
+          {/* YouTube Live Button */}
+          {/* Replace href with your actual YouTube live stream URL */}
+          <YouTubeLiveButton href="https://www.youtube.com/live/lPMnAmaU2Mo?si=1n61ApERVhOc5qGM" />
+
         </motion.div>
       </div>
     </>
