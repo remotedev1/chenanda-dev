@@ -1,0 +1,53 @@
+name: Deploy Next.js App to digital ocean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+env:
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+    
+      - name: Build Next.js app
+        run: npm run build
+        env:
+NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+      - name: Deploy to Vercel
+        uses: appleboy/scp-action@main
+        with:
+        host: ${{ secrets.DIGITAL_OCEAN_HOST }}
+          username: ${{ secrets.DIGITAL_OCEAN_USERNAME }}
+          key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
+          source: ".next, package.json, package-lock.json", public, next.config.mjs
+          target: /opt/nextjs-app 
+script: |
+  cd /opt/nextjs-app    
+  npm ci --only=production
+  echo "Next.js app deployed successfully!"
+  sudo systemctl restart nextjs
+
+  - name: Restart NextJs service
+        uses: appleboy/scp-action@main
+        with:
+        host: ${{ secrets.DIGITAL_OCEAN_HOST }}
+          username: ${{ secrets.DIGITAL_OCEAN_USERNAME }}
+          key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
+          source: "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}", .env.local
+          sudo systemctl restart nextjs
