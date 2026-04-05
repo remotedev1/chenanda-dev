@@ -318,7 +318,7 @@ export default function FieldHockeySchedule() {
 
   // After the existing state/hook declarations, add:
   useEffect(() => {
-    const interval = setInterval(refresh, 60 * 1000);
+    const interval = setInterval(refresh, 2*60 * 1000);
     console.log("i ran" + new Date().toLocaleTimeString());
     return () => clearInterval(interval);
   }, [refresh]);
