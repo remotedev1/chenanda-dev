@@ -204,9 +204,6 @@ function ScoreBoard({ match }) {
       <div className="relative flex items-center justify-between px-8 py-6">
         {/* Team 1 */}
         <div className="flex-1 text-left">
-          <p className="text-slate-400 text-xs uppercase tracking-widest mb-1 font-mono">
-            Home
-          </p>
           <h2 className="text-slate-900 font-black text-xl md:text-2xl lg:text-3xl tracking-tight leading-none mb-3">
             {t1?.family?.toUpperCase()}
           </h2>
@@ -383,16 +380,43 @@ function PlayerCombobox({
   );
 
   const selected = players.find((p) => p.id === value);
-  const showCreate =
-    query.trim() &&
-    !filtered.some(
-      (p) => p.playerName.toLowerCase() === query.trim().toLowerCase(),
-    );
+
+  const showCreate = query.trim().length > 0 && filtered.length === 0;
 
   const accentBtn =
     accentColor === "cyan"
       ? "bg-cyan-50 border-cyan-300 text-cyan-700 hover:bg-cyan-100"
       : "bg-violet-50 border-violet-300 text-violet-700 hover:bg-violet-100";
+
+  const CreateForm = () => (
+    <div className="flex flex-col gap-2">
+      <input
+        type="number"
+        placeholder="Jersey # (optional)"
+        value={jerseyNumber}
+        onChange={(e) => setJerseyNumber(Number(e.target.value))}
+        className="h-8 px-3 w-full rounded-lg bg-white border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-400"
+      />
+      <button
+        type="button"
+        onClick={async () => {
+          await onCreateAndSelect(query.trim(), jerseyNumber || null);
+          setOpen(false);
+          setQuery("");
+          setJerseyNumber("");
+        }}
+        disabled={isCreating}
+        className={`w-full flex items-center justify-center gap-2 h-9 px-3 rounded-lg text-xs font-semibold border transition-all ${accentBtn}`}
+      >
+        {isCreating ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <Plus className="h-3.5 w-3.5" />
+        )}
+        {isCreating ? "Creating…" : `Add "${query.trim()}"`}
+      </button>
+    </div>
+  );
 
   return (
     <div className="relative">
@@ -403,7 +427,7 @@ function PlayerCombobox({
           setOpen((v) => !v);
           setTimeout(() => inputRef.current?.focus(), 50);
         }}
-        className="w-full h-10 flex items-center justify-between px-3 rounded-lg bg-white border border-slate-300 text-sm text-slate-800 hover:border-slate-400 transition-colors shadow-sm"
+        className="w-full h-10 flex items-center justify-between px-3 rounded-lg bg-white border border-black text-sm text-slate-800 hover:border-slate-400 transition-colors shadow-sm"
       >
         <span className={selected ? "text-slate-800" : "text-slate-400"}>
           {selected
@@ -417,7 +441,7 @@ function PlayerCombobox({
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl bg-white border border-slate-200 shadow-xl overflow-hidden">
+        <div className="absolute z-50 mt-1 w-full rounded-xl bg-blue-600 border border-slate-200 shadow-xl overflow-hidden">
           {/* Search input */}
           <div className="p-2 border-b border-slate-100">
             <input
@@ -425,81 +449,101 @@ function PlayerCombobox({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Type name to search or create…"
+              placeholder="Type to search or create…"
               className="w-full h-8 px-3 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-400"
             />
           </div>
 
-          {/* Player list */}
-          <div className="max-h-40 overflow-y-auto">
-            {filtered.length === 0 && !showCreate && (
-              <p className="px-3 py-4 text-center text-slate-400 text-sm">
-                {loading ? "Loading…" : "No players found"}
-              </p>
-            )}
-            {filtered.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => {
-                  onSelect(p.id, p.playerName);
-                  setOpen(false);
-                  setQuery("");
-                }}
-                className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors hover:bg-slate-50 ${
-                  value === p.id
-                    ? "bg-slate-50 text-slate-900"
-                    : "text-slate-700"
-                }`}
-              >
-                {value === p.id ? (
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                ) : (
-                  <span className="h-3.5 w-3.5 shrink-0" />
-                )}
-                <span>{p.playerName}</span>
-                {p.jerseyNumber && (
-                  <span className="ml-auto text-slate-400 text-xs font-mono">
-                    #{p.jerseyNumber}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+          {/* Case 1: no query yet */}
+          {!query.trim() && (
+            <div className="max-h-40 overflow-y-auto">
+              {players.length === 0 ? (
+                <p className="px-3 py-4 text-center text-slate-400 text-sm">
+                  {loading
+                    ? "Loading…"
+                    : "No players yet — type a name to add one"}
+                </p>
+              ) : (
+                players.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      onSelect(p.id, p.playerName);
+                      setOpen(false);
+                      setQuery("");
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors  text-white hover:bg-slate-500 
+                     "
+                  >
+                    {value === p.id ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-white shrink-0" />
+                    ) : (
+                      <span className="h-3.5 w-3.5 shrink-0" />
+                    )}
+                    <span className="capitalize">{p.playerName}</span>
+                    {p.jerseyNumber && (
+                      <span className="ml-auto text-slate-400 text-xs font-mono">
+                        #{p.jerseyNumber}
+                      </span>
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
+          )}
 
-          {/* Create new player row */}
-          {showCreate && (
-            <div className="border-t border-slate-100 p-2 space-y-2">
-              <p className="text-slate-400 text-[10px] uppercase tracking-wider px-1">
-                Create {query.trim()}
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Jersey # (optional)"
-                  value={jerseyNumber}
-                  onChange={(e) => setJerseyNumber(Number(e.target.value))}
-                  className="w-36 h-8 px-3 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-400"
-                />
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await onCreateAndSelect(query.trim(), jerseyNumber || null);
-                    setOpen(false);
-                    setQuery("");
-                    setJerseyNumber();
-                  }}
-                  disabled={isCreating}
-                  className={`flex-1 flex items-center justify-center gap-2 h-8 px-3 rounded-lg text-xs font-semibold border transition-all ${accentBtn}`}
-                >
-                  {isCreating ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Plus className="h-3.5 w-3.5" />
-                  )}
-                  {isCreating ? "Creating…" : "Add Player"}
-                </button>
+          {/* Case 2: query typed, matches found → show list + create at bottom */}
+          {query.trim() && filtered.length > 0 && (
+            <>
+              <div className="max-h-40 overflow-y-auto">
+                {filtered.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      onSelect(p.id, p.playerName);
+                      setOpen(false);
+                      setQuery("");
+                    }}
+                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors hover:bg-slate-50 ${
+                      value === p.id
+                        ? "bg-slate-50 text-slate-900"
+                        : "text-slate-700"
+                    }`}
+                  >
+                    {value === p.id ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    ) : (
+                      <span className="h-3.5 w-3.5 shrink-0" />
+                    )}
+                    <span>{p.playerName}</span>
+                    {p.jerseyNumber && (
+                      <span className="ml-auto text-slate-400 text-xs font-mono">
+                        #{p.jerseyNumber}
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
+              {showCreate && (
+                <div className="border-t border-slate-100 p-3 space-y-2 bg-slate-50">
+                  <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider px-1">
+                    Add &ldquo;{query.trim()}&rdquo; as new player
+                  </p>
+                  <CreateForm />
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Case 3: query typed, zero matches → show create immediately */}
+          {query.trim() && filtered.length === 0 && (
+            <div className="p-3 space-y-2">
+              <p className="text-white text-xs font-semibold uppercase tracking-wider px-1">
+                No results — add &ldquo;{query.trim()}&rdquo;
+              </p>
+              <CreateForm />
             </div>
           )}
         </div>
@@ -518,7 +562,6 @@ function PlayerCombobox({
     </div>
   );
 }
-
 function TeamPanel({
   team,
   isHome,
@@ -527,7 +570,6 @@ function TeamPanel({
   actions,
   isAnyPending,
   confirm,
-  tournamentId,
   players,
   familyLoading,
   invalidate,
@@ -546,6 +588,13 @@ function TeamPanel({
   });
   const [addingPlayer, setAddingPlayer] = useState(false);
   const [showGoalForm, setShowGoalForm] = useState(false);
+  const [extraPlayers, setExtraPlayers] = useState([]); // ✅ NEW
+
+  // ✅ Merge server players with any optimistically added ones
+  const mergedPlayers = [
+    ...players,
+    ...extraPlayers.filter((ep) => !players.some((p) => p.id === ep.id)),
+  ];
 
   const handleAddGoal = async () => {
     if (!goalForm.playerId) return toast.error("Select a player");
@@ -565,21 +614,14 @@ function TeamPanel({
     <div
       className={`rounded-2xl border overflow-hidden flex flex-col transition-all ${
         isHome
-          ? "bg-gradient-to-br from-cyan-50/80 via-white to-white border-cyan-200"
-          : "bg-gradient-to-br from-violet-50/80 via-white to-white border-violet-200"
+          ? "bg-gradient-to-br from-cyan-50/80 via-white to-white border-black"
+          : "bg-gradient-to-br from-violet-50/80 via-white to-white border-black"
       }`}
     >
       {/* Team header */}
-      <div
-        className={`px-5 py-4 border-b ${
-          isHome ? "border-cyan-100" : "border-violet-100"
-        }`}
-      >
+      <div className={"px-5 py-4 border-b border-black"}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-slate-400 text-[10px] uppercase tracking-widest font-mono">
-              {isHome ? "Home" : "Away"}
-            </p>
             <h3 className="text-slate-900 font-black text-lg tracking-tight mt-0.5">
               {team.family?.toUpperCase()}
             </h3>
@@ -631,7 +673,7 @@ function TeamPanel({
                     Player
                   </Label>
                   <PlayerCombobox
-                    players={players}
+                    players={mergedPlayers} // ✅ use mergedPlayers
                     loading={familyLoading}
                     value={goalForm.playerId}
                     onSelect={(id, name) =>
@@ -640,7 +682,8 @@ function TeamPanel({
                         playerId: id,
                         playerName: name,
                         jerseyNumber:
-                          players.find((p) => p.id === id)?.jerseyNumber ||
+                          mergedPlayers.find((p) => p.id === id)
+                            ?.jerseyNumber || // ✅ use mergedPlayers
                           null,
                       }))
                     }
@@ -658,14 +701,23 @@ function TeamPanel({
                         });
                         if (!res.ok) throw new Error("Failed");
                         const data = await res.json();
-                        toast.success("Player added");
-                        invalidate();
                         const created = data?.data ?? data;
+
+                        toast.success("Player added");
+
+                        // ✅ Optimistically add to local list so combobox shows it immediately
+                        setExtraPlayers((prev) => [...prev, created]);
+
+                        // ✅ Select the new player right away
                         setGoalForm((f) => ({
                           ...f,
                           playerId: created.id,
                           playerName: created.playerName,
+                          jerseyNumber: created.jerseyNumber ?? null,
                         }));
+
+                        // Background sync to keep server state fresh
+                        invalidate();
                       } catch {
                         toast.error("Failed to add player");
                       } finally {
@@ -928,7 +980,7 @@ function ResultPanel({ match, onSetManOfMatch, disabled, players }) {
   const t2 = match?.participants?.[1];
 
   return (
-    <div className="rounded-2xl bg-white border border-slate-200 p-5 space-y-5 shadow-sm">
+    <div className="rounded-2xl bg-white border border-black p-5 space-y-5 shadow-sm">
       <SectionHeader icon={Trophy} title="Match Result" />
 
       {/* Winner — display only, auto-calculated by backend */}
@@ -1087,8 +1139,9 @@ export function LiveMatchControl({ matchId, tournamentId }) {
     loading: family2Loading,
     refresh: invalidate2,
   } = useFamily(t2?.familyId);
-  const players1 = family1?.data?.players ?? [];
-  const players2 = family2?.data?.players ?? [];
+
+  const players1 = family1?.players ?? [];
+  const players2 = family2?.players ?? [];
 
   const confirmDialog = useConfirm();
 
@@ -1273,7 +1326,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
           {!isCompleted && (
             <div className="grid md:grid-cols-2 gap-4">
               {/* Status */}
-              <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+              <div className="rounded-2xl bg-white border border-black p-5 shadow-sm">
                 <SectionHeader icon={Shield} title="Match Status" />
                 <StatusSelector
                   currentStatus={match.status}
@@ -1289,7 +1342,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
               </div>
 
               {/* Period */}
-              <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+              <div className="rounded-2xl bg-white border border-black p-5 shadow-sm">
                 <SectionHeader icon={Clock} title="Current Period" />
                 <PeriodSelector
                   currentPeriod={match.currentPeriod}
@@ -1329,7 +1382,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
           />
 
           {/* Match info footer */}
-          <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div className="rounded-2xl bg-white border border-black p-5 shadow-sm">
             <SectionHeader icon={Activity} title="Match Info" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               {[

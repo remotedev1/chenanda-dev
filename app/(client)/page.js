@@ -11,9 +11,9 @@ export default function Page() {
     <main className="relative min-h-screen flex flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50  text-white overflow-hidden">
       <HeroCarousel />
       <EventCountdown />
-      <ExhibitionMatch />
-      <MatchSchedule />
+      {/* <ExhibitionMatch /> */}
       <HomeAboutPreview />
+      <MatchSchedule />
       <SponsorsList />
       <VenueDetails />
     </main>

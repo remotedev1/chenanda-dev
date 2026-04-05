@@ -158,7 +158,7 @@ export default function HeroCarousel() {
 
   return (
     <section
-      className="relative w-full h-[96vh] overflow-hidden bg-black"
+      className="relative w-full h-screen overflow-hidden bg-black"
       aria-label="Kodava Hockey Festival hero carousel"
       aria-roledescription="carousel"
     >
