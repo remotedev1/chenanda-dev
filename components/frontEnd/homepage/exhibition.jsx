@@ -599,7 +599,7 @@ export default function ExhibitionMatch() {
                   textAlign: "center",
                 }}
               >
-                The Army boys sports company
+                 Army boys sports company
               </div>
             </div>
           </motion.div>
@@ -690,7 +690,7 @@ export default function ExhibitionMatch() {
                   fontFamily: "'Bebas Neue', sans-serif",
                 }}
               >
-                The Army boys sports company
+                 Army boys sports company
               </span>
             </div>
           </div>
