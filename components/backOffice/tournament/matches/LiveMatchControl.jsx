@@ -144,8 +144,8 @@ function ConnectionBadge({ isConnected, activeUsers }) {
     <div
       className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-semibold border transition-all ${
         isConnected
-          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-          : "bg-red-500/10 border-red-500/30 text-red-400"
+          ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+          : "bg-red-50 border-red-200 text-red-600"
       }`}
     >
       {isConnected ? (
@@ -177,24 +177,24 @@ function ScoreBoard({ match }) {
   const status = MATCH_STATUSES.find((s) => s.value === match.status);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700/60 shadow-2xl">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-slate-50 to-white border border-slate-200 shadow-lg shadow-slate-100">
       {/* Ambient glow */}
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-violet-500/5 pointer-events-none" />
 
       {/* Match meta */}
       <div className="relative flex items-center justify-between px-6 pt-5 pb-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-slate-500 text-xs">
+          <span className="text-slate-400 text-xs">
             {removeUnderscore(match.round)}
             {match.pool ? ` · Pool ${match.pool}` : ""}
           </span>
-          <span className="text-slate-500 text-xs">
+          <span className="text-slate-400 text-xs">
             · {removeUnderscore(match.venue)} · Match #{match.matchNo}
           </span>
         </div>
 
         {match.currentPeriod && (
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs text-slate-500 font-medium">
             {removeUnderscore(match.currentPeriod)}
           </span>
         )}
@@ -207,16 +207,16 @@ function ScoreBoard({ match }) {
           <p className="text-slate-400 text-xs uppercase tracking-widest mb-1 font-mono">
             Home
           </p>
-          <h2 className="text-white font-black text-xl md:text-2xl lg:text-3xl tracking-tight leading-none mb-3">
+          <h2 className="text-slate-900 font-black text-xl md:text-2xl lg:text-3xl tracking-tight leading-none mb-3">
             {t1?.family?.toUpperCase()}
           </h2>
           {t1?.walkover && (
-            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-xs">
+            <Badge className="bg-amber-50 text-amber-600 border-amber-200 text-xs">
               Walkover
             </Badge>
           )}
           {match.winnerId === t1?.familyId && (
-            <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs gap-1">
+            <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 text-xs gap-1">
               <Crown className="h-3 w-3" /> Winner
             </Badge>
           )}
@@ -226,22 +226,22 @@ function ScoreBoard({ match }) {
         <div className="flex items-center gap-4 mx-4">
           <span
             className={`text-5xl md:text-6xl lg:text-7xl font-black tabular-nums transition-all ${
-              score1 > score2 ? "text-white" : "text-slate-500"
+              score1 > score2 ? "text-slate-900" : "text-slate-300"
             }`}
           >
             {score1}
           </span>
           <div className="flex flex-col items-center gap-1">
-            <span className="text-slate-600 text-2xl font-light">:</span>
+            <span className="text-slate-300 text-2xl font-light">:</span>
             {match.isDraw && (
-              <span className="text-xs text-slate-400 font-mono uppercase">
+              <span className="text-xs text-slate-500 font-mono uppercase">
                 Draw
               </span>
             )}
           </div>
           <span
             className={`text-5xl md:text-6xl lg:text-7xl font-black tabular-nums transition-all ${
-              score2 > score1 ? "text-white" : "text-slate-500"
+              score2 > score1 ? "text-slate-900" : "text-slate-300"
             }`}
           >
             {score2}
@@ -253,16 +253,16 @@ function ScoreBoard({ match }) {
           <p className="text-slate-400 text-xs uppercase tracking-widest mb-1 font-mono">
             Away
           </p>
-          <h2 className="text-white font-black text-xl md:text-2xl lg:text-3xl tracking-tight leading-none mb-3">
+          <h2 className="text-slate-900 font-black text-xl md:text-2xl lg:text-3xl tracking-tight leading-none mb-3">
             {t2?.family?.toUpperCase()}
           </h2>
           {t2?.walkover && (
-            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-xs">
+            <Badge className="bg-amber-50 text-amber-600 border-amber-200 text-xs">
               Walkover
             </Badge>
           )}
           {match.winnerId === t2?.familyId && (
-            <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs gap-1">
+            <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 text-xs gap-1">
               <Crown className="h-3 w-3" /> Winner
             </Badge>
           )}
@@ -277,7 +277,7 @@ function ScoreBoard({ match }) {
               <ShootoutDot key={i} scored={scored} />
             ))}
           </div>
-          <span className="text-slate-500 text-xs font-mono uppercase tracking-widest shrink-0">
+          <span className="text-slate-400 text-xs font-mono uppercase tracking-widest shrink-0">
             Shootout
           </span>
           <div className="flex items-center gap-1.5 flex-1 justify-end">
@@ -296,8 +296,8 @@ function ShootoutDot({ scored }) {
     <div
       className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
         scored
-          ? "bg-emerald-500/20 border-emerald-500 text-emerald-400"
-          : "bg-red-500/20 border-red-500 text-red-400"
+          ? "bg-emerald-50 border-emerald-400 text-emerald-600"
+          : "bg-red-50 border-red-400 text-red-500"
       }`}
     >
       {scored ? (
@@ -311,25 +311,25 @@ function ShootoutDot({ scored }) {
 
 function GoalRow({ goal, index, canDelete, onDelete, loading }) {
   return (
-    <div className="group flex items-center gap-3 p-3 rounded-xl bg-slate-800/40 hover:bg-slate-700/40 border border-slate-700/30 transition-all">
-      <span className="text-slate-500 text-xs font-mono w-5 shrink-0">
+    <div className="group flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 transition-all shadow-sm">
+      <span className="text-slate-400 text-xs font-mono w-5 shrink-0">
         {index + 1}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-white text-sm font-semibold truncate">
+        <p className="text-slate-800 text-sm font-semibold truncate">
           {goal.playerName}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-slate-400 text-xs font-mono">
+          <span className="text-slate-500 text-xs font-mono">
             {goal.minute}
           </span>
           {goal.period && (
-            <span className="text-slate-500 text-[10px] uppercase tracking-wide">
+            <span className="text-slate-400 text-[10px] uppercase tracking-wide">
               {removeUnderscore(goal.period)}
             </span>
           )}
           {goal.type && (
-            <span className="text-[10px] text-slate-400 bg-slate-700/50 px-1.5 py-0.5 rounded-md">
+            <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md">
               {removeUnderscore(goal.type)}
             </span>
           )}
@@ -339,7 +339,7 @@ function GoalRow({ goal, index, canDelete, onDelete, loading }) {
         <button
           onClick={() => onDelete(index)}
           disabled={loading}
-          className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
+          className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-500 transition-all"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -352,11 +352,11 @@ function SectionHeader({ icon: Icon, title, count }) {
   return (
     <div className="flex items-center gap-2 mb-3">
       <Icon className="h-4 w-4 text-slate-400" />
-      <h4 className="text-slate-300 text-sm font-semibold uppercase tracking-wider">
+      <h4 className="text-slate-600 text-sm font-semibold uppercase tracking-wider">
         {title}
       </h4>
       {count !== undefined && (
-        <span className="ml-auto text-slate-500 text-xs font-mono">
+        <span className="ml-auto text-slate-400 text-xs font-mono">
           {count}
         </span>
       )}
@@ -391,8 +391,8 @@ function PlayerCombobox({
 
   const accentBtn =
     accentColor === "cyan"
-      ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30"
-      : "bg-violet-500/20 border-violet-500/40 text-violet-300 hover:bg-violet-500/30";
+      ? "bg-cyan-50 border-cyan-300 text-cyan-700 hover:bg-cyan-100"
+      : "bg-violet-50 border-violet-300 text-violet-700 hover:bg-violet-100";
 
   return (
     <div className="relative">
@@ -403,9 +403,9 @@ function PlayerCombobox({
           setOpen((v) => !v);
           setTimeout(() => inputRef.current?.focus(), 50);
         }}
-        className="w-full h-10 flex items-center justify-between px-3 rounded-lg bg-slate-900/50 border border-slate-700 text-sm text-white hover:border-slate-500 transition-colors"
+        className="w-full h-10 flex items-center justify-between px-3 rounded-lg bg-white border border-slate-300 text-sm text-slate-800 hover:border-slate-400 transition-colors shadow-sm"
       >
-        <span className={selected ? "text-white" : "text-slate-500"}>
+        <span className={selected ? "text-slate-800" : "text-slate-400"}>
           {selected
             ? `${selected.playerName}${selected.jerseyNumber ? ` · #${selected.jerseyNumber}` : ""}`
             : loading
@@ -417,23 +417,23 @@ function PlayerCombobox({
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden">
+        <div className="absolute z-50 mt-1 w-full rounded-xl bg-white border border-slate-200 shadow-xl overflow-hidden">
           {/* Search input */}
-          <div className="p-2 border-b border-slate-800">
+          <div className="p-2 border-b border-slate-100">
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Type name to search or create…"
-              className="w-full h-8 px-3 rounded-lg bg-slate-800 border border-slate-700 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
+              className="w-full h-8 px-3 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-400"
             />
           </div>
 
           {/* Player list */}
           <div className="max-h-40 overflow-y-auto">
             {filtered.length === 0 && !showCreate && (
-              <p className="px-3 py-4 text-center text-slate-500 text-sm">
+              <p className="px-3 py-4 text-center text-slate-400 text-sm">
                 {loading ? "Loading…" : "No players found"}
               </p>
             )}
@@ -446,20 +446,20 @@ function PlayerCombobox({
                   setOpen(false);
                   setQuery("");
                 }}
-                className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors hover:bg-slate-800 ${
+                className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors hover:bg-slate-50 ${
                   value === p.id
-                    ? "bg-slate-800/70 text-white"
-                    : "text-slate-300"
+                    ? "bg-slate-50 text-slate-900"
+                    : "text-slate-700"
                 }`}
               >
                 {value === p.id ? (
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                 ) : (
                   <span className="h-3.5 w-3.5 shrink-0" />
                 )}
                 <span>{p.playerName}</span>
                 {p.jerseyNumber && (
-                  <span className="ml-auto text-slate-500 text-xs font-mono">
+                  <span className="ml-auto text-slate-400 text-xs font-mono">
                     #{p.jerseyNumber}
                   </span>
                 )}
@@ -469,8 +469,8 @@ function PlayerCombobox({
 
           {/* Create new player row */}
           {showCreate && (
-            <div className="border-t border-slate-800 p-2 space-y-2">
-              <p className="text-slate-500 text-[10px] uppercase tracking-wider px-1">
+            <div className="border-t border-slate-100 p-2 space-y-2">
+              <p className="text-slate-400 text-[10px] uppercase tracking-wider px-1">
                 Create {query.trim()}
               </p>
               <div className="flex gap-2">
@@ -479,7 +479,7 @@ function PlayerCombobox({
                   placeholder="Jersey # (optional)"
                   value={jerseyNumber}
                   onChange={(e) => setJerseyNumber(Number(e.target.value))}
-                  className="w-36 h-8 px-3 rounded-lg bg-slate-800 border border-slate-700 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-slate-500"
+                  className="w-36 h-8 px-3 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-400"
                 />
                 <button
                   type="button"
@@ -565,28 +565,28 @@ function TeamPanel({
     <div
       className={`rounded-2xl border overflow-hidden flex flex-col transition-all ${
         isHome
-          ? "bg-gradient-to-br from-cyan-950/30 via-slate-900 to-slate-900 border-cyan-500/20"
-          : "bg-gradient-to-br from-violet-950/30 via-slate-900 to-slate-900 border-violet-500/20"
+          ? "bg-gradient-to-br from-cyan-50/80 via-white to-white border-cyan-200"
+          : "bg-gradient-to-br from-violet-50/80 via-white to-white border-violet-200"
       }`}
     >
       {/* Team header */}
       <div
         className={`px-5 py-4 border-b ${
-          isHome ? "border-cyan-500/10" : "border-violet-500/10"
+          isHome ? "border-cyan-100" : "border-violet-100"
         }`}
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-slate-500 text-[10px] uppercase tracking-widest font-mono">
+            <p className="text-slate-400 text-[10px] uppercase tracking-widest font-mono">
               {isHome ? "Home" : "Away"}
             </p>
-            <h3 className="text-white font-black text-lg tracking-tight mt-0.5">
+            <h3 className="text-slate-900 font-black text-lg tracking-tight mt-0.5">
               {team.family?.toUpperCase()}
             </h3>
           </div>
           <div
             className={`text-4xl font-black tabular-nums ${
-              isHome ? "text-cyan-400" : "text-violet-400"
+              isHome ? "text-cyan-600" : "text-violet-600"
             }`}
           >
             {score}
@@ -609,9 +609,9 @@ function TeamPanel({
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium transition-all mb-3 ${
                 showGoalForm
                   ? isHome
-                    ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
-                    : "bg-violet-500/10 border-violet-500/30 text-violet-400"
-                  : "bg-slate-800/50 border-slate-700/50 text-slate-400 hover:text-slate-200 hover:border-slate-600"
+                    ? "bg-cyan-50 border-cyan-300 text-cyan-700"
+                    : "bg-violet-50 border-violet-300 text-violet-700"
+                  : "bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300"
               }`}
             >
               <span className="flex items-center gap-2">
@@ -624,10 +624,10 @@ function TeamPanel({
             </button>
 
             {showGoalForm && (
-              <div className="space-y-3 p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+              <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
                 {/* Player combobox */}
                 <div className="space-y-1.5">
-                  <Label className="text-slate-400 text-xs uppercase tracking-wider">
+                  <Label className="text-slate-500 text-xs uppercase tracking-wider">
                     Player
                   </Label>
                   <PlayerCombobox
@@ -680,7 +680,7 @@ function TeamPanel({
                 {/* Minute + Period */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-slate-400 text-xs uppercase tracking-wider">
+                    <Label className="text-slate-500 text-xs uppercase tracking-wider">
                       Minute
                     </Label>
                     <Input
@@ -695,14 +695,14 @@ function TeamPanel({
                           minute: Number(e.target.value),
                         }))
                       }
-                      className="h-10 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600"
+                      className="h-10 bg-white border-slate-300 text-slate-800 placeholder:text-slate-400"
                     />
                   </div>
                 </div>
 
                 {/* Goal type */}
                 <div className="space-y-1.5">
-                  <Label className="text-slate-400 text-xs uppercase tracking-wider">
+                  <Label className="text-slate-500 text-xs uppercase tracking-wider">
                     Goal Type
                   </Label>
                   <div className="grid grid-cols-2 gap-2">
@@ -716,9 +716,9 @@ function TeamPanel({
                         className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all text-left ${
                           goalForm.type === gt.value
                             ? isHome
-                              ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
-                              : "bg-violet-500/20 border-violet-500/40 text-violet-300"
-                            : "bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-slate-600"
+                              ? "bg-cyan-50 border-cyan-300 text-cyan-700"
+                              : "bg-violet-50 border-violet-300 text-violet-700"
+                            : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
                         }`}
                       >
                         {gt.icon} {gt.label}
@@ -778,7 +778,7 @@ function TeamPanel({
         {/* ── SHOOTOUT ── */}
         {!isCompleted && (
           <>
-            <Separator className="bg-slate-800" />
+            <Separator className="bg-slate-100" />
             <div>
               <SectionHeader
                 icon={Zap}
@@ -791,7 +791,7 @@ function TeamPanel({
                   onClick={() => actions.addShootout(team.familyId, true)}
                   disabled={isAnyPending}
                   size="sm"
-                  className="flex-1 h-9 bg-emerald-600/80 hover:bg-emerald-600 text-white text-xs font-semibold"
+                  className="flex-1 h-9 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold"
                 >
                   <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
                   Scored
@@ -800,7 +800,7 @@ function TeamPanel({
                   onClick={() => actions.addShootout(team.familyId, false)}
                   disabled={isAnyPending}
                   size="sm"
-                  className="flex-1 h-9 bg-red-600/80 hover:bg-red-600 text-white text-xs font-semibold"
+                  className="flex-1 h-9 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold"
                 >
                   <XCircle className="h-3.5 w-3.5 mr-1.5" />
                   Missed
@@ -812,12 +812,12 @@ function TeamPanel({
                   {shootout.map((scored, i) => (
                     <div
                       key={i}
-                      className="group flex items-center gap-3 p-2.5 rounded-lg bg-slate-800/30 border border-slate-700/20 hover:border-slate-600/40 transition-all"
+                      className="group flex items-center gap-3 p-2.5 rounded-lg bg-white border border-slate-200 hover:border-slate-300 transition-all shadow-sm"
                     >
                       <ShootoutDot scored={scored} />
                       <span
                         className={`text-sm font-medium flex-1 ${
-                          scored ? "text-emerald-400" : "text-red-400"
+                          scored ? "text-emerald-600" : "text-red-500"
                         }`}
                       >
                         Penalty {i + 1} — {scored ? "Scored" : "Missed"}
@@ -832,7 +832,7 @@ function TeamPanel({
                             )
                           }
                           disabled={isAnyPending}
-                          className=" p-1 rounded text-red-400 hover:bg-red-500/10 transition-all"
+                          className="p-1 rounded text-red-400 hover:bg-red-50 transition-all"
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>
@@ -848,7 +848,7 @@ function TeamPanel({
         {/* ── WALKOVER ── */}
         {!isCompleted && (
           <>
-            <Separator className="bg-slate-800" />
+            <Separator className="bg-slate-100" />
             <Button
               onClick={() =>
                 confirm(
@@ -860,7 +860,7 @@ function TeamPanel({
               disabled={isAnyPending}
               variant="outline"
               size="sm"
-              className="w-full border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/50 text-xs"
+              className="w-full border-amber-300 text-amber-600 hover:bg-amber-50 hover:border-amber-400 text-xs"
             >
               <Flag className="h-3.5 w-3.5 mr-2" />
               Walkover for {team.family}
@@ -883,8 +883,8 @@ function PeriodSelector({ currentPeriod, onSelect, disabled }) {
           disabled={disabled}
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
             currentPeriod === p.value
-              ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
-              : "bg-slate-800/50 border-slate-700/40 text-slate-400 hover:border-slate-600 hover:text-slate-200"
+              ? "bg-cyan-50 border-cyan-300 text-cyan-700"
+              : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
           } disabled:opacity-40 disabled:cursor-not-allowed`}
         >
           {p.label}
@@ -906,7 +906,7 @@ function StatusSelector({ currentStatus, onSelect, disabled }) {
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
             currentStatus === s.value
               ? `${s.color} border-transparent text-white`
-              : "bg-slate-800/50 border-slate-700/40 text-slate-400 hover:border-slate-600 hover:text-slate-200"
+              : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
           } disabled:opacity-40 disabled:cursor-not-allowed`}
         >
           {s.label}
@@ -928,12 +928,12 @@ function ResultPanel({ match, onSetManOfMatch, disabled, players }) {
   const t2 = match?.participants?.[1];
 
   return (
-    <div className="rounded-2xl bg-slate-900/60 border border-slate-700/40 p-5 space-y-5">
+    <div className="rounded-2xl bg-white border border-slate-200 p-5 space-y-5 shadow-sm">
       <SectionHeader icon={Trophy} title="Match Result" />
 
       {/* Winner — display only, auto-calculated by backend */}
       <div className="space-y-2">
-        <Label className="text-slate-400 text-xs uppercase tracking-wider">
+        <Label className="text-slate-500 text-xs uppercase tracking-wider">
           Declare Winner
         </Label>
         <div className="grid grid-cols-3 gap-2">
@@ -941,10 +941,10 @@ function ResultPanel({ match, onSetManOfMatch, disabled, players }) {
             disabled={true}
             size="sm"
             variant="outline"
-            className={`border-slate-700 text-xs h-10 font-semibold ${
+            className={`border-slate-200 text-xs h-10 font-semibold ${
               match?.winnerId === t1?.familyId
-                ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-400"
-                : "text-slate-300"
+                ? "border-yellow-300 bg-yellow-50 text-yellow-700"
+                : "text-slate-500"
             }`}
           >
             {match?.winnerId === t1?.familyId && (
@@ -957,9 +957,9 @@ function ResultPanel({ match, onSetManOfMatch, disabled, players }) {
             disabled={true}
             size="sm"
             variant="outline"
-            className={`border-slate-700 text-xs h-10 font-semibold ${
+            className={`border-slate-200 text-xs h-10 font-semibold ${
               match?.isDraw
-                ? "border-slate-500/50 bg-slate-700/50 text-slate-300"
+                ? "border-slate-300 bg-slate-100 text-slate-700"
                 : "text-slate-400"
             }`}
           >
@@ -971,10 +971,10 @@ function ResultPanel({ match, onSetManOfMatch, disabled, players }) {
             disabled={true}
             size="sm"
             variant="outline"
-            className={`border-slate-700 text-xs h-10 font-semibold ${
+            className={`border-slate-200 text-xs h-10 font-semibold ${
               match?.winnerId === t2?.familyId
-                ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-400"
-                : "text-slate-300"
+                ? "border-yellow-300 bg-yellow-50 text-yellow-700"
+                : "text-slate-400"
             }`}
           >
             {match?.winnerId === t2?.familyId && (
@@ -983,28 +983,28 @@ function ResultPanel({ match, onSetManOfMatch, disabled, players }) {
             {t2?.family}
           </Button>
         </div>
-        <p className="text-slate-600 text-[10px] font-mono uppercase tracking-wider">
+        <p className="text-slate-400 text-[10px] font-mono uppercase tracking-wider">
           Winner is calculated automatically by the backend
         </p>
       </div>
 
       {/* Man of the match */}
       <div className="space-y-2">
-        <Label className="text-slate-400 text-xs uppercase tracking-wider flex items-center gap-2">
+        <Label className="text-slate-500 text-xs uppercase tracking-wider flex items-center gap-2">
           <Trophy className="h-3 w-3" />
           Player of the Match
         </Label>
         <div className="flex gap-2">
           <Select value={manId} onValueChange={setManId}>
-            <SelectTrigger className="flex-1 h-10 bg-slate-900/50 border-slate-700 text-white text-sm">
+            <SelectTrigger className="flex-1 h-10 bg-white border-slate-300 text-slate-800 text-sm">
               <SelectValue placeholder="Select player…" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-700">
+            <SelectContent className="bg-white border-slate-200">
               {players.map((p) => (
                 <SelectItem
                   key={p.id}
                   value={p.id}
-                  className="text-white focus:bg-slate-800"
+                  className="text-slate-800 focus:bg-slate-50"
                 >
                   {p.playerName} · {p.family}
                 </SelectItem>
@@ -1015,13 +1015,13 @@ function ResultPanel({ match, onSetManOfMatch, disabled, players }) {
             onClick={() => onSetManOfMatch(manId)}
             disabled={disabled || !manId}
             size="sm"
-            className="bg-yellow-600 hover:bg-yellow-700 text-white shrink-0"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white shrink-0"
           >
             Confirm
           </Button>
         </div>
         {match?.manOfTheMatchId && (
-          <p className="text-yellow-400 text-xs flex items-center gap-1.5">
+          <p className="text-yellow-600 text-xs flex items-center gap-1.5">
             <Crown className="h-3 w-3" />
             {players.find((p) => p.id === match.manOfTheMatchId)?.playerName ||
               "Awarded"}
@@ -1109,15 +1109,15 @@ export function LiveMatchControl({ matchId, tournamentId }) {
   /* ── Render: loading ── */
   if (bootstrapLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="h-16 w-16 rounded-full border-2 border-slate-700 flex items-center justify-center">
-              <Swords className="h-7 w-7 text-slate-500" />
+            <div className="h-16 w-16 rounded-full border-2 border-slate-200 flex items-center justify-center">
+              <Swords className="h-7 w-7 text-slate-400" />
             </div>
             <div className="absolute inset-0 rounded-full border-t-2 border-cyan-500 animate-spin" />
           </div>
-          <p className="text-slate-500 text-sm font-mono">
+          <p className="text-slate-400 text-sm font-mono">
             Loading match data…
           </p>
         </div>
@@ -1127,16 +1127,16 @@ export function LiveMatchControl({ matchId, tournamentId }) {
 
   if (!match) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center space-y-3">
           <AlertTriangle className="h-10 w-10 text-red-400 mx-auto" />
-          <p className="text-slate-300 font-semibold">Match not found</p>
-          <p className="text-slate-500 text-sm">ID: {matchId}</p>
+          <p className="text-slate-700 font-semibold">Match not found</p>
+          <p className="text-slate-400 text-sm">ID: {matchId}</p>
           <Button
             onClick={refetch}
             variant="outline"
             size="sm"
-            className="border-slate-700 text-slate-300"
+            className="border-slate-300 text-slate-600"
           >
             <RotateCcw className="h-4 w-4 mr-2" /> Retry
           </Button>
@@ -1157,19 +1157,19 @@ export function LiveMatchControl({ matchId, tournamentId }) {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-slate-950 text-white">
+      <div className="min-h-screen bg-slate-50 text-slate-900">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl">
+        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl shadow-sm">
           <div className="container mx-auto max-w-7xl px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center">
                 <Swords className="h-4 w-4 text-white" />
               </div>
               <div>
-                <p className="text-white text-sm font-bold leading-none">
+                <p className="text-slate-900 text-sm font-bold leading-none">
                   Match Control
                 </p>
-                <p className="text-slate-500 text-[10px] font-mono mt-0.5">
+                <p className="text-slate-400 text-[10px] font-mono mt-0.5">
                   {/* {id?.slice(-8)} */}
                 </p>
               </div>
@@ -1192,14 +1192,14 @@ export function LiveMatchControl({ matchId, tournamentId }) {
                     onClick={refetch}
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-slate-400 hover:text-slate-200"
+                    className="h-8 w-8 p-0 text-slate-400 hover:text-slate-700 hover:bg-slate-100"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent
                   side="bottom"
-                  className="bg-slate-800 border-slate-700 text-xs"
+                  className="bg-slate-800 border-slate-700 text-xs text-white"
                 >
                   Refresh data
                 </TooltipContent>
@@ -1225,7 +1225,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
                     )
                   }
                   disabled={loading}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-10 px-5"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold h-10 px-5"
                 >
                   <Activity className="h-4 w-4 mr-2" />
                   Start Match
@@ -1240,14 +1240,14 @@ export function LiveMatchControl({ matchId, tournamentId }) {
                     )
                   }
                   disabled={loading}
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold h-10 px-5"
+                  className="bg-red-500 hover:bg-red-600 text-white font-semibold h-10 px-5"
                 >
                   <Flag className="h-4 w-4 mr-2" />
                   End Match
                 </Button>
               )}
-              <div className="h-6 w-px bg-slate-800 mx-1" />
-              <span className="text-slate-500 text-xs font-mono">
+              <div className="h-6 w-px bg-slate-200 mx-1" />
+              <span className="text-slate-400 text-xs font-mono">
                 Quick status:
               </span>
               {["SUSPENDED", "DELAYED"].map((s) => (
@@ -1257,10 +1257,10 @@ export function LiveMatchControl({ matchId, tournamentId }) {
                   disabled={loading || match.status === s}
                   size="sm"
                   variant="outline"
-                  className={`h-8 text-xs border-slate-700 ${
+                  className={`h-8 text-xs border-slate-200 ${
                     match.status === s
-                      ? "bg-slate-800 text-white"
-                      : "text-slate-400 hover:bg-slate-800"
+                      ? "bg-slate-100 text-slate-700"
+                      : "text-slate-500 hover:bg-slate-50"
                   }`}
                 >
                   {s.charAt(0) + s.slice(1).toLowerCase()}
@@ -1273,7 +1273,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
           {!isCompleted && (
             <div className="grid md:grid-cols-2 gap-4">
               {/* Status */}
-              <div className="rounded-2xl bg-slate-900/60 border border-slate-700/40 p-5">
+              <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
                 <SectionHeader icon={Shield} title="Match Status" />
                 <StatusSelector
                   currentStatus={match.status}
@@ -1289,7 +1289,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
               </div>
 
               {/* Period */}
-              <div className="rounded-2xl bg-slate-900/60 border border-slate-700/40 p-5">
+              <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
                 <SectionHeader icon={Clock} title="Current Period" />
                 <PeriodSelector
                   currentPeriod={match.currentPeriod}
@@ -1329,7 +1329,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
           />
 
           {/* Match info footer */}
-          <div className="rounded-2xl bg-slate-900/40 border border-slate-800/60 p-5">
+          <div className="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
             <SectionHeader icon={Activity} title="Match Info" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               {[
@@ -1364,10 +1364,10 @@ export function LiveMatchControl({ matchId, tournamentId }) {
                 },
               ].map((item) => (
                 <div key={item.label}>
-                  <p className="text-slate-500 text-[10px] uppercase tracking-wider font-mono mb-1">
+                  <p className="text-slate-400 text-[10px] uppercase tracking-wider font-mono mb-1">
                     {item.label}
                   </p>
-                  <p className="text-slate-200 font-medium">{item.value}</p>
+                  <p className="text-slate-700 font-medium">{item.value}</p>
                 </div>
               ))}
             </div>
@@ -1380,17 +1380,17 @@ export function LiveMatchControl({ matchId, tournamentId }) {
         open={confirmDialog.open}
         onOpenChange={confirmDialog.setOpen}
       >
-        <AlertDialogContent className="bg-slate-900 border-slate-700 text-white">
+        <AlertDialogContent className="bg-white border-slate-200 text-slate-900 shadow-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
+            <AlertDialogTitle className="text-slate-900">
               {confirmDialog.title}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-400">
+            <AlertDialogDescription className="text-slate-500">
               {confirmDialog.desc}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700">
+            <AlertDialogCancel className="bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

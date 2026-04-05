@@ -36,7 +36,12 @@ function DiagonalBeams() {
       }}
     >
       <svg
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+        }}
         viewBox="0 0 800 520"
         preserveAspectRatio="xMidYMid slice"
         xmlns="http://www.w3.org/2000/svg"
@@ -93,18 +98,44 @@ function UAEEmblem() {
   return (
     <svg width="100" height="100" viewBox="0 0 100 100">
       <motion.circle
-        cx="50" cy="50" r="46"
-        fill="none" stroke={GOLD} strokeWidth={1.5}
+        cx="50"
+        cy="50"
+        r="46"
+        fill="none"
+        stroke={GOLD}
+        strokeWidth={1.5}
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ duration: 1.4, delay: 0.6, ease: "easeInOut" }}
       />
-      <circle cx="50" cy="50" r="38" fill="#fff" stroke={GOLD} strokeWidth={0.5} />
+      <circle
+        cx="50"
+        cy="50"
+        r="38"
+        fill="#fff"
+        stroke={GOLD}
+        strokeWidth={0.5}
+      />
       <rect x="18" y="32" width="64" height="9" rx={1} fill="#00732f" />
       <rect x="18" y="41" width="64" height="9" rx={1} fill="#f5f5f5" />
-      <rect x="18" y="50" width="64" height="9" rx={1} fill="#1a1a1a" opacity={0.85} />
+      <rect
+        x="18"
+        y="50"
+        width="64"
+        height="9"
+        rx={1}
+        fill="#1a1a1a"
+        opacity={0.85}
+      />
       <rect x="18" y="32" width="14" height="27" rx={1} fill="#EF3340" />
-      <text x="50" y="76" textAnchor="middle" fontSize={9} fill={GOLD} fontFamily="sans-serif">
+      <text
+        x="50"
+        y="76"
+        textAnchor="middle"
+        fontSize={9}
+        fill={GOLD}
+        fontFamily="sans-serif"
+      >
         ★ UAE ★
       </text>
     </svg>
@@ -115,19 +146,56 @@ function ThamaneEmblem() {
   return (
     <svg width="100" height="100" viewBox="0 0 100 100">
       <motion.circle
-        cx="50" cy="50" r="46"
-        fill="none" stroke={TEAL} strokeWidth={1.5}
+        cx="50"
+        cy="50"
+        r="46"
+        fill="none"
+        stroke={TEAL}
+        strokeWidth={1.5}
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ duration: 1.4, delay: 0.9, ease: "easeInOut" }}
       />
-      <circle cx="50" cy="50" r="38" fill="#e8f6fb" stroke={TEAL} strokeWidth={0.5} />
-      <polygon points="50,18 68,30 68,58 50,72 32,58 32,30" fill="none" stroke={TEAL} strokeWidth={1.5} />
-      <polygon points="50,24 63,33 63,55 50,66 37,55 37,33" fill="#c5e8f5" stroke={TEAL} strokeWidth={0.5} />
-      <text x="50" y="56" textAnchor="middle" fontSize={20} fill={TEAL} fontFamily="'Bebas Neue', sans-serif" fontWeight={700}>
+      <circle
+        cx="50"
+        cy="50"
+        r="38"
+        fill="#e8f6fb"
+        stroke={TEAL}
+        strokeWidth={0.5}
+      />
+      <polygon
+        points="50,18 68,30 68,58 50,72 32,58 32,30"
+        fill="none"
+        stroke={TEAL}
+        strokeWidth={1.5}
+      />
+      <polygon
+        points="50,24 63,33 63,55 50,66 37,55 37,33"
+        fill="#c5e8f5"
+        stroke={TEAL}
+        strokeWidth={0.5}
+      />
+      <text
+        x="50"
+        y="56"
+        textAnchor="middle"
+        fontSize={20}
+        fill={TEAL}
+        fontFamily="'Bebas Neue', sans-serif"
+        fontWeight={700}
+      >
         XI
       </text>
-      <text x="50" y="76" textAnchor="middle" fontSize={8} fill={TEAL} fontFamily="sans-serif" opacity={0.8}>
+      <text
+        x="50"
+        y="76"
+        textAnchor="middle"
+        fontSize={8}
+        fill={TEAL}
+        fontFamily="sans-serif"
+        opacity={0.8}
+      >
         THAMANE
       </text>
     </svg>
@@ -151,7 +219,12 @@ function FloatingParticles() {
             zIndex: 3,
           }}
           animate={{ y: [-480], rotate: [0, 720], opacity: [0.35, 0] }}
-          transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "linear" }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Infinity,
+            ease: "linear",
+          }}
         />
       ))}
     </>
@@ -167,13 +240,37 @@ function LiveBadge() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 12, height: 12 }}>
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 12,
+          height: 12,
+        }}
+      >
         <motion.span
-          style={{ position: "absolute", borderRadius: "50%", width: 24, height: 24, background: "rgba(200,30,30,0.2)" }}
+          style={{
+            position: "absolute",
+            borderRadius: "50%",
+            width: 24,
+            height: 24,
+            background: "rgba(200,30,30,0.2)",
+          }}
           animate={{ scale: [1, 1.8, 1], opacity: [0.7, 0, 0.7] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
         />
-        <span style={{ position: "relative", borderRadius: "50%", width: 10, height: 10, background: "#e02020", display: "inline-block" }} />
+        <span
+          style={{
+            position: "relative",
+            borderRadius: "50%",
+            width: 10,
+            height: 10,
+            background: "#e02020",
+            display: "inline-block",
+          }}
+        />
       </div>
 
       <div
@@ -187,13 +284,33 @@ function LiveBadge() {
           padding: "5px 14px 5px 10px",
         }}
       >
-        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 15, letterSpacing: 3, color: "#cc2222" }}>
+        <span
+          style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: 15,
+            letterSpacing: 3,
+            color: "#cc2222",
+          }}
+        >
           LIVE NOW
         </span>
       </div>
 
-      <div style={{ height: 1, width: 40, background: "linear-gradient(90deg,rgba(200,30,30,0.35),transparent)" }} />
-      <span style={{ fontSize: 11, letterSpacing: 2, color: "#aaa", textTransform: "uppercase" }}>
+      <div
+        style={{
+          height: 1,
+          width: 40,
+          background: "linear-gradient(90deg,rgba(200,30,30,0.35),transparent)",
+        }}
+      />
+      <span
+        style={{
+          fontSize: 11,
+          letterSpacing: 2,
+          color: "#aaa",
+          textTransform: "uppercase",
+        }}
+      >
         Broadcasting
       </span>
     </motion.div>
@@ -201,7 +318,9 @@ function LiveBadge() {
 }
 
 /* ── YouTube Live Button ── */
-function YouTubeLiveButton({ href = "https://www.youtube.com/live/YOUR_STREAM_ID" }) {
+function YouTubeLiveButton({
+  href = "https://www.youtube.com/live/YOUR_STREAM_ID",
+}) {
   return (
     <motion.div
       className="flex flex-col items-center gap-2 mt-7"
@@ -229,24 +348,65 @@ function YouTubeLiveButton({ href = "https://www.youtube.com/live/YOUR_STREAM_ID
         whileTap={{ scale: 0.97 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="white"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
         </svg>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
-          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 17, letterSpacing: 2, color: "#fff", lineHeight: 1 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: 1,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 17,
+              letterSpacing: 2,
+              color: "#fff",
+              lineHeight: 1,
+            }}
+          >
             Watch Live on YouTube
           </span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", letterSpacing: 1 }}>
+          <span
+            style={{
+              fontSize: 11,
+              color: "rgba(255,255,255,0.8)",
+              letterSpacing: 1,
+            }}
+          >
             youtube.com · Live Stream
           </span>
         </div>
-        <div style={{ position: "relative", width: 10, height: 10, flexShrink: 0 }}>
+        <div
+          style={{ position: "relative", width: 10, height: 10, flexShrink: 0 }}
+        >
           <motion.span
-            style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#fff" }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: "50%",
+              background: "#fff",
+            }}
             animate={{ scale: [1, 2.2, 1], opacity: [0.6, 0, 0.6] }}
             transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
           />
-          <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#fff" }} />
+          <span
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: "50%",
+              background: "#fff",
+            }}
+          />
         </div>
       </motion.a>
     </motion.div>
@@ -270,12 +430,19 @@ export default function ExhibitionMatch() {
 
   const lineGrow = {
     hidden: { scaleX: 0, opacity: 0 },
-    show: { scaleX: 1, opacity: 1, transition: { duration: 1.2, ease: "easeOut" } },
+    show: {
+      scaleX: 1,
+      opacity: 1,
+      transition: { duration: 1.2, ease: "easeOut" },
+    },
   };
 
   const barFill = {
     hidden: { scaleX: 0 },
-    show: { scaleX: 1, transition: { duration: 1.5, delay: 1.2, ease: "easeOut" } },
+    show: {
+      scaleX: 1,
+      transition: { duration: 1.5, delay: 1.2, ease: "easeOut" },
+    },
   };
 
   return (
@@ -293,7 +460,8 @@ export default function ExhibitionMatch() {
         ref={ref}
         className="relative w-full overflow-hidden py-16"
         style={{
-          background: "linear-gradient(160deg, #f9f6ee 0%, #eef6fb 50%, #f0f8ff 100%)",
+          background:
+            "linear-gradient(160deg, #f9f6ee 0%, #eef6fb 50%, #f0f8ff 100%)",
           fontFamily: "'Rajdhani', sans-serif",
           borderRadius: 16,
           border: "1px solid #e2ddd0",
@@ -335,7 +503,9 @@ export default function ExhibitionMatch() {
           >
             <motion.div
               className="flex-1 h-px origin-center"
-              style={{ background: `linear-gradient(90deg, transparent, ${GOLD} 60%, transparent)` }}
+              style={{
+                background: `linear-gradient(90deg, transparent, ${GOLD} 60%, transparent)`,
+              }}
               variants={lineGrow}
             />
             <span
@@ -351,7 +521,9 @@ export default function ExhibitionMatch() {
             </span>
             <motion.div
               className="flex-1 h-px origin-center"
-              style={{ background: `linear-gradient(90deg, transparent, ${GOLD} 60%, transparent)` }}
+              style={{
+                background: `linear-gradient(90deg, transparent, ${GOLD} 60%, transparent)`,
+              }}
               variants={lineGrow}
             />
           </motion.div>
@@ -381,9 +553,7 @@ export default function ExhibitionMatch() {
             className="w-full max-w-2xl flex items-center justify-between gap-2 sm:gap-4"
             variants={fadeUp}
           >
-            {/* UAE */}
             <div className="flex-1 flex flex-col items-center gap-2">
-              <UAEEmblem />
               <div
                 style={{
                   fontFamily: "'Bebas Neue', sans-serif",
@@ -394,7 +564,7 @@ export default function ExhibitionMatch() {
                   textAlign: "center",
                 }}
               >
-                Team UAE
+                Jain university
               </div>
             </div>
 
@@ -408,15 +578,17 @@ export default function ExhibitionMatch() {
                   lineHeight: 1,
                 }}
                 animate={{ opacity: [1, 0.6, 1] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
               >
                 VS
               </motion.div>
             </div>
 
-            {/* Thamane XI */}
             <div className="flex-1 flex flex-col items-center gap-2">
-              <ThamaneEmblem />
               <div
                 style={{
                   fontFamily: "'Bebas Neue', sans-serif",
@@ -427,7 +599,7 @@ export default function ExhibitionMatch() {
                   textAlign: "center",
                 }}
               >
-                Thamane XI
+                The Army boys sports company
               </div>
             </div>
           </motion.div>
@@ -442,11 +614,28 @@ export default function ExhibitionMatch() {
               { label: "Sport", value: "Field Hockey" },
               { label: "Type", value: "Special Match" },
             ].map((item) => (
-              <div key={item.label} className="flex flex-col items-center gap-1">
-                <span style={{ fontSize: 10, letterSpacing: 2, color: "#aaa", textTransform: "uppercase" }}>
+              <div
+                key={item.label}
+                className="flex flex-col items-center gap-1"
+              >
+                <span
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: 2,
+                    color: "#aaa",
+                    textTransform: "uppercase",
+                  }}
+                >
                   {item.label}
                 </span>
-                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: 1, color: "#555" }}>
+                <span
+                  style={{
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    fontSize: 16,
+                    letterSpacing: 1,
+                    color: "#555",
+                  }}
+                >
                   {item.value}
                 </span>
               </div>
@@ -461,26 +650,47 @@ export default function ExhibitionMatch() {
             >
               <motion.div
                 className="flex-1 h-full origin-left"
-                style={{ background: `linear-gradient(90deg, ${GOLD}, #e8a820)` }}
+                style={{
+                  background: `linear-gradient(90deg, ${GOLD}, #e8a820)`,
+                }}
                 variants={barFill}
                 initial="hidden"
                 animate={inView ? "show" : "hidden"}
               />
-              <div className="w-0.5 h-full shrink-0" style={{ background: "#bbb" }} />
+              <div
+                className="w-0.5 h-full shrink-0"
+                style={{ background: "#bbb" }}
+              />
               <motion.div
                 className="flex-1 h-full origin-right"
-                style={{ background: `linear-gradient(90deg, #1a8fb0, ${TEAL})` }}
+                style={{
+                  background: `linear-gradient(90deg, #1a8fb0, ${TEAL})`,
+                }}
                 variants={barFill}
                 initial="hidden"
                 animate={inView ? "show" : "hidden"}
               />
             </div>
             <div className="flex justify-between">
-              <span style={{ fontSize: 10, letterSpacing: 2, color: GOLD, fontFamily: "'Bebas Neue', sans-serif" }}>
-                Team UAE
+              <span
+                style={{
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  color: GOLD,
+                  fontFamily: "'Bebas Neue', sans-serif",
+                }}
+              >
+                Jain university
               </span>
-              <span style={{ fontSize: 10, letterSpacing: 2, color: TEAL, fontFamily: "'Bebas Neue', sans-serif" }}>
-                Thamane XI
+              <span
+                style={{
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  color: TEAL,
+                  fontFamily: "'Bebas Neue', sans-serif",
+                }}
+              >
+                The Army boys sports company
               </span>
             </div>
           </div>
@@ -488,7 +698,6 @@ export default function ExhibitionMatch() {
           {/* YouTube Live Button */}
           {/* Replace href with your actual YouTube live stream URL */}
           <YouTubeLiveButton href="https://www.youtube.com/live/lPMnAmaU2Mo?si=1n61ApERVhOc5qGM" />
-
         </motion.div>
       </div>
     </>

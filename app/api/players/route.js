@@ -12,6 +12,7 @@ import {
   withErrorHandling,
 } from "@/lib/api/helpers";
 import { auth } from "@/auth";
+import { BundleCopyPage } from "twilio/lib/rest/numbers/v2/regulatoryCompliance/bundle/bundleCopy";
 
 /* ---------------- SCHEMAS ---------------- */
 
@@ -163,15 +164,6 @@ async function handlePost(request) {
 
   const validated = createPlayerSchema.parse(body);
 
-  // Verify family exists
-  const familyExists = await db.families.findUnique({
-    where: { id: validated.familyId },
-  });
-
-  if (!familyExists) {
-    return errorResponse("Selected family does not exist", 400);
-  }
-
   // Check for duplicate player name in the same family
   const existing = await db.player.findFirst({
     where: {
@@ -199,14 +191,6 @@ async function handlePost(request) {
       familyId: validated.familyId,
       isActive: validated.isActive,
     },
-    include: {
-      family: {
-        select: {
-          id: true,
-          familyName: true,
-        },
-      },
-    },
   });
 
   // Log activity
@@ -216,7 +200,7 @@ async function handlePost(request) {
     entity: "player",
     entityId: player.id,
     entityName: player.playerName,
-    description: `Created player "${player.playerName}" for family "${familyExists.familyName}"`,
+    description: `Created player "${player.playerName}"`,
     request,
   });
 
