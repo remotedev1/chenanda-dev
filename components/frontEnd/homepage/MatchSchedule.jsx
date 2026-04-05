@@ -132,7 +132,7 @@ const MatchCard = ({ match }) => {
           )}
           <Marquee
             text={team1}
-            className={`text-md sm:text-lg md:text-2xl font-semibold capitalize transition-colors min-w-0 flex-1
+            className={`text-md sm:text-lg md:text-xl font-semibold capitalize transition-colors min-w-0 flex-1
       ${winner === "team1" ? "text-zinc-900" : winner === "team2" ? "text-zinc-400" : "text-zinc-800"}`}
           />
         </div>
@@ -178,7 +178,7 @@ const MatchCard = ({ match }) => {
         <div className=" relative flex-1 flex items-center justify-end gap-1 sm:gap-1.5 min-w-0">
           <Marquee
             text={team2}
-            className={`text-md sm:text-lg md:text-2xl font-semibold capitalize transition-colors min-w-0 flex-1 text-right
+            className={`text-md sm:text-lg md:text-xl font-semibold capitalize transition-colors min-w-0 flex-1 text-right
       ${winner === "team2" ? "text-zinc-900" : winner === "team1" ? "text-zinc-400" : "text-zinc-800"}`}
           />
           {winner === "team2" && (
@@ -315,6 +315,13 @@ export default function FieldHockeySchedule() {
   const liveCount = matches.filter(
     (m) => toTabStatus(m.status) === "live",
   ).length;
+
+  // After the existing state/hook declarations, add:
+  useEffect(() => {
+    const interval = setInterval(refresh, 60 * 1000);
+    console.log("i ran" + new Date().toLocaleTimeString());
+    return () => clearInterval(interval);
+  }, [refresh]);
 
   const topScorers = useMemo(() => {
     const map = new Map();
@@ -455,7 +462,6 @@ export default function FieldHockeySchedule() {
                   </div>
                 </div>
               </div>
-
               {/* Loading state */}
               {loading ? (
                 <div className="flex justify-center items-center py-24">
@@ -463,7 +469,7 @@ export default function FieldHockeySchedule() {
                 </div>
               ) : (
                 <>
-                  {activeTab === "live" ? (
+                  { activeTab === "live" ? (
                     // ✅ LIVE TAB → show carousel instead of cards
                     <motion.div
                       key="live-carousel"
@@ -472,7 +478,7 @@ export default function FieldHockeySchedule() {
                       exit={{ opacity: 0 }}
                       className="w-full"
                     >
-                      <LiveScoreCarousel />
+                      <LiveScoreCarousel matches={filteredMatches} />
                     </motion.div>
                   ) : (
                     // ✅ OTHER TABS → show match cards

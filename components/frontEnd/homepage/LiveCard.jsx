@@ -641,7 +641,7 @@ export default function LiveCard({ match }) {
                 letterSpacing: "0.02em",
                 transition: "color 0.3s",
               }}
-              className="text-sm md:text-lg"
+              className="text-sm md:text-md"
             >
               {t1?.family?.toUpperCase() ?? "—"}
             </p>
@@ -718,7 +718,7 @@ export default function LiveCard({ match }) {
                 letterSpacing: "0.02em",
                 transition: "color 0.3s",
               }}
-              className="text-sm md:text-lg"
+              className="text-sm md:text-md"
             >
               {t2?.family?.toUpperCase() ?? "—"}
             </p>
