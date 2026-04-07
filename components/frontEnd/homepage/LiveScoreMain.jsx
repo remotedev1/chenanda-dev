@@ -4,10 +4,21 @@ import { useLiveMatches } from "@/hooks/useLiveMatches";
 import LiveCard from "./LiveCard";
 
 export default function LiveScoreCarousel() {
-  const { matches, loading, error } = useLiveMatches();
+  const { matches, loading, error, isConnected, refetch } = useLiveMatches();
 
   return (
     <main style={{ maxWidth: 960, margin: "0 auto" }}>
+      {/* Header with refresh button */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+          padding: "0 8px",
+        }}
+      ></div>
+
       {error && (
         <p style={{ color: "#f87171", fontFamily: "monospace" }}>
           Failed to load matches: {error}
@@ -16,8 +27,7 @@ export default function LiveScoreCarousel() {
 
       <div className="grid gap-2.5 mx-auto [grid-template-columns:repeat(auto-fill,minmax(340px,1fr))]">
         {loading
-          ? // Render 3 placeholder skeletons while fetching
-            Array.from({ length: 3 }).map((_, i) => (
+          ? Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
                 className="rounded-xl bg-muted animate-pulse h-[160px]"

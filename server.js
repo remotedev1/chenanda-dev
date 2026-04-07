@@ -68,7 +68,6 @@ class ServerState {
 const setupSocketHandlers = (io, state) => {
   io.on("connection", (socket) => {
     const ts = () => `[${new Date().toISOString()}]`;
-    console.log(`${ts()} ✅  Connected   ${socket.id}`);
     state.addClient(socket.id);
 
     socket.on("joinMatch", (matchId) => {
@@ -77,7 +76,6 @@ const setupSocketHandlers = (io, state) => {
 
       socket.join(matchId);
       state.addRoom(socket.id, matchId);
-      console.log(`${ts()} 👁  ${socket.id} joined room "${matchId}"`);
 
       const cached = state.getMatchData(matchId);
       if (cached) {
@@ -88,11 +86,46 @@ const setupSocketHandlers = (io, state) => {
       io.to(matchId).emit("watcherCount", { matchId, count });
     });
 
-    // In your socket server setup
-    socket.on("matchStarted", (data) => {
-      console.log("[server] matchStarted →", data.matchId);
-      // Forward to ALL other connected clients
-      socket.broadcast.emit("matchStarted", data);
+    socket.on("matchStarted", ({ matchId, data }) => {
+      if (!matchId) return;
+
+      // Store in cache
+      if (data) {
+        state.setMatchData(matchId, data);
+      }
+
+      // Broadcast to OTHER clients (exclude sender)
+      socket
+        .to(matchId)
+        .emit("matchStarted", { matchId, data, fromSocketId: socket.id });
+
+      // Also send matchData to ALL clients (including sender) for real-time updates
+      io.to(matchId).emit("matchData", {
+        matchId,
+        data,
+        fromSocketId: socket.id,
+      });
+    });
+
+    // ✅ FIX: Single matchEnded handler (remove the duplicate)
+    socket.on("matchEnded", ({ matchId, data }) => {
+      if (!matchId) return;
+
+      // Store final state in cache
+      if (data) {
+        state.setMatchData(matchId, data);
+      }
+
+      // Broadcast to everyone in the room EXCEPT the sender
+      socket
+        .to(matchId)
+        .emit("matchEnded", { matchId, data, fromSocketId: socket.id });
+
+      // Send final match data to all watchers
+      io.to(matchId).emit("matchData", { matchId, data }); // Clear cache after broadcasting
+      setTimeout(() => {
+        state.matchCache.delete(matchId);
+      }, 9000);
     });
 
     socket.on("leaveMatch", (matchId) => {
@@ -103,30 +136,21 @@ const setupSocketHandlers = (io, state) => {
       io.to(matchId).emit("watcherCount", { matchId, count });
     });
 
-    socket.on("matchEnded", ({ matchId, data }) => {
-      if (!matchId) return;
-
-      // Broadcast final state to all watchers before clearing
-      io.to(matchId).emit("matchData", { matchId, data });
-      io.to(matchId).emit("watcherCount", { matchId, count: 0 });
-
-      // Kick every socket out of the room
-      io.in(matchId).socketsLeave(matchId);
-
-      // Clean up state for all sockets that were in this room
-      const socketsInRoom = state.getRoomSockets?.(matchId); // if you have this
-      socketsInRoom?.forEach((sid) => state.removeRoom(sid, matchId));
-    });
-
     socket.on("gameData", (payload) => {
       try {
+        console.log(payload);
         const { matchId, ...data } = payload;
         if (!matchId) return;
         state.setMatchData(matchId, data);
-        io.to(matchId).emit("matchData", { matchId, data });
-        // console.log(`${ts()} 📡  gameData → room "${matchId}" (${state.getRoomCount(io, matchId)} watchers)`);
+
+        // Broadcast to everyone in the room EXCEPT the sender
+        socket
+          .to(matchId)
+          .emit("matchData", { matchId, data, fromSocketId: socket.id });
+
+        // Also send to sender but with fromSocketId so they can filter if needed
+        socket.emit("matchData", { matchId, data, fromSocketId: socket.id });
       } catch (err) {
-        console.error(`${ts()} ❌  Error processing gameData:`, err);
         socket.emit("serverError", { message: "Failed to process game data" });
       }
     });
@@ -134,7 +158,6 @@ const setupSocketHandlers = (io, state) => {
     socket.on("ping", () => socket.emit("pong"));
 
     socket.on("disconnect", (reason) => {
-      console.log(`${ts()} ❌  Disconnected ${socket.id} (${reason})`);
       const rooms = new Set(state.getRooms(socket.id));
       state.removeClient(socket.id);
       if (rooms.size > 0) {
@@ -178,8 +201,6 @@ const startServer = async () => {
     const io = new Server(server, {
       path: CONFIG.socketPath,
       cors: {
-        // FIX 1: accept any origin in dev, specific domain in production
-        // FIX 2: credentials removed — incompatible with origin: true
         origin: process.env.NEXT_CLIENT_ORIGIN || true,
         methods: ["GET", "POST"],
       },

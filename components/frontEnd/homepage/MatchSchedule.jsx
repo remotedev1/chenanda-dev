@@ -311,6 +311,33 @@ export default function FieldHockeySchedule() {
     (m) => toTabStatus(m.status) === "live",
   ).length;
 
+  const topScorers = useMemo(() => {
+    const playerMap = new Map();
+
+    matches.forEach((match) => {
+      (match.participants ?? []).forEach((p) => {
+        const goals = p.hockeyData?.goalDetails ?? [];
+        goals.forEach((goal) => {
+          const key = goal.playerId;
+          if (!key) return;
+          if (!playerMap.has(key)) {
+            playerMap.set(key, {
+              id: key,
+              name: goal.playerName ?? "Unknown",
+              team: p.family ?? "Unknown",
+              goals: 0,
+            });
+          }
+          playerMap.get(key).goals += 1;
+        });
+      });
+    });
+
+    return Array.from(playerMap.values())
+      .sort((a, b) => b.goals - a.goals)
+      .slice(0, 10);
+  }, [matches]);
+
   return (
     <div className="bg-primary p-4 py-12 md:p-16 relative">
       <div className="max-w-7xl mx-auto">
@@ -325,7 +352,7 @@ export default function FieldHockeySchedule() {
             <span className="text-secondary bg-clip-text">Dashboard</span>
           </h1>
           <p className="text-white/75 text-lg">
-            Field Hockey Championship 2026
+           Kodava Hockey Tournament
           </p>
         </motion.div>
 
@@ -405,7 +432,7 @@ export default function FieldHockeySchedule() {
                         )}
                         <span className="relative z-10 flex items-center gap-2">
                           {tab}
-                          {tab === "live" && liveCount > 0 && (
+                          {/* {tab === "live" && liveCount > 0 && (
                             <motion.span
                               animate={{ scale: [1, 1.2, 1] }}
                               transition={{ duration: 1.5, repeat: Infinity }}
@@ -413,7 +440,7 @@ export default function FieldHockeySchedule() {
                             >
                               {liveCount}
                             </motion.span>
-                          )}
+                          )} */}
                         </span>
                       </motion.button>
                     ))}
@@ -440,16 +467,18 @@ export default function FieldHockeySchedule() {
                     </motion.div>
                   ) : (
                     // ✅ OTHER TABS → show match cards
-                    <motion.div
-                      layout
-                      className="grid gap-2.5 mx-auto [grid-template-columns:repeat(auto-fill,minmax(340px,1fr))]"
-                    >
-                      <AnimatePresence mode="popLayout">
-                        {filteredMatches.map((match) => (
-                          <MatchCard key={match.id} match={match} />
-                        ))}
-                      </AnimatePresence>
-                    </motion.div>
+                    <div className=" max-h-screen overflow-y-scroll">
+                      <motion.div
+                        layout
+                        className="grid gap-2.5 mx-auto [grid-template-columns:repeat(auto-fill,minmax(340px,1fr))]"
+                      >
+                        <AnimatePresence mode="popLayout">
+                          {filteredMatches.map((match) => (
+                            <MatchCard key={match.id} match={match} />
+                          ))}
+                        </AnimatePresence>
+                      </motion.div>
+                    </div>
                   )}
                   {filteredMatches.length === 0 && (
                     <motion.div

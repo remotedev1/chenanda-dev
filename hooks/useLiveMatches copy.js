@@ -1,4 +1,3 @@
-"use client"
 import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
@@ -207,7 +206,7 @@ export function useLiveMatchControl(
       setIsConnected(true);
       s.emit("joinMatch", id);
     };
-
+    
     const onDisconnect = () => setIsConnected(false);
 
     const onMatchData = ({ matchId: mid, data, fromSocketId }) => {
@@ -221,7 +220,6 @@ export function useLiveMatchControl(
     };
 
     const onMatchStarted = ({ matchId: mid, data, fromSocketId }) => {
-      console.log(" i ran");
       const key = `started-${mid}`;
       if (fromSocketId === s?.id && selfEmittedRef.current.has(key)) {
         selfEmittedRef.current.delete(key);
@@ -360,16 +358,10 @@ export function useLiveMatchControl(
       errorMsg: "Failed to start match",
     });
 
-    if (!updated) {
-      console.log("[useLiveMatchControl] ❌ No updated data");
-      return;
-    }
+    if (!updated) return;
 
     const s = getSocket();
-    if (!s) {
-      console.log("[useLiveMatchControl] ❌ No socket!");
-      return updated;
-    }
+    if (!s) return;
 
     selfEmittedRef.current.add(`started-${matchId}`);
     s.emit("matchStarted", { matchId: String(matchId), data: updated });
@@ -378,8 +370,6 @@ export function useLiveMatchControl(
       fromSocketId: s.id,
       ...updated,
     });
-
-    return updated; // Return the promise
   }, [run, patch, matchId]);
 
   const endMatch = useCallback(() => {
@@ -600,35 +590,22 @@ export function useLiveMatchControl(
   );
 
   const setWalkover = useCallback(
-    (familyId) => {
-      const m = matchRef.current;
-
-      return run({
+    (familyId) =>
+      run({
         optimisticFn: (m) => ({
           ...m,
           status: "COMPLETED",
-          actualEndTime: new Date().toISOString(),
           winnerId: familyId,
-          isDraw: false,
           participants: m.participants.map((p) => ({
             ...p,
             walkover: p.familyId === familyId,
           })),
         }),
         apiFn: () => patch({ action: "SET_WALKOVER", familyId }),
-        successMsg: "Walkover awarded - Match ended",
+        successMsg: "Walkover awarded",
         errorMsg: "Failed to set walkover",
-      }).then((updated) => {
-        if (!updated) return;
-        const s = getSocket();
-        if (!s) return;
-
-        selfEmittedRef.current.add(`ended-${matchId}`);
-        s.emit("matchEnded", { matchId: String(matchId), data: updated });
-        s.emit("leaveMatch", String(matchId));
-      });
-    },
-    [run, patch, matchId],
+      }),
+    [run, patch],
   );
 
   const addNote = useCallback(

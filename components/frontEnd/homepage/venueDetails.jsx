@@ -41,7 +41,7 @@ const VenueCard = ({ arena, match, index }) => {
       <div className="p-5 sm:p-6">
         {/* Live Match */}
         {match ? (
-          <div className="mb-5 p-4 rounded-xl bg-white/5 border border-white/10">
+          <div className="mb-5 p-4 rounded-xl bg-white/5 border border-black">
             {/* Live badge */}
             <div className="flex items-center gap-2 mb-4">
               <span className="relative flex h-2 w-2">
@@ -51,7 +51,7 @@ const VenueCard = ({ arena, match, index }) => {
               <span className="text-green-400 text-xs font-semibold uppercase tracking-widest">
                 {match.status}
               </span>
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 text-white/50 text-xs">
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 text-black text-xs">
                 <Clock className="w-3 h-3" />
                 <span>{match.currentPeriod}</span>
               </div>
@@ -59,21 +59,21 @@ const VenueCard = ({ arena, match, index }) => {
 
             {/* Score */}
             <div className="flex items-center justify-between gap-3">
-              <span className="flex-1 text-right text-white font-bold text-sm sm:text-base truncate capitalize">
+              <span className="flex-1 text-right text-black font-bold text-sm sm:text-base truncate capitalize">
                 {team1Name}
               </span>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xl sm:text-2xl font-black text-white tabular-nums">
+                <span className="text-xl sm:text-2xl font-black text-black tabular-nums">
                   {score1}
                 </span>
-                <span className="text-white/20 text-sm">—</span>
-                <span className="text-xl sm:text-2xl font-black text-white tabular-nums">
+                <span className="text-black/20 text-sm">—</span>
+                <span className="text-xl sm:text-2xl font-black text-black tabular-nums">
                   {score2}
                 </span>
               </div>
 
-              <span className="flex-1 text-left text-white font-bold text-sm sm:text-base truncate capitalize">
+              <span className="flex-1 text-left text-black font-bold text-sm sm:text-base truncate capitalize">
                 {team2Name}
               </span>
             </div>
