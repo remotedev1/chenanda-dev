@@ -36,23 +36,22 @@ function getSocket() {
 // ─────────────────────────────────────────────────────────────────────────────
 export function useLiveMatches(apiUrl = "/api/tournaments/live") {
   const wantedRooms = useRef(new Set());
-  const [matches, setMatches] = useState([]);
+  const [matches, setMatches] = useState({ data: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
-  // ── joinRoom ──────────────────────────────────────────────────────────────
   const joinRoom = useCallback((rawId) => {
     if (!rawId) return;
     const matchId = String(rawId);
     wantedRooms.current.add(matchId);
     const s = getSocket();
+
     if (s?.connected) {
       s.emit("joinMatch", matchId);
     }
   }, []);
 
-  // ── load ──────────────────────────────────────────────────────────────────
   const load = useCallback(async () => {
     setError(null);
     try {
@@ -68,20 +67,27 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
             ? json.data.data
             : [];
 
+      // 🔍 BUG 1: setMatches receives { data: list } (an object, not an array).
+      // Later, onMatchData does `prev?.data ?? []` which works — BUT the initial
+      // useState([]) is an array, so the very first render sees [] and the shape
+      // flips to an object after load. Any code reading `matches` directly
+      // (not matches.data) will see {} and show nothing.
       setMatches({ data: list });
-      list.forEach((m) => joinRoom(m.id));
+
+      list.forEach((m) => {
+        // 🔍 LOG 3: confirm IDs being registered
+        joinRoom(m.id);
+      });
     } catch (err) {
       setError(err.message);
     }
   }, [apiUrl, joinRoom]);
 
-  // ── Initial load ──────────────────────────────────────────────────────────
   useEffect(() => {
     setLoading(true);
     load().finally(() => setLoading(false));
   }, [load]);
 
-  // ── Socket lifecycle ──────────────────────────────────────────────────────
   useEffect(() => {
     const s = getSocket();
     if (!s) return;
@@ -92,32 +98,44 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
 
     const onConnect = () => {
       setIsConnected(true);
+      // 🔍 BUG 2: setTimeout(syncRooms, 0) runs after microtasks but load() is
+      // async — if the fetch hasn't resolved yet, wantedRooms is still empty here.
+      // Rooms will never be joined on the initial connect.
       setTimeout(syncRooms, 0);
     };
 
     const onDisconnect = (reason) => {
-      console.log("[useLiveMatches] disconnected:", reason);
       setIsConnected(false);
     };
 
     const onMatchData = ({ matchId, data }) => {
-      if (!matchId || !data) return;
+      if (!matchId || !data) {
+        return;
+      }
+
       setMatches((prev) => {
         const list = prev?.data ?? [];
-        const exists = list.some((m) => String(m.id) === String(matchId));
-        if (!exists) return prev; // matchStarted handles new ones
-        return {
-          ...prev,
-          data: list.map((m) =>
-            String(m.id) === String(matchId) ? { ...m, ...data, id: m.id } : m,
-          ),
-        };
+
+        // 🔍 LOG 5: is the incoming matchId actually in our list?
+        const incomingId = String(matchId);
+        const ids = list.map((m) => String(m.id));
+
+        // 🔍 BUG 3 CANDIDATE: if server sends matchId as a number and m.id is
+        // a string (or UUID vs int), String() coercion may still not match
+        const exists = ids.includes(incomingId);
+        if (!exists) {
+          return prev;
+        }
+
+        const updated = list.map((m) =>
+          String(m.id) === incomingId ? { ...m, ...data, id: m.id } : m,
+        );
+
+        return { ...prev, data: updated };
       });
     };
 
-    // ✅ A new match just went live — refetch the full list
     const onMatchStarted = ({ matchId }) => {
-      console.log("[useLiveMatches] matchStarted →", matchId);
       load();
     };
 
@@ -345,12 +363,19 @@ export function useLiveMatchControl(
   }, [run, patch]);
 
   const setPeriod = useCallback(
-    (period) =>
-      run({
-        optimisticFn: (m) => ({ ...m, currentPeriod: period }),
-        apiFn: () => patch({ action: "SET_PERIOD", period }),
+    (period) => {
+      return run({
+        optimisticFn: (m) => {
+          return { ...m, currentPeriod: period };
+        },
+        apiFn: () => {
+          return patch({ action: "SET_PERIOD", period }).then((res) => {
+            return res;
+          });
+        },
         errorMsg: "Failed to update period",
-      }),
+      });
+    },
     [run, patch],
   );
 

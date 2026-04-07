@@ -311,42 +311,6 @@ export default function FieldHockeySchedule() {
     (m) => toTabStatus(m.status) === "live",
   ).length;
 
-  // After the existing state/hook declarations, add:
-  useEffect(() => {
-    const interval = setInterval(refresh, 2 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [refresh]);
-
-  const topScorers = useMemo(() => {
-    const map = new Map();
-
-    matches.forEach((match) => {
-      match.participants?.forEach((p) => {
-        const goals = p?.hockeyData?.goalDetails ?? [];
-
-        goals.forEach((g) => {
-          if (!g.playerName) return;
-
-          const key = g.playerName;
-
-          if (!map.has(key)) {
-            map.set(key, {
-              name: g.playerName,
-              team: p.family,
-              goals: 0,
-            });
-          }
-
-          map.get(key).goals += 1;
-        });
-      });
-    });
-
-    return Array.from(map.values())
-      .sort((a, b) => b.goals - a.goals)
-      .slice(0, 5);
-  }, [matches]);
-
   return (
     <div className="bg-primary p-4 py-12 md:p-16 relative">
       <div className="max-w-7xl mx-auto">

@@ -478,7 +478,6 @@ export default function LiveCard({ match }) {
   const [audioReady, setAudioReady] = useState(false);
   const { playNotification } = useAudioEngine();
 
-
   // Show "click to enable audio" hint until first interaction
   useEffect(() => {
     const onInteract = () => {
