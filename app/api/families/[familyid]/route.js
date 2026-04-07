@@ -42,7 +42,13 @@ async function handleGet(request, { params }) {
   });
   if (setup.error) return setup.error;
 
-  const { familyId } = await params;
+  const resolvedParams = await params;
+  const { familyId } = resolvedParams;
+
+  if (!familyId) {
+    return errorResponse("Missing familyId param", 400);
+  }
+
   // Fetch family with related data
   const family = await db.families.findUnique({
     where: { id: familyId },
@@ -51,15 +57,6 @@ async function handleGet(request, { params }) {
         select: {
           id: true,
           playerName: true,
-        },
-      },
-
-      _count: {
-        select: {
-          players: true,
-          participations: true,
-          placements: true,
-          payments: true,
         },
       },
     },
@@ -78,7 +75,7 @@ async function handlePatch(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { familyId } = params;
+  const { familyId } = await params;
   // Validate body
   const body = await request.json();
   const validated = updateFamilySchema.parse(body);
@@ -151,7 +148,7 @@ async function handleDelete(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { familyId } = params;
+  const { familyId } = await params;
 
   // Check if family exists
   const family = await db.families.findUnique({

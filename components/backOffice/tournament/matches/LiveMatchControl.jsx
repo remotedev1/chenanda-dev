@@ -247,9 +247,6 @@ function ScoreBoard({ match }) {
 
         {/* Team 2 */}
         <div className="flex-1 text-right">
-          <p className="text-slate-400 text-xs uppercase tracking-widest mb-1 font-mono">
-            Away
-          </p>
           <h2 className="text-slate-900 font-black text-xl md:text-2xl lg:text-3xl tracking-tight leading-none mb-3">
             {t2?.family?.toUpperCase()}
           </h2>
