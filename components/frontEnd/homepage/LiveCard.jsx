@@ -8,7 +8,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 function useAudioEngine() {
   const ctxRef = useRef(null);
 
-  // ✅ Prime AudioContext on first user gesture (fixes browser autoplay block)
   useEffect(() => {
     const prime = () => {
       if (!ctxRef.current) {
@@ -38,7 +37,6 @@ function useAudioEngine() {
     return ctxRef.current;
   }, []);
 
-  // 🏁 Match complete: triumphant fanfare
   const playNotification = useCallback(() => {
     try {
       const ctx = getCtx();
@@ -83,17 +81,29 @@ const NOTIF_STYLES = {
     label: "SHOOTOUT",
   },
   COMPLETE: {
-    icon: "🏁",
+    icon: "🏆",
     bg: "linear-gradient(135deg, #1c1917 0%, #292524 100%)",
     border: "#f59e0b",
     accent: "#fbbf24",
+    label: "FULL TIME",
+  },
+  // ✅ NEW: separate style for draws
+  COMPLETE_DRAW: {
+    icon: "🤝",
+    bg: "linear-gradient(135deg, #1c1917 0%, #292524 100%)",
+    border: "#94a3b8",
+    accent: "#cbd5e1",
     label: "FULL TIME",
   },
 };
 
 function NotificationToast({ notif, onDismiss }) {
   const [visible, setVisible] = useState(false);
-  const s = NOTIF_STYLES[notif.type] || NOTIF_STYLES.GOAL;
+  // ✅ Use COMPLETE_DRAW style for draws, otherwise fall back to COMPLETE
+  const styleKey = notif.type === "COMPLETE" && notif.isDraw
+    ? "COMPLETE_DRAW"
+    : notif.type;
+  const s = NOTIF_STYLES[styleKey] || NOTIF_STYLES.GOAL;
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 10);
@@ -239,7 +249,6 @@ function useMatchEvents(match, onGoal, onShootout, onComplete) {
     const prevParticipants = prev.participants ?? [];
     const currParticipants = match.participants ?? [];
 
-    // ── Goal detection ──────────────────────────────────────────────────
     currParticipants.forEach((cp, idx) => {
       const pp = prevParticipants[idx];
       const prevGoals = pp?.hockeyData?.goals ?? pp?.footballData?.goals ?? 0;
@@ -273,7 +282,6 @@ function useMatchEvents(match, onGoal, onShootout, onComplete) {
       }
     });
 
-    // ── Shootout detection ──────────────────────────────────────────────
     currParticipants.forEach((cp, idx) => {
       const pp = prevParticipants[idx];
       const prevSO = pp?.hockeyData?.shootoutResults ?? [];
@@ -290,7 +298,6 @@ function useMatchEvents(match, onGoal, onShootout, onComplete) {
       }
     });
 
-    // ── Match complete ──────────────────────────────────────────────────
     const completedStatuses = ["COMPLETED", "WALKOVER"];
     if (
       !completedStatuses.includes(prev.status) &&
@@ -300,10 +307,22 @@ function useMatchEvents(match, onGoal, onShootout, onComplete) {
       const t2 = currParticipants[1];
       const s1 = t1?.hockeyData?.goals ?? t1?.footballData?.goals ?? 0;
       const s2 = t2?.hockeyData?.goals ?? t2?.footballData?.goals ?? 0;
-      const winner = s1 > s2 ? t1?.family : s2 > s1 ? t2?.family : null;
+
+      // ✅ Prefer matchWinner field; fall back to score comparison
+      const winner = match.matchWinner
+        ? match.matchWinner
+        : s1 > s2
+        ? t1?.family
+        : s2 > s1
+        ? t2?.family
+        : null;
+
+      const isDraw = !winner;
+
       onComplete({
         type: "COMPLETE",
-        title: winner ? `${winner} win!` : "Match ends — Draw!",
+        isDraw,
+        title: winner ? `${winner} win!` : "It's a draw!",
         subtitle: `Final score: ${s1} – ${s2}`,
       });
     }
@@ -440,6 +459,52 @@ function GoalFeed({ participants }) {
   );
 }
 
+// ✅ NEW: Winner banner shown inside the card when matchWinner is set
+function WinnerBanner({ winner, score1, score2 }) {
+  return (
+    <div
+      style={{
+        marginTop: 10,
+        borderRadius: 8,
+        background: "linear-gradient(90deg, #78350f 0%, #92400e 100%)",
+        border: "1px solid #f59e0b",
+        padding: "7px 12px",
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+      }}
+    >
+      <span style={{ fontSize: 16 }}>🏆</span>
+      <div>
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: "0.12em",
+            color: "#fbbf24",
+            textTransform: "uppercase",
+          }}
+        >
+          Winner
+        </span>
+        <p
+          style={{
+            margin: 0,
+            fontSize: 13,
+            fontWeight: 700,
+            color: "#fef3c7",
+          }}
+        >
+          {winner}{" "}
+          <span style={{ fontWeight: 400, color: "#fbbf2488" }}>
+            {score1} – {score2}
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function useUpdatePulse(match) {
   const [pulse, setPulse] = useState(false);
   const isFirst = useRef(true);
@@ -463,7 +528,6 @@ export default function LiveCard({ match }) {
   const [audioReady, setAudioReady] = useState(false);
   const { playNotification } = useAudioEngine();
 
-  // Show "click to enable audio" hint until first interaction
   useEffect(() => {
     const onInteract = () => {
       setAudioReady(true);
@@ -521,7 +585,19 @@ export default function LiveCard({ match }) {
   const so1 = shootoutResults(t1);
   const so2 = shootoutResults(t2);
   const isLive = match.status === "LIVE";
+  const isCompleted = ["COMPLETED", "WALKOVER"].includes(match.status);
   const { bg: statusBg, text: statusText } = statusColor(match.status);
+
+  // ✅ Resolve winner: prefer matchWinner field, fall back to score
+  const winner = match.matchWinner
+    ? match.matchWinner
+    : isCompleted
+    ? score1 > score2
+      ? t1?.family
+      : score2 > score1
+      ? t2?.family
+      : null
+    : null;
 
   return (
     <>
@@ -544,7 +620,6 @@ export default function LiveCard({ match }) {
         }}
         className="select-none p-2 md:p-4 w-[90vw] md:w-[400px] "
       >
-        {/* Audio hint */}
         {!audioReady && (
           <div
             style={{
@@ -644,6 +719,10 @@ export default function LiveCard({ match }) {
               className="text-sm md:text-md"
             >
               {t1?.family?.toUpperCase() ?? "—"}
+              {/* ✅ Trophy icon next to winner's name */}
+              {isCompleted && winner === t1?.family && (
+                <span style={{ marginLeft: 4, fontSize: 12 }}>🏆</span>
+              )}
             </p>
             {so1.length > 0 && <ShootoutRow results={so1} align="left" />}
           </div>
@@ -720,6 +799,10 @@ export default function LiveCard({ match }) {
               }}
               className="text-sm md:text-md"
             >
+              {/* ✅ Trophy icon next to winner's name */}
+              {isCompleted && winner === t2?.family && (
+                <span style={{ marginRight: 4, fontSize: 12 }}>🏆</span>
+              )}
               {t2?.family?.toUpperCase() ?? "—"}
             </p>
             {so2.length > 0 && <ShootoutRow results={so2} align="right" />}
@@ -728,6 +811,11 @@ export default function LiveCard({ match }) {
 
         {/* Goal feed */}
         {match.participants && <GoalFeed participants={match.participants} />}
+
+        {/* ✅ Winner banner — only shown when match is complete AND there's a winner (not a draw) */}
+        {isCompleted && winner && (
+          <WinnerBanner winner={winner} score1={score1} score2={score2} />
+        )}
 
         {/* Footer */}
         <div
