@@ -103,6 +103,21 @@ const setupSocketHandlers = (io, state) => {
       io.to(matchId).emit("watcherCount", { matchId, count });
     });
 
+    socket.on("matchEnded", ({ matchId, data }) => {
+      if (!matchId) return;
+
+      // Broadcast final state to all watchers before clearing
+      io.to(matchId).emit("matchData", { matchId, data });
+      io.to(matchId).emit("watcherCount", { matchId, count: 0 });
+
+      // Kick every socket out of the room
+      io.in(matchId).socketsLeave(matchId);
+
+      // Clean up state for all sockets that were in this room
+      const socketsInRoom = state.getRoomSockets?.(matchId); // if you have this
+      socketsInRoom?.forEach((sid) => state.removeRoom(sid, matchId));
+    });
+
     socket.on("gameData", (payload) => {
       try {
         const { matchId, ...data } = payload;

@@ -330,10 +330,8 @@ export function useLiveMatchControl(
     let isDraw = false;
 
     if (goals1 !== goals2) {
-      // decided by field goals
       winnerId = goals1 > goals2 ? p1?.familyId : p2?.familyId;
     } else if (hasShootout) {
-      // decided by shootout
       if (so1 !== so2) {
         winnerId = so1 > so2 ? p1?.familyId : p2?.familyId;
       } else {
@@ -351,17 +349,18 @@ export function useLiveMatchControl(
         winnerId,
         isDraw,
       }),
-      apiFn: () =>
-        patch({
-          action: "END_MATCH",
-          winnerId,
-          isDraw,
-        }),
-      successMsg: isDraw ? "Match ended — Draw" : `Match ended — Winner set 🏆`,
+      apiFn: () => patch({ action: "END_MATCH", winnerId, isDraw }),
+      successMsg: isDraw ? "Match ended — Draw" : "Match ended — Winner set 🏆",
       errorMsg: "Failed to end match",
+    }).then((updated) => {
+      if (!updated) return;
+      const s = getSocket();
+      if (!s) return;
+      // Notify all watchers, then evict everyone from the room
+      s.emit("matchEnded", { matchId: String(matchId), data: updated });
+      s.emit("leaveMatch", String(matchId));
     });
-  }, [run, patch]);
-
+  }, [run, patch, matchId]);
   const setPeriod = useCallback(
     (period) => {
       return run({
