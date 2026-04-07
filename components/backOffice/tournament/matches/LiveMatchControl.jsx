@@ -385,36 +385,6 @@ function PlayerCombobox({
       ? "bg-cyan-50 border-cyan-300 text-cyan-700 hover:bg-cyan-100"
       : "bg-violet-50 border-violet-300 text-violet-700 hover:bg-violet-100";
 
-  const CreateForm = () => (
-    <div className="flex flex-col gap-2">
-      <input
-        type="number"
-        placeholder="Jersey # (optional)"
-        value={jerseyNumber}
-        onChange={(e) => setJerseyNumber(Number(e.target.value))}
-        className="h-8 px-3 w-full rounded-lg bg-white border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-400"
-      />
-      <button
-        type="button"
-        onClick={async () => {
-          await onCreateAndSelect(query.trim(), jerseyNumber || null);
-          setOpen(false);
-          setQuery("");
-          setJerseyNumber("");
-        }}
-        disabled={isCreating}
-        className={`w-full flex items-center justify-center gap-2 h-9 px-3 rounded-lg text-xs font-semibold border transition-all ${accentBtn}`}
-      >
-        {isCreating ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          <Plus className="h-3.5 w-3.5" />
-        )}
-        {isCreating ? "Creating…" : `Add "${query.trim()}"`}
-      </button>
-    </div>
-  );
-
   return (
     <div className="relative">
       {/* Trigger */}
@@ -528,7 +498,36 @@ function PlayerCombobox({
                   <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider px-1">
                     Add &ldquo;{query.trim()}&rdquo; as new player
                   </p>
-                  <CreateForm />
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="number"
+                      placeholder="Jersey # (optional)"
+                      value={jerseyNumber}
+                      onChange={(e) => setJerseyNumber(Number(e.target.value))}
+                      className="h-8 px-3 w-full rounded-lg bg-white border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await onCreateAndSelect(
+                          query.trim(),
+                          jerseyNumber || null,
+                        );
+                        setOpen(false);
+                        setQuery("");
+                        setJerseyNumber("");
+                      }}
+                      disabled={isCreating}
+                      className={`w-full flex items-center justify-center gap-2 h-9 px-3 rounded-lg text-xs font-semibold border transition-all ${accentBtn}`}
+                    >
+                      {isCreating ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Plus className="h-3.5 w-3.5" />
+                      )}
+                      {isCreating ? "Creating…" : `Add "${query.trim()}"`}
+                    </button>
+                  </div>
                 </div>
               )}
             </>
@@ -540,7 +539,33 @@ function PlayerCombobox({
               <p className="text-white text-xs font-semibold uppercase tracking-wider px-1">
                 No results — add &ldquo;{query.trim()}&rdquo;
               </p>
-              <CreateForm />
+              <div className="flex flex-col gap-2">
+                <input
+                  type="number"
+                  placeholder="Jersey # (optional)"
+                  value={jerseyNumber}
+                  onChange={(e) => setJerseyNumber(Number(e.target.value))}
+                  className="h-8 px-3 w-full rounded-lg bg-white border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-400"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await onCreateAndSelect(query.trim(), jerseyNumber || null);
+                    setOpen(false);
+                    setQuery("");
+                    setJerseyNumber("");
+                  }}
+                  disabled={isCreating}
+                  className={`w-full flex items-center justify-center gap-2 h-9 px-3 rounded-lg text-xs font-semibold border transition-all ${accentBtn}`}
+                >
+                  {isCreating ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Plus className="h-3.5 w-3.5" />
+                  )}
+                  {isCreating ? "Creating…" : `Add "${query.trim()}"`}
+                </button>
+              </div>
             </div>
           )}
         </div>

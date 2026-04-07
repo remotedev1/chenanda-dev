@@ -5,7 +5,7 @@ import LiveCard from "./LiveCard";
 
 export default function LiveScoreCarousel() {
   const { matches, loading, error } = useLiveMatches();
-
+  console.log(matches);
   return (
     <main style={{ maxWidth: 960, margin: "0 auto" }}>
       {error && (
