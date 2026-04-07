@@ -209,7 +209,7 @@ export default function HeroCarousel() {
             <div
               className={[
                 "absolute bottom-[90px] left-5 md:left-[120px]  z-10 max-w-[520px]",
-                "transition-all duration-[600ms] ease-out",
+                "transition-all duration-&lsqb;600ms&rsqb; ease-out",
                 isActive
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-5",

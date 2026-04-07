@@ -43,7 +43,7 @@ async function handleGet(request, { params }) {
   if (setup.error) return setup.error;
 
   const { familyId } = params;
-
+  console.log(familyId);
   // Fetch family with related data
   const family = await db.families.findUnique({
     where: { id: familyId },

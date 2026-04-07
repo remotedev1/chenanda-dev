@@ -805,7 +805,7 @@ function TeamPanel({
 
             {/* Goal list */}
             {goalDetails.length > 0 && (
-              <ScrollArea className="max-h-56 pr-1">
+              <ScrollArea className="max-h-56 pr-1 overflow-y-scroll">
                 <div className="space-y-1.5">
                   {goalDetails.map((goal, i) => (
                     <GoalRow

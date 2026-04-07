@@ -6,7 +6,7 @@ require("dotenv").config();
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 const CONFIG = {
-  dev: process.env.APP_ENV !== "production",
+  dev: process.env.NODE_ENV !== "production",
   port: parseInt(process.env.PORT, 10) || 3000,
   socketPath: "/socket.io",
   pingTimeout: 60000,

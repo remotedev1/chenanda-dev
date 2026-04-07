@@ -258,16 +258,11 @@ const TopPlayerCard = ({ player, topPlayers, rank }) => {
       <div className="relative p-6 pl-20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div
-              className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-gradient-to-br ${c.avatar}`}
-            >
-              {player.avatar}
-            </div>
             <div>
-              <h3 className="text-xl font-bold text-black mb-1">
+              <h3 className="text-xl font-bold text-white  capitalize mb-1">
                 {player.name}
               </h3>
-              <div className="flex items-center gap-2 text-sm text-gray-800">
+              <div className="flex items-center gap-2 text-sm text-white/75">
                 <Users className="w-4 h-4" />
                 <span>{player.team}</span>
               </div>
@@ -275,7 +270,7 @@ const TopPlayerCard = ({ player, topPlayers, rank }) => {
           </div>
           <div className="text-right">
             <motion.div
-              className={`text-4xl font-black ${c.score}`}
+              className={`text-4xl font-black text-white`}
               animate={rank === 0 ? { scale: [1, 1.1, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
             >

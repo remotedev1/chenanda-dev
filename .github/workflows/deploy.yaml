@@ -1,4 +1,4 @@
-name: Deploy Next.js App
+name: Deploy Next.js App to DigitalOcean Droplet
 
 on:
   push:
@@ -32,13 +32,28 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
+      - name: Copy files to Droplet via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: "--prod"
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          port: 22
+          source: ".next/,public/,package.json,package-lock.json,next.config.*"
+          target: "/var/www/nextjs-app"
+
+      - name: SSH & Restart App
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          port: 22
+          script: |
+            cd /var/www/nextjs-app
+            npm ci --omit=dev
+            pm2 restart nextjs-app || pm2 start npm --name "nextjs-app" -- start
+            pm2 save
 
   notify:
     name: Notify on failure
@@ -53,3 +68,72 @@ jobs:
           echo "Commit: ${{ github.sha }}"
           echo "Author: ${{ github.actor }}"
           # Add Slack/email notification here if needed
+
+
+ssh root@<your-droplet-IP-address>
+sudo nano /etc/nginx/sites-available/frontend-app
+
+# Change `server_name` to your domain name
+server_name www.chenanda.in;
+
+# Reload Nginx
+sudo nginx -t
+sudo service nginx reload
+
+
+server {
+    listen 80;
+    server_name  www.chenanda.in;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+cd your-nextjs-app
+
+# Install Node.js
+sudo apt-get install -y nodejs
+node -v
+
+# Install Yarn
+npm install -g yarn
+
+# Install Nginx
+sudo apt-get install -y nginx
+
+# Configure Nginx
+sudo nano /etc/nginx/sites-available/frontend-app
+
+# Add the following content to the file
+server {
+    listen 80;
+    server_name  www.chenanda.in;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# Enable the configuration
+sudo ln -s /etc/nginx/sites-available/frontend-app /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo service nginx restart
+
+# Build and Start the Application
+yarn install
+yarn build
+npm install pm2 -g
+pm2 start yarn --name "frontend" -- start
+pm2 save
+pm2 list
