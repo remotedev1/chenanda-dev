@@ -16,6 +16,7 @@ export const publicRoutes = [
   "/api/tournaments/sponsors",
   "/payment/error ",
   "/api/tournaments/live ",
+  "/completed-matches"
 ];
 
 /**

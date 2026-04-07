@@ -33,12 +33,11 @@ const SponsorCard = ({ sponsor }) => (
 const SponsorsList = () => {
   const { sponsors, loading } = useSponsors({ status: true, limit: 50 });
 
-const displaySponsors = (() => {
-  if (!sponsors.length) return [];
-  const shuffled = shuffleArray(sponsors);
-  return [...shuffled, ...shuffled];
-})();
-
+  const displaySponsors = (() => {
+    if (!sponsors.length) return [];
+    const shuffled = shuffleArray(sponsors);
+    return [...shuffled, ...shuffled];
+  })();
 
   if (loading)
     return (
@@ -57,10 +56,10 @@ const displaySponsors = (() => {
   if (!displaySponsors.length) return null;
 
   return (
-    <div className="py-8 bg-gradient-to-r from-amber-600 to-orange-600 overflow-hidden">
+    <div className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 bg-gradient-to-r from-amber-600 to-orange-600 overflow-hidden">
       {/* Header */}
       <div className="text-center mb-10 px-4">
-        <p className="text-white text-xl lg:text-2xl uppercase tracking-widest font-semibold">
+        <p className="text-white text-xl md:text-4xl uppercase tracking-widest font-semibold">
           Our Proud Sponsors
         </p>
       </div>

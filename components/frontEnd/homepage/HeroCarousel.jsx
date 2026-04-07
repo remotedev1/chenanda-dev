@@ -203,7 +203,7 @@ export default function HeroCarousel() {
             />
 
             {/* 3. Dark overlay — above image, for text legibility */}
-            <div className="absolute inset-0 z-[2] bg-black/50" aria-hidden />
+            <div className="absolute inset-0 z-[2] bg-black/40" aria-hidden />
 
             {/* 4. Slide content — highest layer */}
             <div

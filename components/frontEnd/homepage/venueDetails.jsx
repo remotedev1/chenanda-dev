@@ -36,7 +36,7 @@ const VenueCard = ({ arena, match, index }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.4 }}
-      className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden"
+      className="bg-white border border-white/10 rounded-2xl overflow-hidden"
     >
       <div className="p-5 sm:p-6">
         {/* Live Match */}
@@ -105,8 +105,8 @@ const VenueCard = ({ arena, match, index }) => {
             )}
           </div>
         ) : (
-          <div className="mb-5 p-4 rounded-xl bg-white/[0.03] border border-white/8">
-            <span className="text-white/25 text-xs font-medium tracking-wide">
+          <div className="mb-5 p-4 rounded-xl bg-white/[0.03] border border-black">
+            <span className="text-black text-xs font-medium tracking-wide">
               No match in progress
             </span>
           </div>
@@ -115,14 +115,14 @@ const VenueCard = ({ arena, match, index }) => {
         {/* Arena name + location */}
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
+            <h3 className="text-lg sm:text-xl font-black text-black tracking-tight">
               {arena
                 .replaceAll("_", " ")
                 .toLowerCase()
                 .replace(/\b\w/g, (c) => c.toUpperCase())}
             </h3>
 
-            <div className="flex items-center gap-1 mt-0.5 text-white/30">
+            <div className="flex items-center gap-1 mt-0.5 text-black">
               <MapPin className="w-3 h-3" />
               <span className="text-xs">{meta?.location}</span>
             </div>
@@ -148,7 +148,7 @@ export default function VenueDetails() {
   }, {});
 
   return (
-    <div className="min-h-screen py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 bg-primary">
+    <div className=" py-12 sm:py-16 md:py-20 px-4 sm:px-6 md:px-8 bg-primary">
       <div className="relative max-w-5xl mx-auto">
         {/* Header */}
         <motion.div

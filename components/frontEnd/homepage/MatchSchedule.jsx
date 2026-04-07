@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Clock,
@@ -18,6 +12,8 @@ import {
 } from "lucide-react";
 import { useMatches } from "@/hooks/useMatch";
 import LiveScoreCarousel from "./LiveScoreMain";
+import { isToday } from "@/lib/utils";
+import Link from "next/link";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -303,9 +299,13 @@ export default function FieldHockeySchedule() {
   const { matches, loading, refresh } = useMatches();
   const tabs = ["live", "upcoming", "completed"];
 
-  const filteredMatches = matches.filter(
-    (m) => toTabStatus(m.status) === activeTab,
-  );
+  const filteredMatches = matches.filter((m) => {
+    if (toTabStatus(m.status) !== activeTab) return false;
+    // Live tab shows all live matches regardless of date
+    if (activeTab === "live") return true;
+    // Upcoming and completed only show today's matches
+    return isToday(m.scheduledOn);
+  });
 
   const liveCount = matches.filter(
     (m) => toTabStatus(m.status) === "live",
@@ -314,7 +314,6 @@ export default function FieldHockeySchedule() {
   // After the existing state/hook declarations, add:
   useEffect(() => {
     const interval = setInterval(refresh, 2 * 60 * 1000);
-    console.log("i ran" + new Date().toLocaleTimeString());
     return () => clearInterval(interval);
   }, [refresh]);
 
@@ -473,7 +472,7 @@ export default function FieldHockeySchedule() {
                       exit={{ opacity: 0 }}
                       className="w-full"
                     >
-                      <LiveScoreCarousel matches={filteredMatches} />
+                      <LiveScoreCarousel />
                     </motion.div>
                   ) : (
                     // ✅ OTHER TABS → show match cards
@@ -534,6 +533,41 @@ export default function FieldHockeySchedule() {
             </motion.div>
           )}
         </AnimatePresence>
+        <Link
+          href="/completed-matches"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            background: "#0f172a",
+            border: "2px solid #3b82f6",
+            borderRadius: 12,
+            padding: "14px 20px",
+            cursor: "pointer",
+            fontFamily: "'DM Sans', sans-serif",
+            textDecoration: "none",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#1e3a5f";
+            e.currentTarget.style.borderColor = "#60a5fa";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "#0f172a";
+            e.currentTarget.style.borderColor = "#3b82f6";
+          }}
+          className="w-fit mx-auto mt-4"
+        >
+          <span style={{ fontSize: 20 }}>🏆</span>
+          <div style={{ textAlign: "left", flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>
+              Match Results
+            </div>
+            <div style={{ fontSize: 11, color: "#94a3b8" }}>
+              View all completed matches →
+            </div>
+          </div>
+        </Link>
       </div>
     </div>
   );

@@ -391,14 +391,13 @@ export function useLiveMatchControl(
     (playerId) =>
       run({
         optimisticFn: (m) => ({ ...m, manOfTheMatchId: playerId }),
-        apiFn: () => patch({ action: "MAN_OF_THE_MATCH", manOfTheMatchId: playerId }),
+        apiFn: () =>
+          patch({ action: "MAN_OF_THE_MATCH", manOfTheMatchId: playerId }),
         successMsg: "Player of the match set 🌟",
         errorMsg: "Failed to set player of match",
       }),
     [run, patch],
   );
-
-  
 
   const addHockeyGoal = useCallback(
     (familyId, goalForm) =>
