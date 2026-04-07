@@ -43,15 +43,15 @@ async function handleGet(request, { params }) {
   if (setup.error) return setup.error;
 
   const resolvedParams = await params;
-  const { familyId } = resolvedParams;
+  const { familyid } = resolvedParams;
 
-  if (!familyId) {
-    return errorResponse("Missing familyId param", 400);
+  if (!familyid) {
+    return errorResponse("Missing familyid param", 400);
   }
 
   // Fetch family with related data
   const family = await db.families.findUnique({
-    where: { id: familyId },
+    where: { id: familyid },
     include: {
       players: {
         select: {
@@ -75,14 +75,14 @@ async function handlePatch(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { familyId } = await params;
+  const { familyid } = await params;
   // Validate body
   const body = await request.json();
   const validated = updateFamilySchema.parse(body);
 
   // Check if family exists
   const existing = await db.families.findUnique({
-    where: { id: familyId },
+    where: { id: familyid },
   });
 
   if (!existing) {
@@ -148,11 +148,11 @@ async function handleDelete(request, { params }) {
   if (setup.error) return setup.error;
 
   const { user } = await auth();
-  const { familyId } = await params;
+  const { familyid } = await params;
 
   // Check if family exists
   const family = await db.families.findUnique({
-    where: { id: familyId },
+    where: { id: familyid },
     include: {
       _count: {
         select: {
@@ -202,7 +202,7 @@ async function handleDelete(request, { params }) {
 
   // Delete family
   await db.families.delete({
-    where: { id: familyId },
+    where: { id: familyid },
   });
 
   // Log activity
@@ -210,13 +210,13 @@ async function handleDelete(request, { params }) {
     userId: user.id,
     action: "deleted",
     entity: "family",
-    entityId: familyId,
+    entityId: familyid,
     entityName: family.familyName,
     description: `Deleted family "${family.familyName}"`,
     request,
   });
 
-  return successResponse({ id: familyId }, "Family deleted successfully");
+  return successResponse({ id: familyid }, "Family deleted successfully");
 }
 
 /* ---------------- EXPORTS ---------------- */
