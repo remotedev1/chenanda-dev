@@ -56,8 +56,7 @@ async function handleGet(request, { params }) {
   });
   if (setup.error) return setup.error;
 
-  const { playerId } = params;
-  console.log(playerId);
+  const { playerId } = await params;
 
   // Fetch player with related data
   const player = await db.player.findUnique({
