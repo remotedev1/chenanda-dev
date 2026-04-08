@@ -1,4 +1,3 @@
-"use client"
 import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
@@ -33,7 +32,6 @@ export function getSocket() {
 // useLiveMatches
 // ─────────────────────────────────────────────────────────────────────────────
 export function useLiveMatches(apiUrl = "/api/tournaments/live") {
-  const wantedRooms = useRef(new Set());
   const [matches, setMatches] = useState({ data: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,18 +53,7 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
             ? json.data.data
             : [];
 
-      console.log("[useLiveMatches] Loaded matches:", list.length);
       setMatches({ data: list });
-
-      const s = getSocket();
-      if (s?.connected) {
-        list.forEach((m) => {
-          const id = String(m.id);
-          wantedRooms.current.add(id);
-          console.log("[useLiveMatches] Joining room:", id);
-          s.emit("joinMatch", id);
-        });
-      }
     } catch (err) {
       console.error("[useLiveMatches] Load error:", err);
       setError(err.message);
@@ -79,43 +66,28 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     load().finally(() => setLoading(false));
   }, [load]);
 
-  // POLLING FALLBACK - refresh every 5 seconds as a backup
+  // Polling fallback — refresh every 5 seconds when socket is disconnected
   useEffect(() => {
-    // Start polling if socket is not connected
-    const startPolling = () => {
-      if (pollingInterval.current) clearInterval(pollingInterval.current);
-      pollingInterval.current = setInterval(() => {
-        if (!isConnected) {
-          console.log("[useLiveMatches] Polling fallback: refreshing matches");
-          load();
-        }
-      }, 5000); // Refresh every 5 seconds
-    };
-
-    startPolling();
+    if (pollingInterval.current) clearInterval(pollingInterval.current);
+    pollingInterval.current = setInterval(() => {
+      if (!isConnected) {
+        load();
+      }
+    }, 5000);
 
     return () => {
       if (pollingInterval.current) clearInterval(pollingInterval.current);
     };
   }, [isConnected, load]);
 
-  // Socket connection and event listeners
+  // Socket listeners — no room joining, just listen to all global events
   useEffect(() => {
     const s = getSocket();
     if (!s) return;
 
-    const syncRooms = () => {
-      wantedRooms.current.forEach((id) => {
-        console.log("[useLiveMatches] Syncing room:", id);
-        s.emit("joinMatch", id);
-      });
-    };
-
     const onConnect = () => {
-      console.log("[useLiveMatches] Socket connected");
+      // console.log("[useLiveMatches] Socket connected");
       setIsConnected(true);
-      setTimeout(syncRooms, 300);
-      // Refresh immediately on reconnect
       load();
     };
 
@@ -125,7 +97,6 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     };
 
     const onMatchData = ({ matchId, data }) => {
-      console.log("[useLiveMatches] matchData received:", matchId);
       if (!matchId || !data) return;
       const incomingId = String(matchId);
       setMatches((prev) => {
@@ -139,17 +110,8 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
       });
     };
 
-    const onMatchStarted = ({ matchId, data }) => {
-      console.log("[useLiveMatches] matchStarted received:", { matchId, data });
-      // Force refresh when a match starts
-      load();
-    };
-
-    const onMatchEnded = ({ matchId, data }) => {
-      console.log("[useLiveMatches] matchEnded received:", matchId);
-      // Force refresh when a match ends
-      load();
-    };
+    const onMatchStarted = () => load();
+    const onMatchEnded = () => load();
 
     s.on("connect", onConnect);
     s.on("disconnect", onDisconnect);
@@ -157,10 +119,7 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     s.on("matchStarted", onMatchStarted);
     s.on("matchEnded", onMatchEnded);
 
-    if (s.connected) {
-      setIsConnected(true);
-      syncRooms();
-    }
+    if (s.connected) setIsConnected(true);
 
     return () => {
       s.off("connect", onConnect);
@@ -173,6 +132,7 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
 
   return { matches, loading, error, isConnected, refetch: load };
 }
+
 // ─────────────────────────────────────────────────────────────────────────────
 // useLiveMatchControl
 // ─────────────────────────────────────────────────────────────────────────────
@@ -185,7 +145,6 @@ export function useLiveMatchControl(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [watcherCount, setWatcherCount] = useState(0);
   const matchRef = useRef(match);
   const selfEmittedRef = useRef(new Set());
 
@@ -197,17 +156,14 @@ export function useLiveMatchControl(
     if (initialMatch) setMatch(initialMatch);
   }, [initialMatch]);
 
+  // Socket listeners — no room joining, filter by matchId client-side
   useEffect(() => {
     if (!matchId) return;
     const id = String(matchId);
     const s = getSocket();
     if (!s) return;
 
-    const onConnect = () => {
-      setIsConnected(true);
-      s.emit("joinMatch", id);
-    };
-
+    const onConnect = () => setIsConnected(true);
     const onDisconnect = () => setIsConnected(false);
 
     const onMatchData = ({ matchId: mid, data, fromSocketId }) => {
@@ -216,12 +172,7 @@ export function useLiveMatchControl(
       setMatch((prev) => ({ ...prev, ...data }));
     };
 
-    const onWatcherCount = ({ matchId: mid, count }) => {
-      if (String(mid) === id) setWatcherCount(count);
-    };
-
     const onMatchStarted = ({ matchId: mid, data, fromSocketId }) => {
-      console.log(" i ran");
       const key = `started-${mid}`;
       if (fromSocketId === s?.id && selfEmittedRef.current.has(key)) {
         selfEmittedRef.current.delete(key);
@@ -255,23 +206,17 @@ export function useLiveMatchControl(
     s.on("connect", onConnect);
     s.on("disconnect", onDisconnect);
     s.on("matchData", onMatchData);
-    s.on("watcherCount", onWatcherCount);
     s.on("matchStarted", onMatchStarted);
     s.on("matchEnded", onMatchEnded);
 
-    if (s.connected) {
-      setIsConnected(true);
-      s.emit("joinMatch", id);
-    }
+    if (s.connected) setIsConnected(true);
 
     return () => {
       s.off("connect", onConnect);
       s.off("disconnect", onDisconnect);
       s.off("matchData", onMatchData);
-      s.off("watcherCount", onWatcherCount);
       s.off("matchStarted", onMatchStarted);
       s.off("matchEnded", onMatchEnded);
-      s.emit("leaveMatch", id);
     };
   }, [matchId]);
 
@@ -360,16 +305,10 @@ export function useLiveMatchControl(
       errorMsg: "Failed to start match",
     });
 
-    if (!updated) {
-      console.log("[useLiveMatchControl] ❌ No updated data");
-      return;
-    }
+    if (!updated) return;
 
     const s = getSocket();
-    if (!s) {
-      console.log("[useLiveMatchControl] ❌ No socket!");
-      return updated;
-    }
+    if (!s) return;
 
     selfEmittedRef.current.add(`started-${matchId}`);
     s.emit("matchStarted", { matchId: String(matchId), data: updated });
@@ -378,8 +317,6 @@ export function useLiveMatchControl(
       fromSocketId: s.id,
       ...updated,
     });
-
-    return updated; // Return the promise
   }, [run, patch, matchId]);
 
   const endMatch = useCallback(() => {
@@ -429,7 +366,6 @@ export function useLiveMatchControl(
 
       selfEmittedRef.current.add(`ended-${matchId}`);
       s.emit("matchEnded", { matchId: String(matchId), data: updated });
-      s.emit("leaveMatch", String(matchId));
     });
   }, [run, patch, matchId]);
 
@@ -600,35 +536,22 @@ export function useLiveMatchControl(
   );
 
   const setWalkover = useCallback(
-    (familyId) => {
-      const m = matchRef.current;
-
-      return run({
+    (familyId) =>
+      run({
         optimisticFn: (m) => ({
           ...m,
           status: "COMPLETED",
-          actualEndTime: new Date().toISOString(),
           winnerId: familyId,
-          isDraw: false,
           participants: m.participants.map((p) => ({
             ...p,
             walkover: p.familyId === familyId,
           })),
         }),
         apiFn: () => patch({ action: "SET_WALKOVER", familyId }),
-        successMsg: "Walkover awarded - Match ended",
+        successMsg: "Walkover awarded",
         errorMsg: "Failed to set walkover",
-      }).then((updated) => {
-        if (!updated) return;
-        const s = getSocket();
-        if (!s) return;
-
-        selfEmittedRef.current.add(`ended-${matchId}`);
-        s.emit("matchEnded", { matchId: String(matchId), data: updated });
-        s.emit("leaveMatch", String(matchId));
-      });
-    },
-    [run, patch, matchId],
+      }),
+    [run, patch],
   );
 
   const addNote = useCallback(
@@ -663,7 +586,6 @@ export function useLiveMatchControl(
     error,
     loading,
     isConnected,
-    activeUsers: watcherCount,
     startMatch,
     endMatch,
     setPeriod,

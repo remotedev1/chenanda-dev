@@ -74,6 +74,36 @@ const Marquee = ({ text, className, reverse = false }) => {
   );
 };
 
+function ShootoutRow({ results, align = "left" }) {
+  if (!results.length) return null;
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 4,
+        justifyContent: align === "right" ? "flex-end" : "flex-start",
+        flexWrap: "wrap",
+      }}
+    >
+      {results.map((scored, i) => (
+        <span
+          key={i}
+          title={scored ? "Scored" : "Missed"}
+          style={{
+            display: "inline-block",
+            width: 12,
+            height: 12,
+            borderRadius: "50%",
+            background: scored ? "#10b981" : "#ef4444",
+            border: `2px solid ${scored ? "#34d399" : "#f87171"}`,
+            flexShrink: 0,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 const MatchCard = ({ match }) => {
   const tabStatus = toTabStatus(match.status);
   const isCompleted = tabStatus === "completed";
@@ -116,21 +146,21 @@ const MatchCard = ({ match }) => {
       {/* Teams & Score */}
       <div className="flex items-center justify-between gap-2 sm:gap-3 md:gap-4">
         {/* Team 1 */}
-        <div className="relative flex-1 flex items-center gap-1 sm:gap-1.5 min-w-0">
+        <div className="relative flex-1 flex flex-col items-center gap-1 sm:gap-1.5 min-w-0">
           {winner === "team1" && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute -bottom-5 left-0 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full"
-            >
-              Winner
-            </motion.div>
+            <div className="absolute left-[40%] -top-5">🏆</div>
           )}
           <Marquee
             text={team1}
             className={`text-md sm:text-lg md:text-xl font-semibold capitalize transition-colors min-w-0 flex-1
       ${winner === "team1" ? "text-zinc-900" : winner === "team2" ? "text-zinc-400" : "text-zinc-800"}`}
           />
+          {showShootout && (
+            <ShootoutRow
+              results={p1?.hockeyData?.shootoutResults}
+              align="left"
+            />
+          )}
         </div>
 
         {/* Score */}
@@ -157,12 +187,12 @@ const MatchCard = ({ match }) => {
                 </span>
               </div>
               {showShootout && (
-                <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-400 mt-0.5 tabular-nums">
-                  SO {so1}–{so2}
+                <span className="text-[9px] sm:text-[10px] md:text-xs text-black mt-0.5 tabular-nums">
+                  TB {so1}–{so2}
                 </span>
               )}
               {isCompleted && match.isDraw && (
-                <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-400 uppercase tracking-widest mt-0.5">
+                <span className="text-[9px] sm:text-[10px] md:text-xs text-black uppercase tracking-widest mt-0.5">
                   Draw
                 </span>
               )}
@@ -171,20 +201,20 @@ const MatchCard = ({ match }) => {
         </div>
 
         {/* Team 2 */}
-        <div className=" relative flex-1 flex items-center justify-end gap-1 sm:gap-1.5 min-w-0">
+        <div className=" relative flex-1 flex flex-col items-center justify-end gap-1 sm:gap-1.5 min-w-0">
+          {winner === "team2" && (
+            <div className="absolute left-[40%] -top-5">🏆</div>
+          )}
           <Marquee
             text={team2}
             className={`text-md sm:text-lg md:text-xl font-semibold capitalize transition-colors min-w-0 flex-1 text-right
       ${winner === "team2" ? "text-zinc-900" : winner === "team1" ? "text-zinc-400" : "text-zinc-800"}`}
           />
-          {winner === "team2" && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute -bottom-5 right-0 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full"
-            >
-              Winner
-            </motion.div>
+          {showShootout && (
+            <ShootoutRow
+              results={p2?.hockeyData?.shootoutResults}
+              align="left"
+            />
           )}
         </div>
       </div>
@@ -351,9 +381,7 @@ export default function FieldHockeySchedule() {
             Tournament{" "}
             <span className="text-secondary bg-clip-text">Dashboard</span>
           </h1>
-          <p className="text-white/75 text-lg">
-           Kodava Hockey Tournament
-          </p>
+          <p className="text-white/75 text-lg">Kodava Hockey Tournament</p>
         </motion.div>
 
         {/* Section Selector */}
