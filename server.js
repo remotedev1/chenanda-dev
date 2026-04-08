@@ -47,13 +47,6 @@ const setupSocketHandlers = (io, state) => {
         state.setMatchData(matchId, data);
       }
 
-      // Broadcast matchStarted to ALL clients except sender
-      socket.broadcast.emit("matchStarted", {
-        matchId,
-        data,
-        fromSocketId: socket.id,
-      });
-
       // Send matchData to ALL clients (including sender)
       io.emit("matchData", { matchId, data, fromSocketId: socket.id });
     });
@@ -99,6 +92,21 @@ const setupSocketHandlers = (io, state) => {
       } catch (err) {
         socket.emit("serverError", { message: "Failed to process game data" });
       }
+    });
+
+    socket.on("gameAdded", ({ matchId, data }) => {
+      if (!matchId) return;
+
+      if (data) {
+        state.setMatchData(matchId, data);
+      }
+
+      // Emit to ALL clients
+      io.emit("gameAdded", {
+        matchId,
+        data,
+        fromSocketId: socket.id,
+      });
     });
 
     socket.on("ping", () => socket.emit("pong"));
