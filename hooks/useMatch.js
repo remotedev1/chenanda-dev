@@ -14,6 +14,7 @@ export function useMatches({ gameId } = {}) {
     status: undefined,
     round: undefined,
     pool: undefined,
+
     venue: undefined,
     sortBy: "scheduledOn",
     sortOrder: "asc",
@@ -88,7 +89,6 @@ export function useCreateMatch(tournamentId) {
 
   const createMatch = async (data) => {
     setCreating(true);
-
     try {
       const response = await fetch(`/api/tournaments/${tournamentId}/matches`, {
         method: "POST",

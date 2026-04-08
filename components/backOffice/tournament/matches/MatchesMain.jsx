@@ -156,7 +156,7 @@ const MatchesMain = () => {
     updateFilters,
     refresh,
   } = useMatches({ tournamentId });
-  const { createMatch, creating } = useCreateMatch({ tournamentId });
+  const { createMatch, creating } = useCreateMatch(tournamentId);
   const { updateMatch, updating } = useUpdateMatch({ tournamentId });
   const { createMatches, creating: bulkCreating } = useCreateMatches({
     tournamentId,
