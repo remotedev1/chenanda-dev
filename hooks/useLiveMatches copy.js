@@ -100,8 +100,6 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     const onMatchData = ({ matchId, data }) => {
       if (!matchId || !data) return;
       const incomingId = String(matchId);
-
-      if (data.status === "COMPLETED") return;
       setMatches((prev) => {
         const list = prev?.data ?? [];
         const exists = list.some((m) => String(m.id) === incomingId);

@@ -25,20 +25,16 @@ export default function LiveScoreCarousel() {
         </p>
       )}
 
-      <div className="flex gap-2.5 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {loading
           ? Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-xl bg-muted animate-pulse h-[160px] shrink-0 w-[300px] snap-start sm:w-auto sm:shrink"
+                className="rounded-xl bg-muted animate-pulse h-[160px]"
               />
             ))
           : matches.data.map((match) => (
-              <LiveCard
-                key={match.id}
-                match={match}
-                className="shrink-0 w-[300px] snap-start sm:w-auto sm:shrink"
-              />
+              <LiveCard key={match.id} match={match} />
             ))}
       </div>
     </main>
