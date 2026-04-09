@@ -16,13 +16,13 @@ export const Providers = ({ children }) => {
     setMounted(true);
   }, []);
 
-
   if (!mounted) return;
 
   const authenticator = async () => {
     try {
       const res = await fetch("/api/imagekit-auth");
       if (!res.ok) throw new Error("Failed to authenticate");
+      console.log(res);
       return res.json();
     } catch (error) {
       console.error("ImageKit authentication error:", error);
@@ -37,7 +37,7 @@ export const Providers = ({ children }) => {
           urlEndpoint={urlEndpoint}
           authenticator={authenticator}
         >
-            {children}
+          {children}
         </ImageKitProvider>
 
         <Toaster position="top-right" richColors />

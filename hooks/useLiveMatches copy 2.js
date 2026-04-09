@@ -100,6 +100,8 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     const onMatchData = ({ matchId, data }) => {
       if (!matchId || !data) return;
       const incomingId = String(matchId);
+
+      if (data.status === "COMPLETED") return;
       setMatches((prev) => {
         const list = prev?.data ?? [];
         const exists = list.some((m) => String(m.id) === incomingId);
@@ -118,9 +120,26 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     const onMatchStarted = () => setTimeout(() => load(), 500);
     const onMatchEnded = () => setTimeout(() => load(), 1000);
 
+    // FIX: Add gameAdded listener for new games
+    const onGameAdded = ({ matchId, data }) => {
+      if (!matchId || !data) return;
+      const incomingId = String(matchId);
+
+      setMatches((prev) => {
+        const list = prev?.data ?? [];
+        const exists = list.some((m) => String(m.id) === incomingId);
+        // Only add if not already in list
+        if (!exists) {
+          return { ...prev, data: [...list, { id: incomingId, ...data }] };
+        }
+        return prev;
+      });
+    };
+
     s.on("connect", onConnect);
     s.on("disconnect", onDisconnect);
     s.on("matchData", onMatchData);
+    s.on("gameAdded", onGameAdded);
     s.on("matchStarted", onMatchStarted);
     s.on("matchEnded", onMatchEnded);
 
@@ -130,6 +149,7 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
       s.off("connect", onConnect);
       s.off("disconnect", onDisconnect);
       s.off("matchData", onMatchData);
+      s.off("gameAdded", onGameAdded);
       s.off("matchStarted", onMatchStarted);
       s.off("matchEnded", onMatchEnded);
     };

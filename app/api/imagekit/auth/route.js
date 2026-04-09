@@ -7,7 +7,6 @@ const imagekit = new ImageKit({
   urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT,
 });
 
-
 export async function GET() {
   try {
     const authenticationParameters = imagekit.getAuthenticationParameters();
@@ -18,7 +17,7 @@ export async function GET() {
       { error: "Authentication failed" },
       {
         status: 500,
-      }
+      },
     );
   }
 }

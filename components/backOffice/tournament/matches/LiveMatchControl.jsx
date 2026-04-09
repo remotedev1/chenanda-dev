@@ -550,7 +550,10 @@ function PlayerCombobox({
                 <button
                   type="button"
                   onClick={async () => {
-                    await onCreateAndSelect(query.trim(), jerseyNumber || null);
+                    await onCreateAndSelect(
+                      query.trim(),
+                      jerseyNumber ? parseInt(jerseyNumber) : null,
+                    );
                     setOpen(false);
                     setQuery("");
                     setJerseyNumber("");
@@ -596,7 +599,7 @@ function TeamPanel({
   familyLoading,
   invalidate,
 }) {
-  const isCompleted = matchStatus === "COMPLETED" || matchStatus === "WALKOVER";
+  const isCompleted = matchStatus === "COMPLETED";
   const goalDetails = getGoalDetails(team);
   const shootout = getShootoutResults(team);
   const score = getGoalCount(team);

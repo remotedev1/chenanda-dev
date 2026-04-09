@@ -40,6 +40,33 @@ const setupSocketHandlers = (io, state) => {
       socket.emit("matchData", { matchId, data });
     });
 
+    socket.on("requestLiveMatches", async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_APP_URL}/api/tournaments/live`,
+          {
+            method: "GET",
+            headers: {
+              "Cache-Control": "no-store",
+            },
+          },
+        );
+
+        const { data } = await response.json();
+
+        console.log(data);
+        const matches = Array.isArray(data) ? data : [];
+        // Send all live matches to this specific client
+        socket.emit("initialLiveMatches", { data: matches });
+        console.log(
+          `Sent ${matches.length} live matches to client ${socket.id}`,
+        );
+      } catch (err) {
+        console.error("Failed to fetch live matches:", err);
+        socket.emit("initialLiveMatches", { data: [] });
+      }
+    });
+
     socket.on("matchStarted", ({ matchId, data }) => {
       if (!matchId) return;
 

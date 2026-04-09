@@ -120,7 +120,7 @@ export const liveUpdateSchema = z.object({
         .optional(),
       playerId: z.string().optional(),
       playerName: z.string().optional(),
-      jerseyNumber: z.string().nullish(),
+      jerseyNumber: z.number().int().nullish(),
     })
     .optional(),
   scored: z.boolean().optional(),
@@ -437,7 +437,7 @@ async function handlePatch(request, { params }) {
 
       updateData = {
         participants,
-        status: "COMPLETED",
+        status: "WALKOVER",
         actualEndTime: new Date(),
         winnerId: validated.familyId,
         winnerName: winner.family,

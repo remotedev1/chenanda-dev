@@ -196,7 +196,7 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
             >
               {team1?.family || "TBD"}
               {match.winnerId === participants[0]?.teamId && (
-                <span className="ml-2 text-green-600 text-sm">✓</span>
+                <span className="ml-2 text-green-600 text-sm">🏆</span>
               )}
             </div>
           </div>

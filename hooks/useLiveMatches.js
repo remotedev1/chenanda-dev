@@ -1,3 +1,4 @@
+import { status } from "nprogress";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
@@ -37,6 +38,7 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const pollingInterval = useRef(null);
+  const hasRequestedInitial = useRef(false);
 
   const load = useCallback(async () => {
     setError(null);
@@ -90,11 +92,26 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     const onConnect = () => {
       setIsConnected(true);
       load();
+
+      // ✅ NEW: Request initial live matches from server
+      if (!hasRequestedInitial.current) {
+        s.emit("requestLiveMatches");
+        hasRequestedInitial.current = true;
+      }
     };
 
     const onDisconnect = () => {
       console.log("[useLiveMatches] Socket disconnected");
       setIsConnected(false);
+      hasRequestedInitial.current = false; // Reset so we request again on reconnect
+    };
+
+    // ✅ NEW: Listen for initial matches broadcast
+    const onInitialLiveMatches = ({ data }) => {
+      if (Array.isArray(data)) {
+        console.log("[useLiveMatches] Received initial matches:", data.length);
+        setMatches({ data });
+      }
     };
 
     const onMatchData = ({ matchId, data }) => {
@@ -116,11 +133,9 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
       });
     };
 
-    // Delay slightly to give the DB time to commit before refetching
     const onMatchStarted = () => setTimeout(() => load(), 500);
     const onMatchEnded = () => setTimeout(() => load(), 1000);
 
-    // FIX: Add gameAdded listener for new games
     const onGameAdded = ({ matchId, data }) => {
       if (!matchId || !data) return;
       const incomingId = String(matchId);
@@ -128,7 +143,6 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
       setMatches((prev) => {
         const list = prev?.data ?? [];
         const exists = list.some((m) => String(m.id) === incomingId);
-        // Only add if not already in list
         if (!exists) {
           return { ...prev, data: [...list, { id: incomingId, ...data }] };
         }
@@ -138,16 +152,24 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
 
     s.on("connect", onConnect);
     s.on("disconnect", onDisconnect);
+    s.on("initialLiveMatches", onInitialLiveMatches); // ✅ NEW
     s.on("matchData", onMatchData);
     s.on("gameAdded", onGameAdded);
     s.on("matchStarted", onMatchStarted);
     s.on("matchEnded", onMatchEnded);
 
-    if (s.connected) setIsConnected(true);
+    if (s.connected) {
+      setIsConnected(true);
+      if (!hasRequestedInitial.current) {
+        s.emit("requestLiveMatches");
+        hasRequestedInitial.current = true;
+      }
+    }
 
     return () => {
       s.off("connect", onConnect);
       s.off("disconnect", onDisconnect);
+      s.off("initialLiveMatches", onInitialLiveMatches); // ✅ NEW
       s.off("matchData", onMatchData);
       s.off("gameAdded", onGameAdded);
       s.off("matchStarted", onMatchStarted);
@@ -159,7 +181,7 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// useLiveMatchControl
+// useLiveMatchControl (unchanged, but included for completeness)
 // ─────────────────────────────────────────────────────────────────────────────
 export function useLiveMatchControl(
   matchId,
@@ -564,6 +586,7 @@ export function useLiveMatchControl(
       run({
         optimisticFn: (m) => ({
           ...m,
+          status: "WALKOVER",
           winnerId: familyId,
           participants: m.participants.map((p) => ({
             ...p,
