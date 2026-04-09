@@ -15,7 +15,7 @@ const shuffleArray = (array) => {
 const SponsorCard = ({ sponsor }) => (
   <div className="shrink-0 flex flex-col items-center gap-2 md:px-4">
     {sponsor.logo[0]?.url && (
-      <div className="relative h-[4rem] md:h-[8rem] w-[4rem] md:w-[8rem] ">
+      <div className="relative h-[9rem] w-[10rem] md:h-[10rem]  md:w-[14rem] ">
         <Image
           src={sponsor.logo[0].url}
           alt={sponsor.name}
@@ -24,9 +24,6 @@ const SponsorCard = ({ sponsor }) => (
         />
       </div>
     )}
-    <span className="text-xl text-white font-medium tracking-wide whitespace-nowrap">
-      {sponsor.name.charAt(0).toUpperCase() + sponsor.name.slice(1)}
-    </span>
   </div>
 );
 
@@ -67,12 +64,10 @@ const SponsorsList = () => {
       {/* Marquee */}
       <div className="relative">
         {/* Fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-amber-600 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-orange-600 transparent to-transparent  z-10 pointer-events-none" />
 
         <div className="flex overflow-hidden">
           <div className="overflow-hidden w-full">
-            <div className="flex animate-marquee gap-6 w-max ">
+            <div className="flex animate-marquee gap-4 w-max ">
               {displaySponsors.map((sponsor, i) => (
                 <SponsorCard
                   key={`${sponsor.id ?? sponsor.name}-${i}`}

@@ -60,6 +60,7 @@ const SponsorsMain = () => {
   };
 
   const handleDelete = async (id, name) => {
+    console.log(id);
     await deleteSponsor(id, name);
     refresh();
   };

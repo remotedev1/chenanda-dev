@@ -6,40 +6,30 @@ export function useImageKitUpload() {
   const [progress, setProgress] = useState(0);
 
   const uploadImage = async (file, options = {}) => {
-    try {
-      setUploading(true);
-      setProgress(0);
+    setUploading(true);
+    setProgress(0);
 
-      // Get auth parameters from your API
+    try {
       const authResponse = await fetch("/api/imagekit/auth");
+      if (!authResponse.ok) throw new Error("Auth fetch failed");
       const authData = await authResponse.json();
 
       const formData = new FormData();
       formData.append("file", file);
       formData.append("fileName", options.fileName || file.name);
-      formData.append("publicKey", process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY);
       formData.append("signature", authData.signature);
-      formData.append("expire", authData.expire);
+      formData.append("expire", String(authData.expire));
       formData.append("token", authData.token);
 
-      // Optional: Add folder path
-      if (options.folder) {
-        formData.append("folder", options.folder);
-      }
+      if (options.folder) formData.append("folder", options.folder);
+      if (options.tags) formData.append("tags", options.tags.join(","));
 
-      // Optional: Add tags
-      if (options.tags) {
-        formData.append("tags", options.tags.join(","));
-      }
+      return await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
 
-      // Upload to ImageKit
-      const xhr = new XMLHttpRequest();
-
-      return new Promise((resolve, reject) => {
         xhr.upload.addEventListener("progress", (e) => {
           if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            setProgress(Math.round(percentComplete));
+            setProgress(Math.round((e.loaded / e.total) * 100));
           }
         });
 
@@ -51,19 +41,27 @@ export function useImageKitUpload() {
             toast.success("Image uploaded successfully");
             resolve(response);
           } else {
+            // ✅ Log the actual ImageKit error message
+            const errBody = JSON.parse(xhr.responseText || "{}");
+            console.error("ImageKit error:", errBody);
             setUploading(false);
-            toast.error("Upload failed");
-            reject(new Error("Upload failed"));
+            toast.error(errBody?.message || "Upload failed");
+            reject(new Error(errBody?.message || "Upload failed"));
           }
         });
 
         xhr.addEventListener("error", () => {
           setUploading(false);
-          toast.error("Upload failed");
-          reject(new Error("Upload failed"));
+          toast.error("Network error during upload");
+          reject(new Error("Network error"));
         });
 
         xhr.open("POST", "https://upload.imagekit.io/api/v1/files/upload");
+
+        // ✅ Required: Basic Auth header with your public key
+        const encoded = btoa(`${process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY}:`);
+        xhr.setRequestHeader("Authorization", `Basic ${encoded}`);
+
         xhr.send(formData);
       });
     } catch (error) {
@@ -74,14 +72,8 @@ export function useImageKitUpload() {
   };
 
   const uploadMultiple = async (files, options = {}) => {
-    const uploads = files.map((file) => uploadImage(file, options));
-    return Promise.all(uploads);
+    return Promise.all(files.map((file) => uploadImage(file, options)));
   };
 
-  return {
-    uploadImage,
-    uploadMultiple,
-    uploading,
-    progress,
-  };
+  return { uploadImage, uploadMultiple, uploading, progress };
 }

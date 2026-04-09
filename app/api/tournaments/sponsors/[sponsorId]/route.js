@@ -38,10 +38,10 @@ async function handleGet(request, { params }) {
   const setup = await setupApiHandler(request, "sponsors:read");
   if (setup.error) return setup.error;
 
-  const { id } = await params;
+  const { sponsorid } = await params;
 
   const sponsor = await db.sponsor.findUnique({
-    where: { id },
+    where: { id: sponsorid },
     include: {
       Tournament: {
         select: {
@@ -71,14 +71,13 @@ async function handlePatch(request, { params }) {
   const setup = await setupApiHandler(request, "sponsors:update");
   if (setup.error) return setup.error;
 
-  const { user } = auth();
+  const { user } = await auth();
   const body = await request.json();
   const validated = updateSponsorSchema.parse(body);
 
-  const { id } = await params;
-
+  const { sponsorid } = await params;
   const existing = await db.sponsor.findUnique({
-    where: { id },
+    where: { id: sponsorid },
   });
 
   if (!existing) {
@@ -101,7 +100,7 @@ async function handlePatch(request, { params }) {
     const duplicate = await db.sponsor.findFirst({
       where: {
         name: validated.name,
-        id: { not: id },
+        id: { not: sponsorid },
       },
     });
 
@@ -111,7 +110,7 @@ async function handlePatch(request, { params }) {
   }
 
   const sponsor = await db.sponsor.update({
-    where: { id },
+    where: { id: sponsorid },
     data: {
       ...(validated.name && { name: validated.name }),
       ...(validated.description !== undefined && {
@@ -145,11 +144,11 @@ async function handleDelete(request, { params }) {
   const setup = await setupApiHandler(request, "sponsors:delete");
   if (setup.error) return setup.error;
 
-  const { id } = await params;
-  const { user } = auth();
+  const { sponsorid } = await params;
+  const { user } = await auth();
 
   const sponsor = await db.sponsor.findUnique({
-    where: { id },
+    where: { id: sponsorid },
   });
 
   if (!sponsor) {
@@ -165,7 +164,7 @@ async function handleDelete(request, { params }) {
   }
 
   await db.sponsor.delete({
-    where: { id },
+    where: { id: sponsorid },
   });
 
   // Delete logo from ImageKit if exists
