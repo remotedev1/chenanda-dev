@@ -43,25 +43,35 @@ function shootoutScore(results = []) {
   return results.filter(Boolean).length;
 }
 
-// ── MatchCard ─────────────────────────────────────────────────────────────────
-const Marquee = ({ text, className, reverse = false }) => {
+ const Marquee = ({ text, className = "", reverse = false }) => {
   const ref = useRef(null);
   const [shouldScroll, setShouldScroll] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    setShouldScroll(el.scrollWidth > el.clientWidth);
+
+    const check = () => setShouldScroll(el.scrollWidth > el.clientWidth);
+    check();
+
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [text]);
 
   return (
-    <div ref={ref} className={`overflow-hidden ${className}`}>
+    <div
+      ref={ref}
+      className={`overflow-hidden w-full text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl ${className}`}
+    >
       {shouldScroll ? (
         <div
-          className={`flex whitespace-nowrap ${reverse ? "justify-end" : "justify-start"}`}
+          className={`flex whitespace-nowrap ${
+            reverse ? "justify-end" : "justify-start"
+          }`}
         >
           <span
-            className="inline-block animate-marquee"
+            className="inline-block animate-marquee capitalize text-black"
             style={{ animationDirection: reverse ? "reverse" : "normal" }}
           >
             {text}&nbsp;&nbsp;&nbsp;{text}
@@ -164,7 +174,7 @@ const MatchCard = ({ match }) => {
         </div>
 
         {/* Score */}
-        <div className="flex flex-col items-center shrink-0 w-14 sm:w-16 md:w-20">
+        <div className="flex flex-col items-center shrink-0 ">
           {isUpcoming ? (
             <span className="text-lg font-medium text-black/80 animate-pulse tracking-widest uppercase">
               vs

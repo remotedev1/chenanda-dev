@@ -211,11 +211,11 @@ function NotificationStack({ notifications, onDismiss }) {
         pointerEvents: "none",
       }}
     >
-      {notifications.map((n) => (
+      {/* {notifications.map((n) => (
         <div key={n.id} style={{ pointerEvents: "all", position: "relative" }}>
           <NotificationToast notif={n} onDismiss={onDismiss} />
         </div>
-      ))}
+      ))} */}
       <style>{`
         @keyframes notifProgress {
           from { transform: scaleX(1); }
@@ -540,10 +540,10 @@ export default function LiveCard({ match }) {
 
   return (
     <>
-      <NotificationStack
+      {/* <NotificationStack
         notifications={notifications}
         onDismiss={dismissNotif}
-      />
+      /> */}
 
       <div
         style={{
@@ -637,32 +637,14 @@ export default function LiveCard({ match }) {
           }}
         >
           {/* Team 1 */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p
-              style={{
-                color:
-                  score1 >= score2
-                    ? pulse
-                      ? "#fff"
-                      : "#000"
-                    : pulse
-                      ? "#ffffff50"
-                      : "#94a3b8",
-                fontWeight: 800,
-                margin: "2px 0 0",
-                overflow: "hidden",
-                whiteSpace: "nowrap",
-                fontFamily: "'Barlow Condensed', 'Inter', sans-serif",
-                letterSpacing: "0.02em",
-                transition: "color 0.3s",
-              }}
-              className="text-sm md:text-md"
-            >
-              {t1?.family?.toUpperCase() ?? "—"}
-            </p>
+          {/* Team 1 — replace the existing <p> block */}
+          <div style={{ flex: 1, minWidth: 0 }}  className={cx(
+              "transition-colors duration-300 font-semibold truncate",
+              pulse ? " text-white" : "text-black",
+            )}>
+            {t1?.family?.toUpperCase()}
             {so1.length > 0 && <ShootoutRow results={so1} align="left" />}
           </div>
-
           {/* Score */}
           <div
             style={{
@@ -670,7 +652,7 @@ export default function LiveCard({ match }) {
               alignItems: "center",
               flexShrink: 0,
             }}
-            className="gap-2 md:gap-[1rem]"
+            className="gap-1"
           >
             <span
               className={cx(
@@ -713,30 +695,14 @@ export default function LiveCard({ match }) {
           </div>
 
           {/* Team 2 */}
-          <div style={{ flex: 1, minWidth: 0, textAlign: "right" }}>
-            <p
-              style={{
-                color:
-                  score2 >= score1
-                    ? pulse
-                      ? "#fff"
-                      : "#000"
-                    : pulse
-                      ? "#ffffff50"
-                      : "#94a3b8",
-                fontWeight: 800,
-                margin: "2px 0 0",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                fontFamily: "'Barlow Condensed', 'Inter', sans-serif",
-                letterSpacing: "0.02em",
-                transition: "color 0.3s",
-              }}
-              className="text-sm md:text-md"
-            >
-              {t2?.family?.toUpperCase() ?? "—"}
-            </p>
+          <div
+            style={{ flex: 1, minWidth: 0, textAlign: "right" }}
+            className={cx(
+              "transition-colors duration-300 font-semibold truncate",
+              pulse ? " text-white" : "text-black",
+            )}
+          >
+            {t2?.family?.toUpperCase()}
             {so2.length > 0 && <ShootoutRow results={so2} align="right" />}
           </div>
         </div>
