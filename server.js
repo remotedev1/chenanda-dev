@@ -54,13 +54,12 @@ const setupSocketHandlers = (io, state) => {
 
         const { data } = await response.json();
 
-        console.log(data);
         const matches = Array.isArray(data) ? data : [];
         // Send all live matches to this specific client
         socket.emit("initialLiveMatches", { data: matches });
-        console.log(
-          `Sent ${matches.length} live matches to client ${socket.id}`,
-        );
+        // console.log(
+        //   `Sent ${matches.length} live matches to client ${socket.id}`,
+        // );
       } catch (err) {
         console.error("Failed to fetch live matches:", err);
         socket.emit("initialLiveMatches", { data: [] });

@@ -350,7 +350,15 @@ function statusColor(status) {
 }
 
 function fmt(str) {
-  return (str ?? "").replace(/_/g, " ");
+  return (str ?? "").replace(/_/g, " ").split(" ").join("");
+}
+
+function fmtPeriod(str) {
+  return (str ?? "")
+    .replace(/_/g, " ")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
 }
 
 function ShootoutRow({ results, align = "left" }) {
@@ -446,7 +454,7 @@ function GoalFeed({ participants }) {
                 whiteSpace: "nowrap",
               }}
             >
-              {fmt(e.type)}
+              {fmtPeriod(e.type)}
             </span>
           )}
         </div>
@@ -637,11 +645,13 @@ export default function LiveCard({ match }) {
           }}
         >
           {/* Team 1 */}
-          {/* Team 1 — replace the existing <p> block */}
-          <div style={{ flex: 1, minWidth: 0 }}  className={cx(
-              "transition-colors duration-300 font-semibold truncate",
+          <div
+            style={{ flex: 1, minWidth: 0 }}
+            className={cx(
+              "transition-colors duration-300 font-semibold truncate sm:text-sm",
               pulse ? " text-white" : "text-black",
-            )}>
+            )}
+          >
             {t1?.family?.toUpperCase()}
             {so1.length > 0 && <ShootoutRow results={so1} align="left" />}
           </div>
