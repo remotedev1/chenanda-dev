@@ -565,7 +565,7 @@ export default function LiveCard({ match }) {
           fontFamily: "'Inter', 'Segoe UI', sans-serif",
           position: "relative",
         }}
-        className="select-none p-2 md:p-4 w-[90vw] md:w-[400px] "
+        className="select-none p-2 md:p-4 w-[90vw] md:w-[84vw] lg:w-[400px] "
       >
         {/* Audio hint */}
         {!audioReady && (
@@ -648,7 +648,7 @@ export default function LiveCard({ match }) {
           <div
             style={{ flex: 1, minWidth: 0 }}
             className={cx(
-              "transition-colors duration-300 font-semibold truncate sm:text-sm",
+              "transition-colors duration-300 font-semibold truncate text-sm md:text-lg",
               pulse ? " text-white" : "text-black",
             )}
           >
@@ -708,7 +708,7 @@ export default function LiveCard({ match }) {
           <div
             style={{ flex: 1, minWidth: 0, textAlign: "right" }}
             className={cx(
-              "transition-colors duration-300 font-semibold truncate",
+              "transition-colors duration-300 font-semibold truncate text-sm md:text-lg",
               pulse ? " text-white" : "text-black",
             )}
           >
@@ -729,14 +729,14 @@ export default function LiveCard({ match }) {
             fontSize: 10,
             borderTop: `1px solid ${pulse ? "#ffffff15" : "#e2e8f0"}`,
             paddingTop: 8,
-            color: pulse ? "#ffffff50" : "#94a3b8",
+            color: pulse ? "#ffffff50" : "black",
             transition: "border-color 0.3s, color 0.3s",
           }}
         >
-          <span>
+          {/* <span>
             {fmt(match.round)}
             {match.pool ? ` · Pool ${match.pool}` : ""}
-          </span>
+          </span> */}
           <span>{fmt(match.venue)}</span>
         </div>
 

@@ -1,6 +1,36 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
+const CACHE_KEY = "sponsors_cache";
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 day in ms
+
+function getCacheKey(params) {
+  return `${CACHE_KEY}_${params.toString()}`;
+}
+
+function getFromCache(key) {
+  try {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+    const { data, timestamp } = JSON.parse(cached);
+    if (Date.now() - timestamp > CACHE_DURATION) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function setToCache(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch {
+    // Quota exceeded or other storage error — fail silently
+  }
+}
+
 export function useSponsors(initialFilters = {}) {
   const [sponsors, setSponsors] = useState([]);
   const [pagination, setPagination] = useState({
@@ -15,63 +45,74 @@ export function useSponsors(initialFilters = {}) {
     status: true,
     ...initialFilters,
   });
-  const fetchSponsors = useCallback(async () => {
-    try {
-      setLoading(true);
 
-      // Build params object, filtering out undefined/null values
-      const params = new URLSearchParams();
-      params.append("page", pagination.page.toString());
-      params.append("limit", pagination.limit.toString());
+  const fetchSponsors = useCallback(
+    async (forceRefresh = false) => {
+      try {
+        setLoading(true);
 
-      if (filters.search) {
-        params.append("search", filters.search);
+        const params = new URLSearchParams();
+        params.append("page", pagination.page.toString());
+        params.append("limit", pagination.limit.toString());
+        if (filters.search) params.append("search", filters.search);
+        if (filters.status) params.append("status", filters.status);
+        if (filters.sortBy) params.append("sortBy", filters.sortBy);
+        if (filters.sortOrder) params.append("sortOrder", filters.sortOrder);
+
+        const cacheKey = getCacheKey(params);
+
+        // Return cached data if available and not forcing refresh
+        if (!forceRefresh) {
+          const cached = getFromCache(cacheKey);
+          if (cached) {
+            setSponsors(cached.data);
+            setPagination((prev) => ({
+              ...prev,
+              total: cached.total,
+              totalPages: cached.totalPages,
+            }));
+            return;
+          }
+        }
+
+        const response = await fetch(`/api/tournaments/sponsors?${params}`);
+        const { data } = await response.json();
+
+        // Save to cache
+        setToCache(cacheKey, data);
+
+        setSponsors(data.data);
+        setPagination((prev) => ({
+          ...prev,
+          total: data.total,
+          totalPages: data.totalPages,
+        }));
+      } catch (error) {
+        toast.error("Failed to fetch sponsors");
+        console.error("Fetch sponsors error:", error);
+      } finally {
+        setLoading(false);
       }
-
-      if (filters.status) {
-        params.append("status", filters.status);
-      }
-
-      if (filters.sortBy) {
-        params.append("sortBy", filters.sortBy);
-      }
-
-      if (filters.sortOrder) {
-        params.append("sortOrder", filters.sortOrder);
-      }
-
-      const response = await fetch(`/api/tournaments/sponsors?${params}`);
-      const { data } = await response.json();
-      setSponsors(data.data);
-      setPagination((prev) => ({
-        ...prev,
-        total: data.total,
-        totalPages: data.totalPages,
-      }));
-    } catch (error) {
-      toast.error("Failed to fetch sponsors");
-      console.error("Fetch sponsors error:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [pagination.page, pagination.limit, filters]);
+    },
+    [pagination.page, pagination.limit, filters],
+  );
 
   useEffect(() => {
     fetchSponsors();
   }, [fetchSponsors]);
 
-  // STABLE updateFilters - no dependencies that change
   const updateFilters = useCallback((newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
     setPagination((prev) => ({ ...prev, page: 1 }));
-  }, []); // Empty array - completely stable
+  }, []);
 
   const setPage = useCallback((page) => {
     setPagination((prev) => ({ ...prev, page }));
   }, []);
 
+  // Force refresh bypasses cache
   const refresh = useCallback(() => {
-    fetchSponsors();
+    fetchSponsors(true);
   }, [fetchSponsors]);
 
   return {

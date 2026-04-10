@@ -7,7 +7,7 @@ export default function LiveScoreCarousel() {
   const { matches, loading, error } = useLiveMatches();
 
   return (
-    <main style={{ maxWidth: 960, margin: "0 auto" }}>
+    <main style={{ maxWidth: 960, margin: "auto" }}>
       {/* Header with refresh button */}
       <div
         style={{
@@ -25,7 +25,10 @@ export default function LiveScoreCarousel() {
         </p>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div
+        id="live"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 scroll-m-24"
+      >
         {loading
           ? Array.from({ length: 3 }).map((_, i) => (
               <div

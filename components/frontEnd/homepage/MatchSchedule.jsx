@@ -71,14 +71,14 @@ function shootoutScore(results = []) {
           }`}
         >
           <span
-            className="inline-block animate-marquee capitalize text-black"
+            className="inline-block animate-marquee capitalize text-black text-sm "
             style={{ animationDirection: reverse ? "reverse" : "normal" }}
           >
             {text}&nbsp;&nbsp;&nbsp;{text}
           </span>
         </div>
       ) : (
-        <span className="whitespace-nowrap">{text}</span>
+        <span className="whitespace-nowrap text-sm ">{text}</span>
       )}
     </div>
   );
@@ -508,7 +508,7 @@ export default function FieldHockeySchedule() {
                     <div className=" max-h-screen overflow-y-scroll">
                       <motion.div
                         layout
-                        className="grid gap-2.5 mx-auto [grid-template-columns:repeat(auto-fill,minmax(340px,1fr))]"
+                        className="grid gap-2.5 md:gap-6 mx-auto [grid-template-columns:repeat(auto-fill,minmax(340px,1fr))]"
                       >
                         <AnimatePresence mode="popLayout">
                           {filteredMatches.map((match) => (
