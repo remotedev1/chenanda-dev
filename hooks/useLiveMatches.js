@@ -37,6 +37,7 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [userCount, setUserCount] = useState(0);
   const pollingInterval = useRef(null);
   const hasRequestedInitial = useRef(false);
 
@@ -88,6 +89,8 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
   useEffect(() => {
     const s = getSocket();
     if (!s) return;
+
+    const onUserCount = ({ count }) => setUserCount(count);
 
     const onConnect = () => {
       setIsConnected(true);
@@ -157,6 +160,7 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     s.on("gameAdded", onGameAdded);
     s.on("matchStarted", onMatchStarted);
     s.on("matchEnded", onMatchEnded);
+    s.on("userCount", onUserCount);
 
     if (s.connected) {
       setIsConnected(true);
@@ -174,10 +178,11 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
       s.off("gameAdded", onGameAdded);
       s.off("matchStarted", onMatchStarted);
       s.off("matchEnded", onMatchEnded);
+      s.off("userCount", onUserCount);
     };
   }, [load]);
 
-  return { matches, loading, error, isConnected, refetch: load };
+  return { matches, loading, error, isConnected, refetch: load, userCount };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -192,6 +197,7 @@ export function useLiveMatchControl(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [userCount, setUserCount] = useState(0);
   const matchRef = useRef(match);
   const selfEmittedRef = useRef(new Set());
 
@@ -209,6 +215,7 @@ export function useLiveMatchControl(
     const s = getSocket();
     if (!s) return;
 
+    const onUserCount = ({ count }) => setUserCount(count);
     const onConnect = () => setIsConnected(true);
     const onDisconnect = () => setIsConnected(false);
 
@@ -254,6 +261,7 @@ export function useLiveMatchControl(
     s.on("matchData", onMatchData);
     s.on("matchStarted", onMatchStarted);
     s.on("matchEnded", onMatchEnded);
+    s.on("userCount", onUserCount); // ✅ ADD
 
     if (s.connected) setIsConnected(true);
 
@@ -263,6 +271,7 @@ export function useLiveMatchControl(
       s.off("matchData", onMatchData);
       s.off("matchStarted", onMatchStarted);
       s.off("matchEnded", onMatchEnded);
+      s.off("userCount", onUserCount);
     };
   }, [matchId]);
 
@@ -586,7 +595,7 @@ export function useLiveMatchControl(
       run({
         optimisticFn: (m) => ({
           ...m,
-          status: "WALKOVER",
+          status: "COMPLETED",
           winnerId: familyId,
           participants: m.participants.map((p) => ({
             ...p,
@@ -647,5 +656,6 @@ export function useLiveMatchControl(
     addNote,
     addPlayer,
     refetch,
+    userCount,
   };
 }

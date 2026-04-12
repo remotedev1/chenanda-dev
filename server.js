@@ -35,6 +35,9 @@ class ServerState {
 // ─── Socket Handlers ──────────────────────────────────────────────────────────
 const setupSocketHandlers = (io, state) => {
   io.on("connection", (socket) => {
+    // Broadcast updated count to ALL clients
+    io.emit("userCount", { count: io.engine.clientsCount });
+
     // On connect, send all cached match data to the newly connected client
     state.matchCache.forEach((data, matchId) => {
       socket.emit("matchData", { matchId, data });
@@ -57,9 +60,6 @@ const setupSocketHandlers = (io, state) => {
         const matches = Array.isArray(data) ? data : [];
         // Send all live matches to this specific client
         socket.emit("initialLiveMatches", { data: matches });
-        // console.log(
-        //   `Sent ${matches.length} live matches to client ${socket.id}`,
-        // );
       } catch (err) {
         console.error("Failed to fetch live matches:", err);
         socket.emit("initialLiveMatches", { data: [] });
@@ -142,6 +142,10 @@ const setupSocketHandlers = (io, state) => {
         `[${new Date().toISOString()}] Socket error ${socket.id}:`,
         err,
       );
+    });
+
+    socket.on("disconnect", () => {
+      io.emit("userCount", { count: io.engine.clientsCount });
     });
   });
 };

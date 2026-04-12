@@ -437,7 +437,7 @@ async function handlePatch(request, { params }) {
 
       updateData = {
         participants,
-        status: "WALKOVER",
+        status: "COMPLETED",
         actualEndTime: new Date(),
         winnerId: validated.familyId,
         winnerName: winner.family,

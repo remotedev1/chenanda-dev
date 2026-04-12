@@ -25,10 +25,7 @@ export default function LiveScoreCarousel() {
         </p>
       )}
 
-      <div
-        id="live"
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6 scroll-m-24"
-      >
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 ">
         {loading
           ? Array.from({ length: 3 }).map((_, i) => (
               <div

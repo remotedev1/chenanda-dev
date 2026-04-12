@@ -41,7 +41,7 @@ const querySchema = z.object({
   sortBy: z
     .enum(["scheduledOn", "matchNo", "createdAt", "updatedAt", "status"])
     .default("scheduledOn"),
-  sortOrder: z.enum(["asc", "desc"]).default("asc"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
 export const createMatchSchema = z.object({
@@ -179,7 +179,7 @@ async function handleGet(request) {
         return { scheduledOn: dir };
     }
   })();
-
+  console.log(orderBy);
   const [matches, total] = await Promise.all([
     db.matches.findMany({
       where,
@@ -216,7 +216,6 @@ async function handlePost(request) {
   if (!tournament) {
     return errorResponse("Selected tournament does not exist", 400);
   }
-
 
   const match = await db.matches.create({
     data: {

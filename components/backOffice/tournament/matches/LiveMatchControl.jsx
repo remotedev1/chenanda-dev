@@ -139,7 +139,7 @@ function getGoalDetails(team) {
    Sub-components
 ───────────────────────────────────────────── */
 
-function ConnectionBadge({ isConnected, activeUsers }) {
+function ConnectionBadge({ isConnected, userCount }) {
   return (
     <div
       className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-semibold border transition-all ${
@@ -154,7 +154,7 @@ function ConnectionBadge({ isConnected, activeUsers }) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          LIVE · {activeUsers} watching
+          LIVE · {userCount} watching
         </>
       ) : (
         <>
@@ -1149,6 +1149,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
     setWalkover,
     addPlayer,
     refetch,
+    userCount,
   } = useLiveMatchControl(matchId, tournamentId, initialMatch);
 
   const t1 = match?.participants?.[0];
@@ -1262,7 +1263,7 @@ export function LiveMatchControl({ matchId, tournamentId }) {
               )}
               <ConnectionBadge
                 isConnected={isConnected}
-                activeUsers={activeUsers}
+                userCount={userCount}
               />
               <Tooltip>
                 <TooltipTrigger asChild>

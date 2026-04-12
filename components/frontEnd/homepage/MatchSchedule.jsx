@@ -43,7 +43,7 @@ function shootoutScore(results = []) {
   return results.filter(Boolean).length;
 }
 
- const Marquee = ({ text, className = "", reverse = false }) => {
+const Marquee = ({ text, className = "", reverse = false }) => {
   const ref = useRef(null);
   const [shouldScroll, setShouldScroll] = useState(false);
 
@@ -347,10 +347,6 @@ export default function FieldHockeySchedule() {
     return isToday(m.scheduledOn);
   });
 
-  const liveCount = matches.filter(
-    (m) => toTabStatus(m.status) === "live",
-  ).length;
-
   const topScorers = useMemo(() => {
     const playerMap = new Map();
 
@@ -379,7 +375,10 @@ export default function FieldHockeySchedule() {
   }, [matches]);
 
   return (
-    <div className="bg-primary p-4 py-12 md:p-16 relative">
+    <div
+      className="bg-primary p-4 py-12 md:p-16 relative scroll-mt-24"
+      id="live"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div

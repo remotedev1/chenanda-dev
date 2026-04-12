@@ -17,7 +17,7 @@ export function useMatches({ gameId } = {}) {
 
     venue: undefined,
     sortBy: "scheduledOn",
-    sortOrder: "asc",
+    sortOrder: "desc",
     page: 1,
     limit: 1000,
   });
