@@ -85,7 +85,7 @@ const Marquee = ({ text, className = "", reverse = false }) => {
 };
 
 function ShootoutRow({ results, align = "left" }) {
-  if (!results.length) return null;
+  if (!results?.length) return null;
   return (
     <div
       style={{
@@ -510,9 +510,11 @@ export default function FieldHockeySchedule() {
                         className="grid gap-2.5 md:gap-6 mx-auto [grid-template-columns:repeat(auto-fill,minmax(340px,1fr))]"
                       >
                         <AnimatePresence mode="popLayout">
-                          {filteredMatches.map((match) => (
-                            <MatchCard key={match.id} match={match} />
-                          ))}
+                          {filteredMatches
+                            .sort((a, b) => b.scheduledOn - a.scheduledOn)
+                            .map((match) => (
+                              <MatchCard key={match.id} match={match} />
+                            ))}
                         </AnimatePresence>
                       </motion.div>
                     </div>

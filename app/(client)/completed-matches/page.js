@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMatches } from "@/hooks/useMatch";
+import { cx } from "class-variance-authority";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -187,7 +188,7 @@ function MatchResultCard({ match }) {
             </span>
           )}
           {match.pool && (
-            <span style={{ fontSize: 11, color: "#64748b" }}>
+            <span style={{ fontSize: 0, color: "#64748b" }}>
               Pool {match.pool}
             </span>
           )}
@@ -210,34 +211,27 @@ function MatchResultCard({ match }) {
       </div>
 
       {/* Main score area */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
-          alignItems: "center",
-          gap: 0,
-          padding: "20px 16px 16px",
-        }}
-      >
+      <div className="grid grid-cols-3 py-5 gap-2 p-2 md:p-5 ">
         {/* Team 1 */}
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <div
-            style={{
-              fontSize: 18,
-              fontWeight: 800,
-              color: winner === 1 ? "#ffffff" : "#64748b",
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            {winner === 1 && (
-              <span style={{ fontSize: 20, color: "#f59e0b" }}>🏆</span>
+            className={cx(
+              "text-[0.7rem] lg:text-xl",
+              "flex items-center gap-1.5",
+              "uppercase tracking-[0.5px]",
+              "overflow-hidden whitespace-nowrap",
+              {
+                "font-extrabold": true,
+                "text-white": winner === 1,
+                "text-slate-500": winner !== 1,
+              },
             )}
-            {team1}
+          >
+           
+              {team1}
           </div>
+          {winner === 1 && <span style={{ color: "#f59e0b" }}>🏆</span>}
+
           {match.isDraw && (
             <span style={{ fontSize: 10, color: "#64748b" }}>Draw</span>
           )}
@@ -249,7 +243,7 @@ function MatchResultCard({ match }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            padding: "0 24px",
+            padding: "0 5px",
           }}
         >
           <div
@@ -261,12 +255,15 @@ function MatchResultCard({ match }) {
           >
             <span
               style={{
-                fontSize: 44,
                 fontWeight: 900,
                 color: winner === 1 ? "#ffffff" : "#94a3b8",
                 fontFamily: "'DM Mono', monospace",
                 lineHeight: 1,
               }}
+              className={cx(
+                winner === 1 ? "text-4xl " : "text-3xl",
+                "transition-all",
+              )}
             >
               {goals1}
             </span>
@@ -275,12 +272,15 @@ function MatchResultCard({ match }) {
             </span>
             <span
               style={{
-                fontSize: 44,
                 fontWeight: 900,
                 color: winner === 2 ? "#ffffff" : "#94a3b8",
                 fontFamily: "'DM Mono', monospace",
                 lineHeight: 1,
               }}
+              className={cx(
+                winner === 2 ? "text-4xl " : "text-3xl",
+                "transition-all",
+              )}
             >
               {goals2}
             </span>
@@ -321,22 +321,24 @@ function MatchResultCard({ match }) {
           }}
         >
           <div
-            style={{
-              fontSize: 18,
-              fontWeight: 800,
-              color: winner === 2 ? "#ffffff" : "#64748b",
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            {team2}
-            {winner === 2 && (
-              <span style={{ fontSize: 14, color: "#f59e0b" }}>🏆</span>
+            className={cx(
+              "text-[0.7rem] lg:text-xl",
+              "flex items-center gap-1.5",
+              "uppercase tracking-[0.5px]",
+              "overflow-hidden whitespace-nowrap",
+              {
+                "font-extrabold": true,
+                "text-white": winner === 2,
+                "text-slate-500": winner !== 2,
+              },
             )}
+          >
+           
+              {team2}
           </div>
+          {winner === 2 && (
+            <span style={{ fontSize: 14, color: "#f59e0b" }}>🏆</span>
+          )}
         </div>
       </div>
 
