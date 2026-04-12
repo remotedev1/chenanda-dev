@@ -179,7 +179,6 @@ async function handleGet(request) {
         return { scheduledOn: dir };
     }
   })();
-  console.log(orderBy);
   const [matches, total] = await Promise.all([
     db.matches.findMany({
       where,
