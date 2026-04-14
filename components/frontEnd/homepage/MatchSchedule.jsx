@@ -14,6 +14,7 @@ import { useMatches } from "@/hooks/useMatch";
 import LiveScoreCarousel from "./LiveScoreMain";
 import { isToday } from "@/lib/utils";
 import Link from "next/link";
+import { isTodayOrTomorrow } from "@/helpers/other";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -341,10 +342,10 @@ export default function FieldHockeySchedule() {
 
   const filteredMatches = matches.filter((m) => {
     if (toTabStatus(m.status) !== activeTab) return false;
-    // Live tab shows all live matches regardless of date
     if (activeTab === "live") return true;
-    // Upcoming and completed only show today's matches
-    return isToday(m.scheduledOn);
+    if (activeTab === "completed") return isToday(m.scheduledOn); // keep completed as today-only
+    if (activeTab === "upcoming") return isTodayOrTomorrow(m.scheduledOn); // ← today + tomorrow
+    return true;
   });
 
   const topScorers = useMemo(() => {
