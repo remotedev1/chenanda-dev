@@ -188,6 +188,7 @@ async function handleGet(request) {
       include: {
         tournament: { select: { id: true, name: true } },
       },
+      orderBy: { scheduledOn: "asc" },
     }),
     db.matches.count({ where }),
   ]);

@@ -590,7 +590,7 @@ type HockeyMatchRecord {
 }
 
 type HockeyGoal {
-  minute       Int
+  minute       Float
   type         HockeyGoalType @default(FIELD_GOAL)
   playerId     String         @db.ObjectId
   playerName   String
@@ -616,7 +616,7 @@ type FootballMatchRecord {
 }
 
 type FootballGoal {
-  minute Int
+  minute Float
   period MatchPeriod      @default(FIRST_HALF)
   type   FootballGoalType @default(OPEN_PLAY)
 

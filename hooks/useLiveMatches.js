@@ -1,4 +1,3 @@
-import { status } from "nprogress";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
@@ -112,7 +111,6 @@ export function useLiveMatches(apiUrl = "/api/tournaments/live") {
     // ✅ NEW: Listen for initial matches broadcast
     const onInitialLiveMatches = ({ data }) => {
       if (Array.isArray(data)) {
-        console.log("[useLiveMatches] Received initial matches:", data.length);
         setMatches({ data });
       }
     };

@@ -7,6 +7,7 @@ export const revalidate = 0;
 export async function GET() {
   const matches = await db.matches.findMany({
     where: { status: "COMPLETED" },
+    orderBy: { scheduledOn: "asc" },
   });
 
   return Response.json(

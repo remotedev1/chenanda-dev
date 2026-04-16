@@ -178,13 +178,13 @@ async function handleDelete(request, { params }) {
     userId: user.id,
     action: "deleted",
     entity: "sponsor",
-    entityId: id,
+    entityId: sponsor.id,
     entityName: sponsor.name,
     description: `Deleted sponsor "${sponsor.name}"`,
     request,
   });
 
-  return successResponse({ id }, "Sponsor deleted successfully");
+  return successResponse({ id: sponsor.id }, "Sponsor deleted successfully");
 }
 
 /* ---------------- EXPORTS ---------------- */

@@ -77,7 +77,6 @@ const SponsorsMain = () => {
             Manage your tournament sponsors
           </p>
         </div>
-        <Can I="create" a="Sponsor">
           <Button
             onClick={() => setCreateSheetOpen(true)}
             className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -85,7 +84,6 @@ const SponsorsMain = () => {
             <Plus className="mr-2 h-4 w-4" />
             Add Sponsor
           </Button>
-        </Can>
       </div>
 
       {/* Content */}

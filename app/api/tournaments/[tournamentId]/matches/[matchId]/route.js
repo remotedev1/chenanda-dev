@@ -114,7 +114,7 @@ export const liveUpdateSchema = z.object({
   familyId: z.string().optional(),
   goal: z
     .object({
-      minute: z.number().int().min(0),
+      minute: z.number().min(0),
       type: z
         .enum(["FIELD_GOAL", "PENALTY_CORNER", "PENALTY_STROKE"])
         .optional(),
@@ -496,7 +496,7 @@ async function handleDelete(request, { params }) {
   await db.matches.delete({ where: { id: matchId } });
 
   await logActivity({
-    userId: setup.user.userId,
+    userId: user.id,
     action: "deleted",
     entity: "match",
     entityId: matchId,

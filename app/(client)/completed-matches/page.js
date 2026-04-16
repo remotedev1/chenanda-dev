@@ -26,12 +26,6 @@ function formatTime(iso) {
   });
 }
 
-function formatDuration(start, end) {
-  if (!start || !end) return null;
-  const mins = Math.round((new Date(end) - new Date(start)) / 60000);
-  return `${mins} min`;
-}
-
 function toDateKey(iso) {
   if (!iso) return "";
   const d = new Date(iso);
@@ -127,8 +121,16 @@ function MatchResultCard({ match }) {
     (p1?.hockeyData?.shootoutResults?.length ?? 0) > 0 ||
     (p2?.hockeyData?.shootoutResults?.length ?? 0) > 0;
 
-  const winner =
-    !match.isDraw && match.winnerId
+  // Walkover detection
+  const isWalkover1 = p1?.walkover === true;
+  const isWalkover2 = p2?.walkover === true;
+  const hasWalkover = isWalkover1 || isWalkover2;
+  // The team that walked over loses; the other is the winner
+  const walkoverWinner = isWalkover1 ? 2 : isWalkover2 ? 1 : null;
+
+  const winner = hasWalkover
+    ? walkoverWinner
+    : !match.isDraw && match.winnerId
       ? match.winnerId === p1?.familyId
         ? 1
         : 2
@@ -227,11 +229,27 @@ function MatchResultCard({ match }) {
               },
             )}
           >
-           
-              {team1}
+            {team1}
+            {isWalkover1 && (
+              <span
+                style={{
+                  fontSize: 9,
+                  fontWeight: 700,
+                  background: "#7f1d1d",
+                  color: "#fca5a5",
+                  borderRadius: 3,
+                  padding: "1px 5px",
+                  marginLeft: 6,
+                  letterSpacing: 1,
+                  fontFamily: "monospace",
+                  flexShrink: 0,
+                }}
+              >
+                W/O
+              </span>
+            )}
           </div>
           {winner === 1 && <span style={{ color: "#f59e0b" }}>🏆</span>}
-
           {match.isDraw && (
             <span style={{ fontSize: 10, color: "#64748b" }}>Draw</span>
           )}
@@ -301,13 +319,13 @@ function MatchResultCard({ match }) {
             style={{
               fontSize: 10,
               letterSpacing: 1.5,
-              color: "#22c55e",
+              color: hasWalkover ? "#f87171" : "#22c55e",
               fontWeight: 700,
               marginTop: 6,
               textTransform: "uppercase",
             }}
           >
-            Full Time
+            {hasWalkover ? "Walkover" : "Full Time"}
           </span>
         </div>
 
@@ -333,8 +351,25 @@ function MatchResultCard({ match }) {
               },
             )}
           >
-           
-              {team2}
+            {team2}
+            {isWalkover2 && (
+              <span
+                style={{
+                  fontSize: 9,
+                  fontWeight: 700,
+                  background: "#7f1d1d",
+                  color: "#fca5a5",
+                  borderRadius: 3,
+                  padding: "1px 5px",
+                  marginLeft: 6,
+                  letterSpacing: 1,
+                  fontFamily: "monospace",
+                  flexShrink: 0,
+                }}
+              >
+                W/O
+              </span>
+            )}
           </div>
           {winner === 2 && (
             <span style={{ fontSize: 14, color: "#f59e0b" }}>🏆</span>
@@ -569,7 +604,7 @@ export default function CompletedMatchesPage() {
     () =>
       matches
         .filter((m) => m.status === "COMPLETED")
-        .sort((a, b) => new Date(b.actualEndTime) - new Date(a.actualEndTime)),
+        .sort((a, b) => new Date(b.scheduledOn) - new Date(a.scheduledOn)),
     [matches],
   );
 

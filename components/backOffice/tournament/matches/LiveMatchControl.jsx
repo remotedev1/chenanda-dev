@@ -501,6 +501,7 @@ function PlayerCombobox({
                   <div className="flex flex-col gap-2">
                     <input
                       type="number"
+                       step="0.1"
                       placeholder="Jersey # (optional)"
                       value={jerseyNumber}
                       onChange={(e) => setJerseyNumber(Number(e.target.value))}

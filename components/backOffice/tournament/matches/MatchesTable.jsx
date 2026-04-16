@@ -158,7 +158,6 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
             {statusConfig.label}
           </Badge>
         </div>
-
         {/* Match Info */}
         <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -166,9 +165,6 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
               {sport}
             </div>
             <div className="text-white">
-              <div className="text-sm font-semibold">
-                Match #{match.matchNo}
-              </div>
               <div className="text-xs opacity-90">
                 {ROUND_LABELS[match.round] || match.round}
                 {match.pool ? ` · Pool ${match.pool}` : ""}
@@ -194,10 +190,10 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
                 team1 ? "text-gray-900" : "text-gray-400 italic",
               )}
             >
-              {team1?.family || "TBD"}
-              {match.winnerId === participants[0]?.teamId && (
-                <span className="ml-2 text-green-600 text-sm">🏆</span>
+              {match.winnerId === team1.familyId && (
+                <span className="ml-2 text-green-600 text-sm ml-2">✓</span>
               )}
+              {team1?.family || "TBD"}
             </div>
           </div>
 
@@ -219,6 +215,7 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
             </div>
           </div>
         </div>
+        <div className="text-sm">{match.id}</div>
 
         {match.isDraw && (
           <div className="text-center">
@@ -284,18 +281,6 @@ function MatchCard({ match, onEdit, onDelete, onLiveControl }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              {/* {(isLive || canGoLive) && onLiveControl && (
-                <>
-                  <DropdownMenuItem
-                    onClick={() => onLiveControl(match)}
-                    className="cursor-pointer text-red-600 font-medium"
-                  >
-                    <Radio className="mr-2 h-4 w-4" />
-                    {isLive ? "Live Controls" : "Go Live"}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )} */}
 
               <DropdownMenuItem
                 onClick={() => onLiveControl(match)}
@@ -349,6 +334,15 @@ export function MatchTable({
     match: null,
   });
   const [deleting, setDeleting] = useState(false);
+
+  // Derive unique sorted dates from matches
+  const uniqueDates = Array.from(
+    new Set(
+      matches
+        .filter((m) => m.scheduledOn)
+        .map((m) => new Date(m.scheduledOn).toISOString().slice(0, 10)),
+    ),
+  ).sort();
 
   // Restore focus after re-render
   useEffect(() => {
@@ -426,6 +420,30 @@ export function MatchTable({
         </div>
 
         <div className="flex gap-2 flex-wrap">
+          {/* Date filter — dates derived from matches */}
+          <Select
+            value={filters.date || "all"}
+            onValueChange={(v) =>
+              onFilterChange({ date: v === "all" ? undefined : v })
+            }
+          >
+            <SelectTrigger className="w-[160px] bg-white border-gray-300">
+              <SelectValue placeholder="All Dates" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="all">All Dates</SelectItem>
+              {uniqueDates.map((d) => (
+                <SelectItem key={d} value={d}>
+                  {new Date(d + "T00:00:00").toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select
             value={filters.status || "all"}
             onValueChange={(v) =>
@@ -511,7 +529,11 @@ export function MatchTable({
             No matches found
           </h3>
           <p className="text-gray-500 mb-6">
-            {searchValue || filters.status || filters.round || filters.pool
+            {searchValue ||
+            filters.status ||
+            filters.round ||
+            filters.pool ||
+            filters.date
               ? "Try adjusting your search or filters"
               : "Get started by creating your first match"}
           </p>

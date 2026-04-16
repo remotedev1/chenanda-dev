@@ -197,7 +197,7 @@ function SponsorCard({ sponsor, onEdit, onDelete }) {
             Edit
           </Button>
 
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
