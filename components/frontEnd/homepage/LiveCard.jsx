@@ -393,7 +393,6 @@ function ShootoutRow({ results, align = "left" }) {
 }
 
 function GoalFeed({ participants }) {
-  console.log(participants);
   const events = participants
     .flatMap((p) =>
       (p.hockeyData?.goalDetails ?? p.footballData?.goalDetails ?? []).map(

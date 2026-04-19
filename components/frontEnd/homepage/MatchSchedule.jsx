@@ -65,22 +65,9 @@ const Marquee = ({ text, className = "", reverse = false }) => {
       ref={ref}
       className={`overflow-hidden w-full text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl ${className}`}
     >
-      {shouldScroll ? (
-        <div
-          className={`flex whitespace-nowrap ${
-            reverse ? "justify-end" : "justify-start"
-          }`}
-        >
-          <span
-            className="inline-block animate-marquee capitalize text-black text-sm "
-            style={{ animationDirection: reverse ? "reverse" : "normal" }}
-          >
-            {text}&nbsp;&nbsp;&nbsp;{text}
-          </span>
-        </div>
-      ) : (
-        <span className="whitespace-nowrap text-sm ">{text}</span>
-      )}
+      <span className="whitespace-nowrap text-[1rem] sm:text-sm uppercase">
+        {text}
+      </span>
     </div>
   );
 };
@@ -232,12 +219,12 @@ const MatchCard = ({ match }) => {
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-3 sm:mt-4 pt-2 sm:pt-2.5 border-t border-zinc-100 gap-2 flex-wrap">
-        {match.round && (
+        {/* {match.round && (
           <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-800 uppercase tracking-wide">
             {match.round.replace(/_/g, " ")}
             {match.pool ? ` · Pool ${match.pool}` : ""}
           </span>
-        )}
+        )} */}
         {match.venue && (
           <span className="text-[9px] sm:text-[10px] md:text-xs text-zinc-800 lowercase">
             {match.venue.replace(/_/g, " ")}
@@ -506,10 +493,7 @@ export default function FieldHockeySchedule() {
                   ) : (
                     // ✅ OTHER TABS → show match cards
                     <div className=" max-h-screen overflow-y-scroll">
-                      <motion.div
-                        layout
-                        className="grid gap-2.5 md:gap-6 mx-auto [grid-template-columns:repeat(auto-fill,minmax(340px,1fr))]"
-                      >
+                      <motion.div class="w-full grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
                         <AnimatePresence mode="popLayout">
                           {filteredMatches
                             .sort((a, b) => b.scheduledOn - a.scheduledOn)

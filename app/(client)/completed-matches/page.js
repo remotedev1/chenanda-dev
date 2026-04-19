@@ -500,7 +500,7 @@ function MatchResultCard({ match }) {
                     No goals
                   </span>
                 ) : (
-                  goalDetails1.map((g, i) => (
+                  goalDetails1.sort((a, b) => a.minute - b.minute).map((g, i) => (
                     <GoalLine key={i} goal={g} align="left" />
                   ))
                 )}
@@ -538,7 +538,7 @@ function MatchResultCard({ match }) {
                     No goals
                   </span>
                 ) : (
-                  goalDetails2.map((g, i) => (
+                  goalDetails2.sort((a, b) => a.minute - b.minute).map((g, i) => (
                     <GoalLine key={i} goal={g} align="right" />
                   ))
                 )}
