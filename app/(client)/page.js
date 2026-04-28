@@ -5,6 +5,7 @@ import VenueDetails from "@/components/frontEnd/homepage/venueDetails";
 import HomeAboutPreview from "@/components/frontEnd/homepage/HomeAboutPreview";
 import HeroCarousel from "@/components/frontEnd/homepage/HeroCarousel";
 import LiveButtonHomepage from "@/components/common/LiveButtonHomepage";
+import YoutubeLive from "@/components/frontEnd/homepage/YoutubeLive";
 
 export default function Page() {
   return (
@@ -12,6 +13,7 @@ export default function Page() {
       <HeroCarousel />
       <EventCountdown />
       <LiveButtonHomepage />
+      <YoutubeLive />
       <HomeAboutPreview />
       <MatchSchedule />
       <SponsorsList />
