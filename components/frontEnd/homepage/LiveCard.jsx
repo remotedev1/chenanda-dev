@@ -624,6 +624,24 @@ export default function LiveCard({ match }) {
               )}
               {match.status}
             </span>
+            <span
+              style={{
+                 background: "blue",
+                color: statusText,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                padding: "3px 8px",
+                borderRadius: 20,
+                textTransform: "uppercase",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              {match.game?.category}
+            </span>
+
             {match.currentPeriod && (
               <span
                 style={{ color: pulse ? "#ffffff60" : "#64748b", fontSize: 11 }}

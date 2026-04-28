@@ -171,7 +171,24 @@ function MatchResultCard({ match }) {
           background: "#0a1628",
         }}
       >
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {!!match.game?.category && (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 1.2,
+                color: "#f59e0b",
+                textTransform: "uppercase",
+                background: "#1c1700",
+                border: "1px solid #854d0e",
+                borderRadius: 4,
+                padding: "2px 8px",
+              }}
+            >
+              {match.game.category.replace(/_/g, " ")}
+            </span>
+          )}
+        {/* <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {roundLabel && (
             <span
               style={{
@@ -194,7 +211,7 @@ function MatchResultCard({ match }) {
               Pool {match.pool}
             </span>
           )}
-        </div>
+        </div> */}
         <div
           style={{
             display: "flex",
@@ -208,7 +225,7 @@ function MatchResultCard({ match }) {
             <span style={{ textTransform: "capitalize" }}>{venueLabel}</span>
           )}
           <span>{formatDate(match.scheduledOn)}</span>
-          <span>{formatTime(match.actualStartTime)}</span>
+          {/* <span>{formatTime(match.actualStartTime)}</span> */}
         </div>
       </div>
 
@@ -500,9 +517,9 @@ function MatchResultCard({ match }) {
                     No goals
                   </span>
                 ) : (
-                  goalDetails1.sort((a, b) => a.minute - b.minute).map((g, i) => (
-                    <GoalLine key={i} goal={g} align="left" />
-                  ))
+                  goalDetails1
+                    .sort((a, b) => a.minute - b.minute)
+                    .map((g, i) => <GoalLine key={i} goal={g} align="left" />)
                 )}
               </div>
 
@@ -538,9 +555,9 @@ function MatchResultCard({ match }) {
                     No goals
                   </span>
                 ) : (
-                  goalDetails2.sort((a, b) => a.minute - b.minute).map((g, i) => (
-                    <GoalLine key={i} goal={g} align="right" />
-                  ))
+                  goalDetails2
+                    .sort((a, b) => a.minute - b.minute)
+                    .map((g, i) => <GoalLine key={i} goal={g} align="right" />)
                 )}
               </div>
             </div>
@@ -598,6 +615,7 @@ export default function CompletedMatchesPage() {
 
   const [dateFilter, setDateFilter] = useState("all");
   const [teamFilter, setTeamFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("MIXED");
   const [search, setSearch] = useState("");
 
   const completedMatches = useMemo(
@@ -627,6 +645,14 @@ export default function CompletedMatchesPage() {
     return [...names].sort();
   }, [completedMatches]);
 
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set();
+    completedMatches.forEach((m) => {
+      if (m.game?.category) cats.add(m.game.category);
+    });
+    return [...cats].sort();
+  }, [completedMatches]);
+
   const filtered = useMemo(() => {
     return completedMatches.filter((m) => {
       if (dateFilter !== "all" && toDateKey(m.scheduledOn) !== dateFilter)
@@ -635,6 +661,8 @@ export default function CompletedMatchesPage() {
         teamFilter !== "all" &&
         !m.participants?.some((p) => p?.family === teamFilter)
       )
+        return false;
+      if (categoryFilter !== "all" && m.game?.category !== categoryFilter)
         return false;
       if (search) {
         const q = search.toLowerCase();
@@ -646,7 +674,7 @@ export default function CompletedMatchesPage() {
       }
       return true;
     });
-  }, [completedMatches, dateFilter, teamFilter, search]);
+  }, [completedMatches, dateFilter, categoryFilter, teamFilter, search]);
 
   const inputStyle = {
     background: "#0f172a",
@@ -764,6 +792,18 @@ export default function CompletedMatchesPage() {
             {uniqueTeams.map((t) => (
               <option key={t} value={t}>
                 {t}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            style={{ ...inputStyle, flex: "1 1 160px", minWidth: 140 }}
+          >
+            {uniqueCategories.map((c) => (
+              <option key={c} value={c} >
+                {c}
               </option>
             ))}
           </select>

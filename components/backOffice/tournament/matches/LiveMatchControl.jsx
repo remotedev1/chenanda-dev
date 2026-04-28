@@ -501,7 +501,7 @@ function PlayerCombobox({
                   <div className="flex flex-col gap-2">
                     <input
                       type="number"
-                       step="0.1"
+                      step="0.1"
                       placeholder="Jersey # (optional)"
                       value={jerseyNumber}
                       onChange={(e) => setJerseyNumber(Number(e.target.value))}
@@ -1326,26 +1326,6 @@ export function LiveMatchControl({ matchId, tournamentId }) {
                   End Match
                 </Button>
               )}
-              <div className="h-6 w-px bg-slate-200 mx-1" />
-              <span className="text-slate-400 text-xs font-mono">
-                Quick status:
-              </span>
-              {["SUSPENDED", "DELAYED"].map((s) => (
-                <Button
-                  key={s}
-                  onClick={() => setStatus(s)}
-                  disabled={loading || match.status === s}
-                  size="sm"
-                  variant="outline"
-                  className={`h-8 text-xs border-slate-200 ${
-                    match.status === s
-                      ? "bg-slate-100 text-slate-700"
-                      : "text-slate-500 hover:bg-slate-50"
-                  }`}
-                >
-                  {s.charAt(0) + s.slice(1).toLowerCase()}
-                </Button>
-              ))}
             </div>
           )}
 
@@ -1379,6 +1359,25 @@ export function LiveMatchControl({ matchId, tournamentId }) {
               </div>
             </div>
           )}
+          <span className="text-slate-400 text-xs font-mono">
+            Quick status: &nbsp;
+          </span>
+          {["LIVE", "SCHEDULED"].map((s) => (
+            <Button
+              key={s}
+              onClick={() => setStatus(s)}
+              disabled={loading || match.status === s}
+              size="sm"
+              variant="outline"
+              className={`h-8 text-xs border-slate-200 ${
+                match.status === s
+                  ? "bg-slate-100 text-blue-500"
+                  : "text-slate-500 hover:bg-slate-50"
+              }`}
+            >
+              {s.charAt(0) + s.slice(1).toLowerCase()}
+            </Button>
+          ))}
 
           {/* Teams */}
           <div className="grid lg:grid-cols-2 gap-5">

@@ -512,7 +512,7 @@ export function MatchTable({
         </div>
       ) : matches.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {matches.map((match) => (
+          {matches.sort((a, b) => new Date(b.scheduledOn) - new Date(a.scheduledOn)).map((match) => (
             <MatchCard
               key={match.id}
               match={match}

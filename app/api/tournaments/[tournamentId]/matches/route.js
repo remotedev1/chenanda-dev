@@ -186,7 +186,7 @@ async function handleGet(request) {
       take: limit,
       orderBy,
       include: {
-        tournament: { select: { id: true, name: true } },
+        game: { select: { category: true, name: true } },
       },
       orderBy: { scheduledOn: "asc" },
     }),

@@ -15,6 +15,7 @@ import LiveScoreCarousel from "./LiveScoreMain";
 import { isToday } from "@/lib/utils";
 import Link from "next/link";
 import { isTodayOrTomorrow } from "@/helpers/other";
+import { cx } from "class-variance-authority";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -230,6 +231,24 @@ const MatchCard = ({ match }) => {
             {match.venue.replace(/_/g, " ")}
           </span>
         )}
+
+        <span
+          className={cx(
+            "text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full uppercase flex items-center gap-1 border",
+            {
+              "bg-violet-700 border-violet-800 text-violet-100":
+                match.game?.category === "MIXED",
+              "bg-blue-700 border-blue-800 text-blue-100":
+                match.game?.category === "MENS",
+              "bg-pink-700 border-pink-800 text-pink-100":
+                match.game?.category === "WOMENS",
+              "bg-slate-700 border-slate-600 text-slate-200":
+                !match.game?.category,
+            },
+          )}
+        >
+          {match.game?.category?.replace(/_/g, " ")}
+        </span>
       </div>
     </motion.div>
   );

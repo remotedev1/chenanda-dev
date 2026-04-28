@@ -7,6 +7,9 @@ export const revalidate = 0;
 export async function GET() {
   const matches = await db.matches.findMany({
     where: { status: "LIVE" },
+    include: {
+      game: { select: { category: true, name: true } },
+    },
   });
 
   return Response.json(
