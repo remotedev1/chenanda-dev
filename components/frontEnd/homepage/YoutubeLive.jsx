@@ -196,7 +196,7 @@ function YouTubeLiveButton() {
       transition={{ duration: 0.7, delay: 0.9, ease: "easeOut" }}
     >
       <motion.a
-        href="https://www.youtube.com/live/ivFLOzTNOz8"
+        href="https://www.youtube.com/live/ycS3FiegoVk?si=Cauy-1hxATYDiKto"
         target="_blank"
         rel="noopener noreferrer"
         style={{

@@ -544,7 +544,6 @@ export default function LiveCard({ match }) {
   const so2 = shootoutResults(t2);
   const isLive = match.status === "LIVE";
   const { bg: statusBg, text: statusText } = statusColor(match.status);
-
   return (
     <>
       {/* <NotificationStack
@@ -624,7 +623,7 @@ export default function LiveCard({ match }) {
               )}
               {match.status}
             </span>
-            <span
+            {/* <span
               style={{
                  background: "blue",
                 color: statusText,
@@ -640,6 +639,23 @@ export default function LiveCard({ match }) {
               }}
             >
               {match.game?.category}
+            </span> */}
+            <span
+              style={{
+                 background: "blue",
+                color: statusText,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                padding: "3px 8px",
+                borderRadius: 20,
+                textTransform: "uppercase",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              {match?.round}
             </span>
 
             {match.currentPeriod && (
